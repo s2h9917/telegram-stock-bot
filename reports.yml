@@ -1,0 +1,50 @@
+name: ① 종목 리포트 요약
+
+on:
+  schedule:
+    - cron: "20 22 * * 0-4"   # 평일 07:20 KST
+    - cron: "40 23 * * 0-4"   # 평일 08:40 KST (늦게 올라온 리포트 추가 발송)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "휴장일·중복 체크 무시하고 강제 실행"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: state-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 한글 폰트 설치 (이미지 카드용)
+        run: sudo apt-get install -y -qq fonts-nanum > /dev/null
+      - name: 실행
+        env:
+          TZ: Asia/Seoul
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python -m bot.reports ${{ inputs.force && '--force' || '' }}
+      - name: 발송 기록 저장
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/reports.json
+          git diff --cached --quiet && exit 0
+          git commit -m "state: reports $(date +'%m-%d %H:%M')"
+          for i in 1 2 3; do git pull --rebase -X theirs && git push && break; sleep 5; done
