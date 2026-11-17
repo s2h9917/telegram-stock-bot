@@ -16,89 +16,214 @@ from bs4 import BeautifulSoup
 from bot.common import (UA, add_history, esc, gemini, is_market_day, load_config,
                         load_state, make_card, now, save_state, send_photo, send_text)
 
-BASE = "https://finance.naver.com/research/"
+BASE = "https://finance.naver.com/research/"   # 예전 주소 (새 주소로 자동 이동됨)
+HEADERS = {**UA, "Accept-Language": "ko-KR,ko;q=0.9", "Referer": "https://stock.naver.com/"}
 
 
-def get_html(url, **params):
-    r = requests.get(url, params=params, headers={
-        **UA, "Referer": "https://finance.naver.com/research/",
-        "Accept-Language": "ko-KR,ko;q=0.9"}, timeout=20)
+# ---------------------------------------------------------------- 페이지 읽기
+def get_page(url, **params):
+    """페이지를 받아 (soup, html) 반환. 옛 페이지(EUC-KR)·새 페이지(UTF-8) 모두 자동 판별"""
+    r = requests.get(url, params=params, headers=HEADERS, timeout=20)
     print(f"[접속] {r.url} → HTTP {r.status_code}, {len(r.content):,} bytes")
-    r.encoding = "euc-kr"
-    return BeautifulSoup(r.text, "html.parser")
+    raw = r.content
+    head = raw[:3000].lower()
+    if b"euc-kr" in head or "euc-kr" in r.headers.get("content-type", "").lower():
+        html = raw.decode("euc-kr", errors="replace")
+    else:
+        try:
+            html = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            html = raw.decode("euc-kr", errors="replace")
+    return BeautifulSoup(html, "html.parser"), html
 
 
-DATE_RE = re.compile(r"\b(\d{2}\.\d{2}\.\d{2})\b")
-
-
-def fetch_today_list(max_pages=5):
-    """오늘 날짜(YY.MM.DD) 리포트 목록.
-    표의 class 이름이 바뀌어도 동작하도록 'company_read.naver?nid=' 링크가 있는 줄을 모두 찾음"""
-    today = now().strftime("%y.%m.%d")
-    items, seen = [], set()
-    for page in range(1, max_pages + 1):
-        soup = get_html(BASE + "company_list.naver", page=page)
-        rows = [tr for tr in soup.find_all("tr") if tr.find("a", href=re.compile(r"company_read\.naver\?nid="))]
-        print(f"[페이지 {page}] 리포트 줄 {len(rows)}개 발견")
-        if not rows:
-            title = soup.title.get_text(strip=True) if soup.title else "(제목 없음)"
-            print("  ⚠️ 리포트 표를 찾지 못함. 페이지 제목:", title)
-            print("  페이지 앞부분:", soup.get_text(" ", strip=True)[:300])
+def embedded_json(soup, html):
+    """페이지 안에 숨어 있는 데이터(JSON)를 모두 꺼냄 (Next.js 등 최신 웹페이지 대응)"""
+    found, texts = [], []
+    for sc in soup.find_all("script"):
+        t = sc.string or sc.get_text() or ""
+        if sc.get("id") == "__NEXT_DATA__" or sc.get("type") in ("application/json", "application/ld+json"):
+            try:
+                found.append(json.loads(t))
+            except Exception:  # noqa
+                pass
+        for m in re.finditer(r"self\.__next_f\.push\((\[.*?\])\)\s*;?\s*$", t, re.S):
+            try:
+                texts += [x for x in json.loads(m.group(1)) if isinstance(x, str)]
+            except Exception:  # noqa
+                pass
+    blob = "".join(texts)
+    dec = json.JSONDecoder()
+    tries = 0
+    for m in re.finditer(r'[\[{]"', blob):
+        tries += 1
+        if tries > 30000:
             break
-        older_found = False
-        for tr in rows:
-            link = tr.find("a", href=re.compile(r"company_read\.naver\?nid="))
-            nid = re.search(r"nid=(\d+)", link["href"]).group(1)
-            if nid in seen:
-                continue
-            seen.add(nid)
-            tds = tr.find_all("td")
-            m = DATE_RE.search(tr.get_text(" ", strip=True))
-            date = m.group(1) if m else ""
-            if page == 1 and len(items) == 0 and len(seen) <= 3:
-                print(f"  예시: {[td.get_text(strip=True)[:20] for td in tds]}")
-            if date != today:
-                older_found = True
-                continue
-            stock_a = tr.find("a", href=re.compile(r"code=\d+")) or (tds[0] if tds else None)
-            pdf = tr.find("a", href=re.compile(r"\.pdf", re.I))
-            texts = [td.get_text(strip=True) for td in tds]
-            broker = next((t for t in texts if t.endswith(("증권", "투자증권", "증권(주)", "리서치", "자산운용"))
-                           or "증권" in t), texts[2] if len(texts) > 2 else "")
-            items.append({
-                "nid": nid,
-                "stock": stock_a.get_text(strip=True) if stock_a else "",
-                "title": link.get_text(strip=True),
-                "broker": broker,
-                "pdf": pdf["href"] if pdf else "",
-                "url": f"{BASE}company_read.naver?nid={nid}",
-            })
-        if older_found:  # 어제 리포트가 나오기 시작하면 더 볼 필요 없음
-            break
-        time.sleep(0.5)
+        try:
+            obj, _ = dec.raw_decode(blob, m.start())
+            if isinstance(obj, (dict, list)):
+                found.append(obj)
+        except Exception:  # noqa
+            pass
+    return found
+
+
+def walk_dicts(obj):
+    stack = [obj]
+    while stack:
+        o = stack.pop()
+        if isinstance(o, dict):
+            yield o
+            stack.extend(o.values())
+        elif isinstance(o, list):
+            stack.extend(o)
+
+
+DATE_PATTERNS = [
+    (re.compile(r"(20\d{2})[-./](\d{1,2})[-./](\d{1,2})"), lambda m: (m[1], m[2], m[3])),
+    (re.compile(r"\b(\d{2})\.(\d{2})\.(\d{2})\b"), lambda m: ("20" + m[1], m[2], m[3])),
+    (re.compile(r"^(20\d{2})(\d{2})(\d{2})"), lambda m: (m[1], m[2], m[3])),
+]
+
+
+def norm_date(text):
+    for rx, f in DATE_PATTERNS:
+        m = rx.search(str(text))
+        if m:
+            y, mo, d = f(m)
+            return f"{y}-{int(mo):02d}-{int(d):02d}"
+    return ""
+
+
+def pick(d, keys, exclude=()):
+    for k, v in d.items():
+        kl = k.lower()
+        if isinstance(v, (str, int)) and str(v).strip() and any(s in kl for s in keys) \
+                and not any(e in kl for e in exclude):
+            return str(v).strip()
+    return ""
+
+
+def report_from_dict(d):
+    """JSON 묶음 하나가 '리포트'처럼 생겼으면 표준 형태로 변환"""
+    title = pick(d, ["title"], exclude=["sub"])
+    if not title:
+        return None
+    date = ""
+    for k, v in d.items():
+        if isinstance(v, (str, int)) and any(s in k.lower() for s in ["date", "time", "dt", "at"]):
+            date = norm_date(v)
+            if date:
+                break
+    if not date:
+        return None
+    rid = pick(d, ["nid", "researchid", "reportid"]) or pick(d, ["id"], exclude=["code", "stock", "item"])
+    pdf = next((str(v) for v in d.values() if isinstance(v, str) and ".pdf" in v.lower()), "")
+    return {
+        "nid": rid or title,
+        "title": re.sub(r"<[^>]+>", "", title),
+        "stock": pick(d, ["stockname", "itemname", "corpname", "companyname", "stknm", "name"],
+                      exclude=["broker", "firm", "secur", "writer", "author", "analyst", "title"]),
+        "broker": pick(d, ["broker", "firm", "secur", "provider", "source", "org"]),
+        "date": date,
+        "pdf": pdf,
+        "body": re.sub(r"<[^>]+>", " ", pick(d, ["summary", "content", "body", "desc"]))[:3500],
+        "url": (f"{BASE}company_read.naver?nid={rid}" if rid.isdigit() else
+                (pdf or "https://stock.naver.com/research/company")),
+    }
+
+
+def parse_old_table(soup):
+    """예전 네이버 금융 표 형식"""
+    out = []
+    for tr in soup.find_all("tr"):
+        link = tr.find("a", href=re.compile(r"company_read\.naver\?nid="))
+        if not link:
+            continue
+        nid = re.search(r"nid=(\d+)", link["href"]).group(1)
+        tds = tr.find_all("td")
+        texts = [td.get_text(strip=True) for td in tds]
+        pdf = tr.find("a", href=re.compile(r"\.pdf", re.I))
+        out.append({
+            "nid": nid, "title": link.get_text(strip=True),
+            "stock": texts[0] if texts else "",
+            "broker": texts[2] if len(texts) > 2 else "",
+            "date": norm_date(tr.get_text(" ", strip=True)),
+            "pdf": pdf["href"] if pdf else "", "body": "",
+            "url": f"{BASE}company_read.naver?nid={nid}",
+        })
+    return out
+
+
+def fetch_today_list():
+    today = now().strftime("%Y-%m-%d")
+    soup, html = get_page(BASE + "company_list.naver")
+    title = soup.title.get_text(strip=True) if soup.title else "(제목 없음)"
+    print("  페이지 제목:", title)
+
+    reports = parse_old_table(soup)
+    how = "예전 표 형식"
+    if not reports:
+        how = "새 페이지 데이터(JSON)"
+        seen = set()
+        for obj in embedded_json(soup, html):
+            for d in walk_dicts(obj):
+                rep = report_from_dict(d)
+                if rep and rep["nid"] not in seen:
+                    seen.add(rep["nid"])
+                    reports.append(rep)
+    print(f"[분석] {how}에서 리포트 {len(reports)}건 발견")
+
+    if reports:
+        print("  예시:", json.dumps(reports[0], ensure_ascii=False)[:400])
+    else:  # 원인 파악용 정보
+        links = sorted({a["href"] for a in soup.find_all("a", href=True) if "research" in a["href"]})[:15]
+        print("  research 링크 예시:", links)
+        print("  script 개수:", len(soup.find_all("script")),
+              "/ __NEXT_DATA__:", bool(soup.find("script", id="__NEXT_DATA__")),
+              "/ __next_f:", "__next_f" in html)
+        apis = sorted(set(re.findall(r"https?://[\w./-]*api[\w./?=&-]*", html)))[:15]
+        print("  API 주소 후보:", apis)
+        print("  본문 앞부분:", soup.get_text(" ", strip=True)[:300])
+
+    items = [x for x in reports if x["date"] == today]
     print(f"[결과] 오늘({today}) 리포트 {len(items)}건")
     return items
 
 
 def fetch_detail(item):
-    """상세 페이지 본문 + 투자의견/목표가. 본문이 짧으면 PDF 앞부분을 읽음"""
-    soup = get_html(BASE + "company_read.naver", nid=item["nid"], page=1)
-    body = soup.select_one("td.view_cnt")
-    text = body.get_text("\n", strip=True) if body else ""
-    page_text = soup.get_text(" ", strip=True)
-    tp = re.search(r"목표가\s*([\d,]+)", page_text)
-    op = re.search(r"투자의견\s*([A-Za-z가-힣]+)", page_text)
+    """본문 확보 순서: 목록 데이터 → 상세 페이지 → PDF 앞 2쪽"""
+    text = item.get("body", "")
+    page_text = ""
+    if len(text) < 200 and item["url"].startswith(BASE):
+        try:
+            soup, html = get_page(item["url"])
+            box = soup.select_one("td.view_cnt")
+            text = box.get_text("\n", strip=True) if box else ""
+            page_text = soup.get_text(" ", strip=True)
+            if len(text) < 200:  # 새 페이지: 숨은 데이터 중 가장 긴 글을 본문으로 사용
+                longest = ""
+                for obj in embedded_json(soup, html):
+                    for d in walk_dicts(obj):
+                        for v in d.values():
+                            if isinstance(v, str) and len(v) > len(longest) and "http" not in v[:10]:
+                                longest = v
+                text = re.sub(r"<[^>]+>", " ", longest) if len(longest) > len(text) else text
+        except Exception as e:  # noqa
+            print("상세 페이지 실패:", e)
+    tp = re.search(r"목표가\D{0,5}([\d,]{4,})", page_text + " " + text)
+    op = re.search(r"투자의견\s*:?\s*([A-Za-z가-힣]+)", page_text + " " + text)
     item["target"] = tp.group(1) if tp else ""
     item["opinion"] = op.group(1) if op else ""
     if len(text) < 200 and item.get("pdf"):
         try:
             from pypdf import PdfReader
-            pdf = requests.get(item["pdf"], headers=UA, timeout=30).content
+            pdf = requests.get(item["pdf"], headers=HEADERS, timeout=30).content
             reader = PdfReader(io.BytesIO(pdf))
             text += "\n" + "\n".join((p.extract_text() or "") for p in reader.pages[:2])
         except Exception as e:  # noqa
             print("PDF 읽기 실패:", e)
-    item["body"] = text[:3500]
+    item["body"] = re.sub(r"\s+\n", "\n", text)[:3500]
     return item
 
 
