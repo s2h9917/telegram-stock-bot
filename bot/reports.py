@@ -19,7 +19,7 @@ from bot.common import (UA, add_history, esc, gemini, is_market_day, load_config
 API = "https://stock.naver.com/api/stockSecurity/researches/v2/company"
 HEADERS = {**UA, "Accept": "application/json", "Accept-Language": "ko-KR,ko;q=0.9",
            "Referer": "https://stock.naver.com/research/company"}
-# 텔레그램 '원문 보기' 링크 형식 (config.json의 reports.link_template 로 바꿀 수 있음)
+# 관리자 화면 '발송 이력'에 남길 리포트 링크 형식 (채널에는 링크를 올리지 않음)
 DEFAULT_LINK = "https://finance.naver.com/research/company_read.naver?nid={nid}"
 
 
@@ -120,7 +120,7 @@ def format_item(x):
     return (f"📈 <b>{esc(x['stock'])}</b> | {esc(x['broker'])}\n"
             f"<b>{esc(x['title'])}</b>\n"
             + (f"{esc(meta)}\n" if meta else "")
-            + f"{lines}\n<a href=\"{x['url']}\">원문 보기</a>")
+            + lines)
 
 
 def main():
@@ -162,15 +162,20 @@ def main():
                                 f"투자의견 {x['opinion']}" if x.get("opinion") else "",
                                 f"목표가 {x['target']}원" if x.get("target") else "",
                                 "출처: 네이버 금융 리서치"])))
-            cap = f"📈 <b>{esc(x['stock'])}</b> | {esc(x['title'])}\n<a href=\"{x['url']}\">원문 보기</a>"
+            cap = f"📈 <b>{esc(x['stock'])}</b> | {esc(x['title'])}"
             send_photo(png, cap, cfg)
             time.sleep(1.5)
     else:
         header = rc.get("header", "☀️ {date} 오늘의 종목 리포트").format(date=now().strftime("%m월 %d일"))
-        blocks = [f"<b>{esc(header)}</b> ({len(items)}건)"] + [format_item(x) for x in items]
-        if footer:
-            blocks.append(f"<i>{esc(footer)}</i>")
-        send_text("\n\n".join(blocks), cfg)
+        per = max(1, int(rc.get("per_message", 5)))       # 한 메시지에 담을 종목 수
+        groups = [items[i:i + per] for i in range(0, len(items), per)]
+        for n, group in enumerate(groups, 1):
+            part = f" ({n}/{len(groups)})" if len(groups) > 1 else ""
+            blocks = [f"<b>{esc(header)}</b>{part}"] + [format_item(x) for x in group]
+            if footer and n == len(groups):
+                blocks.append(f"<i>{esc(footer)}</i>")
+            send_text("\n\n".join(blocks), cfg)
+            time.sleep(2)
 
     for x in items:
         sent.add(x["nid"])
