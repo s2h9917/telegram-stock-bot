@@ -3,13 +3,15 @@
 - YOUTUBE_API_KEY가 있으면 라이브 상태(예정/방송중/종료)까지 구분
 실행: python -m bot.youtube_watch
 """
+import calendar
 import os
+import re
 import time
 
 import feedparser
 import requests
 
-from bot.common import add_history, esc, load_config, load_state, now, save_state, send_text
+from bot.common import UA, add_history, esc, load_config, load_state, now, save_state, send_text
 
 RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={}"
 
@@ -49,15 +51,28 @@ def main():
 
     for ch in yc.get("channels", []):
         cid = ch.get("channel_id", "").strip()
-        if not cid.startswith("UC"):
+        name = ch.get("name", "")
+        if not re.fullmatch(r"UC[\w-]{22}", cid):
+            print(f"⚠️ [{name}] 채널 ID 형식이 아님 → 건너뜀: {cid!r}")
             continue
-        feed = feedparser.parse(RSS.format(cid))
+        try:
+            r = requests.get(RSS.format(cid), headers=UA, timeout=20)
+        except Exception as e:  # noqa
+            print(f"⚠️ [{name}] RSS 접속 실패: {e}")
+            continue
+        feed = feedparser.parse(r.content)
+        print(f"[{name}] RSS HTTP {r.status_code}, 영상 {len(feed.entries)}개")
+        if r.status_code != 200 or not feed.entries:
+            print("  ⚠️ 영상 목록을 받지 못함 (채널 ID 확인 필요) → 이번 회차는 건너뜀")
+            continue
         first_time = cid not in inited
         for e in feed.entries[:15]:
             vid, title, link = e.get("yt_videoid"), e.get("title", ""), e.get("link", "")
             if not vid:
                 continue
-            if first_time:              # 처음 등록한 채널은 기존 영상을 '본 것'으로만 표시
+            published = e.get("published_parsed")
+            age_h = (time.time() - calendar.timegm(published)) / 3600 if published else 999
+            if first_time and age_h > 3:   # 처음 등록한 채널: 3시간 넘은 기존 영상은 '본 것'으로만 표시
                 seen[vid] = "video"
                 continue
             prev = seen.get(vid)
@@ -78,14 +93,15 @@ def main():
                 kind = "ended"                     # 시작 알림을 놓친 경우라도 한 번은 공유
             elif st == "video":
                 kind = "video"
+            print(f"  · {title[:40]} | {age_h:.1f}시간 전 | 상태 {st} → {'공유' if kind else '대기/생략'}")
             if kind:
-                send_text(build_msg(cfg, ch.get("name", ""), title, link, kind), cfg, preview=True)
+                send_text(build_msg(cfg, name, title, link, kind), cfg, preview=True)
                 add_history(state, f"[유튜브] {title}", link)
                 time.sleep(1)
             seen[vid] = st
         if first_time:
             inited.add(cid)
-            print(f"{ch.get('name')} 채널 초기화 완료 (다음 실행부터 새 영상 알림)")
+            print(f"  [{name}] 채널 첫 등록 완료 (3시간 이내 영상만 공유, 이후 새 영상 자동 알림)")
 
     state["initialized"] = sorted(inited)
     state["seen"] = dict(list(seen.items())[-500:])
