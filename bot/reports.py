@@ -20,42 +20,63 @@ BASE = "https://finance.naver.com/research/"
 
 
 def get_html(url, **params):
-    r = requests.get(url, params=params, headers=UA, timeout=20)
+    r = requests.get(url, params=params, headers={
+        **UA, "Referer": "https://finance.naver.com/research/",
+        "Accept-Language": "ko-KR,ko;q=0.9"}, timeout=20)
+    print(f"[접속] {r.url} → HTTP {r.status_code}, {len(r.content):,} bytes")
     r.encoding = "euc-kr"
     return BeautifulSoup(r.text, "html.parser")
 
 
+DATE_RE = re.compile(r"\b(\d{2}\.\d{2}\.\d{2})\b")
+
+
 def fetch_today_list(max_pages=5):
-    """오늘 날짜(YY.MM.DD) 리포트 목록"""
+    """오늘 날짜(YY.MM.DD) 리포트 목록.
+    표의 class 이름이 바뀌어도 동작하도록 'company_read.naver?nid=' 링크가 있는 줄을 모두 찾음"""
     today = now().strftime("%y.%m.%d")
-    items = []
+    items, seen = [], set()
     for page in range(1, max_pages + 1):
         soup = get_html(BASE + "company_list.naver", page=page)
+        rows = [tr for tr in soup.find_all("tr") if tr.find("a", href=re.compile(r"company_read\.naver\?nid="))]
+        print(f"[페이지 {page}] 리포트 줄 {len(rows)}개 발견")
+        if not rows:
+            title = soup.title.get_text(strip=True) if soup.title else "(제목 없음)"
+            print("  ⚠️ 리포트 표를 찾지 못함. 페이지 제목:", title)
+            print("  페이지 앞부분:", soup.get_text(" ", strip=True)[:300])
+            break
         older_found = False
-        for tr in soup.select("table.type_1 tr"):
+        for tr in rows:
+            link = tr.find("a", href=re.compile(r"company_read\.naver\?nid="))
+            nid = re.search(r"nid=(\d+)", link["href"]).group(1)
+            if nid in seen:
+                continue
+            seen.add(nid)
             tds = tr.find_all("td")
-            if len(tds) < 5:
-                continue
-            link = tds[1].find("a")
-            m = re.search(r"nid=(\d+)", link["href"]) if link else None
-            if not m:
-                continue
-            date = tds[4].get_text(strip=True)
+            m = DATE_RE.search(tr.get_text(" ", strip=True))
+            date = m.group(1) if m else ""
+            if page == 1 and len(items) == 0 and len(seen) <= 3:
+                print(f"  예시: {[td.get_text(strip=True)[:20] for td in tds]}")
             if date != today:
                 older_found = True
                 continue
-            pdf = tds[3].find("a")
+            stock_a = tr.find("a", href=re.compile(r"code=\d+")) or (tds[0] if tds else None)
+            pdf = tr.find("a", href=re.compile(r"\.pdf", re.I))
+            texts = [td.get_text(strip=True) for td in tds]
+            broker = next((t for t in texts if t.endswith(("증권", "투자증권", "증권(주)", "리서치", "자산운용"))
+                           or "증권" in t), texts[2] if len(texts) > 2 else "")
             items.append({
-                "nid": m.group(1),
-                "stock": tds[0].get_text(strip=True),
+                "nid": nid,
+                "stock": stock_a.get_text(strip=True) if stock_a else "",
                 "title": link.get_text(strip=True),
-                "broker": tds[2].get_text(strip=True),
+                "broker": broker,
                 "pdf": pdf["href"] if pdf else "",
-                "url": f"{BASE}company_read.naver?nid={m.group(1)}",
+                "url": f"{BASE}company_read.naver?nid={nid}",
             })
         if older_found:  # 어제 리포트가 나오기 시작하면 더 볼 필요 없음
             break
         time.sleep(0.5)
+    print(f"[결과] 오늘({today}) 리포트 {len(items)}건")
     return items
 
 
@@ -143,6 +164,9 @@ def main():
     items = items[: rc.get("max_reports", 20)]
     print(f"새 리포트 {len(items)}건")
     if not items:
+        if args.force:  # 수동 실행일 때는 관리자 화면 '발송 이력'에 결과를 남김
+            add_history(state, "[리포트] 보낼 새 리포트 없음 (Actions 로그 확인)")
+        state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
         return save_state("reports", state)
 
     for x in items:
