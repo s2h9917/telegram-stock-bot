@@ -1,0 +1,36 @@
+{
+  "telegram": {
+    "chat_id": "@내채널아이디",
+    "disable_preview": true
+  },
+  "gemini": {
+    "model": "gemini-flash-latest"
+  },
+  "footer": "※ 본 내용은 정보 제공 목적이며 투자 권유가 아닙니다. 투자 판단의 책임은 투자자 본인에게 있습니다.",
+  "holidays": ["2026-12-25", "2026-12-31"],
+  "reports": {
+    "enabled": true,
+    "format": "text",
+    "max_reports": 20,
+    "header": "☀️ {date} 오늘의 종목 리포트",
+    "brokers_exclude": [],
+    "stocks_watch": []
+  },
+  "youtube": {
+    "enabled": true,
+    "notify_live": "start",
+    "channels": [
+      {"name": "기준 유튜브 채널", "channel_id": "UC여기에채널ID"}
+    ],
+    "templates": {
+      "video": "🎬 <b>{channel}</b> 새 영상\n{title}\n{link}",
+      "live": "🔴 <b>{channel}</b> 라이브 시작!\n{title}\n{link}",
+      "ended": "📺 <b>{channel}</b> 라이브 다시보기\n{title}\n{link}"
+    }
+  },
+  "market": {
+    "enabled": true,
+    "slots": {"pre": true, "mid": true, "close": true},
+    "keywords": ["코스피", "증시", "뉴욕증시", "환율", "외국인 순매수"]
+  }
+}
