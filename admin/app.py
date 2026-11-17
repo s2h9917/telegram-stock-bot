@@ -124,6 +124,7 @@ with tab2:
                             index=0 if rc.get("format") != "image" else 1,
                             format_func=lambda x: "텍스트 묶음" if x == "text" else "이미지 카드")
     rc["max_reports"] = c3.number_input("최대 건수", 1, 60, rc.get("max_reports", 20))
+    rc["per_message"] = c3.number_input("메시지 1개당 종목 수", 1, 20, rc.get("per_message", 5))
     rc["header"] = st.text_input("제목 문구 ({date} = 날짜)", rc.get("header", ""))
     rc["stocks_watch"] = [s.strip() for s in st.text_input(
         "관심종목만 (쉼표로 구분, 비우면 전체)", ", ".join(rc.get("stocks_watch", []))).split(",") if s.strip()]
