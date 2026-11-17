@@ -1,9 +1,6 @@
 name: ① 종목 리포트 요약
 
 on:
-  schedule:
-    - cron: "20 22 * * 0-4"   # 평일 07:20 KST
-    - cron: "40 23 * * 0-4"   # 평일 08:40 KST (늦게 올라온 리포트 추가 발송)
   workflow_dispatch:
     inputs:
       force:
