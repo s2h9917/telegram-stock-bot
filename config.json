@@ -1,6 +1,6 @@
 {
   "telegram": {
-    "chat_id": "@내채널아이디",
+    "chat_id": "@m_test_1004",
     "disable_preview": true
   },
   "gemini": {
@@ -20,7 +20,7 @@
     "enabled": true,
     "notify_live": "start",
     "channels": [
-      {"name": "기준 유튜브 채널", "channel_id": "UC여기에채널ID"}
+      {"name": "MTN", "channel_id": "UClErHbdZKUnD1NyIUeQWvuQ"}
     ],
     "templates": {
       "video": "🎬 <b>{channel}</b> 새 영상\n{title}\n{link}",
