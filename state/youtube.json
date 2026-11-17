@@ -28,12 +28,36 @@
     "6Vsy9GUFpt4": "video",
     "GYpqjoL6xEo": "video",
     "f5AZcdzJNok": "video",
-    "NTz2zs8mmCE": "video"
+    "NTz2zs8mmCE": "video",
+    "vfmee-7xp9E": "video",
+    "tLRnQ4buT3E": "video",
+    "_f0CxJjV8H4": "video",
+    "ucSRLOsPtAA": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-18 07:00",
+      "title": "[유튜브] [여의도튜브] \"美-아시아 주도 반도체달러 블록 형성\"..도이체방크 전략가 분석 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=ucSRLOsPtAA"
+    },
+    {
+      "time": "2026-11-18 07:00",
+      "title": "[유튜브] [클로징 킥] 미국 10월 소매판매 0.2% 증가...연말 앞두고 주춤? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=_f0CxJjV8H4"
+    },
+    {
+      "time": "2026-11-18 07:00",
+      "title": "[유튜브] [이항영의 히트앤 비트] 엔비디아 실적 기대감 없었다? 기술주는 하락...마감 평가는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=tLRnQ4buT3E"
+    },
+    {
+      "time": "2026-11-18 07:00",
+      "title": "[유튜브] [마켓 링크] 엔비디아, 싱가포르 매출 급증 뒤 공시 변경  / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=vfmee-7xp9E"
+    },
     {
       "time": "2026-11-17 21:09",
       "title": "[유튜브] HBM 중국 흘러갔나 주시…美 규제·소송에 K메모리 긴장 / 머니투데이방송 (뉴스)",
@@ -155,5 +179,5 @@
       "link": "https://www.youtube.com/watch?v=awKt84hPNzY"
     }
   ],
-  "last_run": "2026-11-18 06:00"
+  "last_run": "2026-11-18 07:00"
 }
