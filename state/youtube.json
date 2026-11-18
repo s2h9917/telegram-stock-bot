@@ -54,12 +54,18 @@
     "FwYT58A8uCI": "video",
     "ew6Q4UxCWfs": "video",
     "7S6PbD7wd2s": "video",
-    "k-Ld2Ul8ST8": "video"
+    "k-Ld2Ul8ST8": "video",
+    "mDnZOMJXb_U": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-18 13:45",
+      "title": "[유튜브] [오후의 쟁점] 레인보우로보 '한풀이 급등' 로봇 대장주로 귀환?! \"삼천당 급락, 바이오 여파는\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=mDnZOMJXb_U"
+    },
     {
       "time": "2026-11-18 13:00",
       "title": "[유튜브] [집중분석] 엔비디아·앤트로픽 이후...中 규제 강화 기회 맞이할 '삼전닉스', 그리고 '이 섹터' / 머니투데이방송 (증시, 증권)",
@@ -304,12 +310,7 @@
       "time": "2026-11-17 17:56",
       "title": "[유튜브] [여의도튜브] 미 전역 'DC 반대' 바람.. 빅테크들 해상 FDC에 눈돌려 / 머니투데이방송",
       "link": "https://www.youtube.com/watch?v=g4zXWo_afsM"
-    },
-    {
-      "time": "2026-11-17 17:55",
-      "title": "[유튜브] [내 수익을 부탁해] 오늘의 테마 '반도체' vs 'AI SW' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=awKt84hPNzY"
     }
   ],
-  "last_run": "2026-11-18 13:00"
+  "last_run": "2026-11-18 13:45"
 }
