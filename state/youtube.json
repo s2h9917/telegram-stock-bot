@@ -55,12 +55,18 @@
     "ew6Q4UxCWfs": "video",
     "7S6PbD7wd2s": "video",
     "k-Ld2Ul8ST8": "video",
-    "mDnZOMJXb_U": "video"
+    "mDnZOMJXb_U": "video",
+    "dic0w4xENgA": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-18 14:00",
+      "title": "[유튜브] [배준호의 골든스팟] 쎄트렉아이, 403억원 규모 신규 신설투자 결정 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=dic0w4xENgA"
+    },
     {
       "time": "2026-11-18 13:45",
       "title": "[유튜브] [오후의 쟁점] 레인보우로보 '한풀이 급등' 로봇 대장주로 귀환?! \"삼천당 급락, 바이오 여파는\" / 머니투데이방송 (증시, 증권)",
@@ -305,12 +311,7 @@
       "time": "2026-11-17 17:56",
       "title": "[유튜브] [여튜 쇼츠] ”공항이야 고물상이야“ 미 항공편 마비 원인이... / 여의도튜브",
       "link": "https://www.youtube.com/shorts/wjI5u8rGkag"
-    },
-    {
-      "time": "2026-11-17 17:56",
-      "title": "[유튜브] [여의도튜브] 미 전역 'DC 반대' 바람.. 빅테크들 해상 FDC에 눈돌려 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=g4zXWo_afsM"
     }
   ],
-  "last_run": "2026-11-18 13:45"
+  "last_run": "2026-11-18 14:00"
 }
