@@ -45,12 +45,42 @@
     "3NblRgGbCtA": "video",
     "ZeenHCFqXqQ": "video",
     "jGkBbmpAXl8": "video",
-    "zshcE-0DvaQ": "video"
+    "zshcE-0DvaQ": "video",
+    "igUBLu-ohjg": "video",
+    "xDQ1XOZQMDM": "video",
+    "zh9mekZQBbA": "video",
+    "iBZD59lEMMI": "video",
+    "NBcHEYU-k_I": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-18 12:01",
+      "title": "[유튜브] [전략의 해석 찬찬찬] 엔비디아가 살린 삼전·하닉 반등은 어디까지? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=NBcHEYU-k_I"
+    },
+    {
+      "time": "2026-11-18 12:01",
+      "title": "[유튜브] [최태훈의 골든아워] K로보틱스, 글로벌 공급망 핵심 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=iBZD59lEMMI"
+    },
+    {
+      "time": "2026-11-18 12:01",
+      "title": "[유튜브] [퀵브리핑] 젠슨 황 없는 엔비디아, 매출 103% 급증…삼성전기와 신규 계약",
+      "link": "https://www.youtube.com/shorts/zh9mekZQBbA"
+    },
+    {
+      "time": "2026-11-18 12:00",
+      "title": "[유튜브] 온라인수능장 전파차단 어렵다는데…지슨, 'AI 커닝' 잡는 탐지 기술 주목 / 머니투데이방송 (뉴스)",
+      "link": "https://www.youtube.com/watch?v=xDQ1XOZQMDM"
+    },
+    {
+      "time": "2026-11-18 12:00",
+      "title": "[유튜브] [황민혁의 히든 트렌드] 중국 규제 반사이익 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=igUBLu-ohjg"
+    },
     {
       "time": "2026-11-18 11:01",
       "title": "[유튜브] [여의도튜브] 전시-판매 성황...정기구독 서비스까지 / 머니투데이방송",
@@ -257,5 +287,5 @@
       "link": "https://www.youtube.com/watch?v=awKt84hPNzY"
     }
   ],
-  "last_run": "2026-11-18 11:01"
+  "last_run": "2026-11-18 12:01"
 }
