@@ -1,0 +1,47 @@
+name: ④ 오늘의 핫 이슈
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "중복 체크 무시하고 강제 실행"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: state-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 한글 폰트 설치
+        run: sudo apt-get install -y -qq fonts-nanum > /dev/null
+      - name: 실행
+        env:
+          TZ: Asia/Seoul
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python -m bot.hot_issue ${{ inputs.force && '--force' || '' }}
+      - name: 발송 기록 저장
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f state/hot_issue.json ] || exit 0
+          git add state/hot_issue.json
+          git diff --cached --quiet && exit 0
+          git commit -m "state: hot_issue $(date +'%m-%d %H:%M')"
+          for i in 1 2 3; do git pull --rebase -X theirs && git push && break; sleep 5; done
