@@ -111,30 +111,58 @@ def send_photo(png_bytes, caption, cfg):
 
 
 # ---------------------------------------------------------------- Gemini (무료 AI 요약)
+# 설정한 모델이 안 되면 차례로 시도할 무료 모델들
+GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash",
+                    "gemini-2.5-flash-lite"]
+
+
 def gemini(prompt, cfg, want_json=False):
-    """요약 실패 시 None 반환 → 각 스크립트가 AI 없이 보내는 방식으로 대체"""
-    key = os.getenv("GEMINI_API_KEY")
+    """AI 호출. 모델이 없거나(404) 무료 한도가 없으면(429) 다음 모델로 자동 전환.
+    모두 실패하면 None 반환 → 각 스크립트가 AI 없이 보내는 방식으로 대체"""
+    key = (os.getenv("GEMINI_API_KEY") or "").strip()
     if not key:
-        print("GEMINI_API_KEY 없음 → AI 요약 생략")
+        print("❌ [AI] GEMINI_API_KEY가 비어 있음 → GitHub Settings > Secrets 확인")
         return None
-    model = cfg.get("gemini", {}).get("model", "gemini-flash-latest")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    first = cfg.get("gemini", {}).get("model") or "gemini-flash-latest"
+    models = list(dict.fromkeys([first] + GEMINI_FALLBACKS))
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.3}}
+            "generationConfig": {"temperature": 0.4}}
     if want_json:
         body["generationConfig"]["responseMimeType"] = "application/json"
-    for attempt in range(4):
-        try:
-            r = requests.post(url, params={"key": key}, json=body, timeout=120)
-            if r.status_code in (429, 500, 503):
-                print("Gemini 대기 후 재시도:", r.status_code)
-                time.sleep(20 * (attempt + 1))
+
+    for model in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        for attempt in range(2):
+            try:
+                r = requests.post(url, params={"key": key}, json=body, timeout=120)
+            except Exception as e:  # noqa
+                print(f"⚠️ [AI] {model} 접속 오류: {e}")
+                time.sleep(5)
                 continue
-            r.raise_for_status()
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-        except Exception as e:  # noqa
-            print("Gemini 오류:", e)
-            time.sleep(5)
+            if r.ok:
+                try:
+                    parts = r.json()["candidates"][0]["content"]["parts"]
+                    text = "".join(p.get("text", "") for p in parts if not p.get("thought")).strip()
+                except Exception:  # noqa
+                    text = ""
+                if text:
+                    print(f"✅ [AI] {model} 응답 성공")
+                    return text
+                print(f"⚠️ [AI] {model} 빈 응답: {r.text[:200]}")
+                break
+            msg = r.text[:300].replace("\n", " ")
+            print(f"⚠️ [AI] {model} → HTTP {r.status_code}: {msg}")
+            if r.status_code in (400, 401, 403) and "API key" in r.text:
+                print("❌ [AI] API 키가 잘못됐거나 사용 중지됨 → aistudio.google.com 에서 키 재확인")
+                return None
+            if r.status_code == 429 and "limit: 0" not in r.text and attempt == 0:
+                time.sleep(25)       # 일시적인 분당 한도 → 잠깐 쉬고 같은 모델 재시도
+                continue
+            if r.status_code in (500, 503) and attempt == 0:
+                time.sleep(10)
+                continue
+            break                    # 404(모델 없음)·무료 한도 0 등 → 다음 모델로
+    print("❌ [AI] 모든 모델 실패 → AI 없이 발송")
     return None
 
 
