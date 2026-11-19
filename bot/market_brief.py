@@ -25,6 +25,28 @@ OVERSEAS = [("다우", "^DJI"), ("S&P500", "^GSPC"), ("나스닥", "^IXIC"),
 FX = [("원/달러", "KRW=X")]
 
 
+def market_still_open(cfg):
+    """장마감 브리핑 전에 '정말 장이 끝났는지' 확인.
+    1) 관리자 화면에 등록한 '장마감 지연일'(예: 수능일 16:30 마감)
+    2) 네이버 증권의 코스피 장 상태(OPEN/CLOSE) — 갑작스러운 지연도 자동 감지"""
+    t = now()
+    late = cfg["market"].get("late_close", {})          # {"2026-11-19": "16:30"}
+    close_at = late.get(t.strftime("%Y-%m-%d"))
+    if close_at:
+        hh, mm = map(int, close_at.split(":"))
+        if (t.hour, t.minute) < (hh, mm + 5 if mm < 55 else mm):
+            print(f"[장 상태] 오늘은 {close_at} 마감일 → 아직 장중")
+            return True
+    try:
+        r = requests.get("https://m.stock.naver.com/api/index/KOSPI/basic", headers=UA, timeout=15)
+        status = str(r.json().get("marketStatus", "")).upper()
+        print("[장 상태] 네이버 코스피:", status or "(정보 없음)")
+        return status == "OPEN"
+    except Exception as e:  # noqa
+        print("[장 상태] 확인 실패 → 마감으로 간주:", e)
+        return False
+
+
 def naver_index(code):
     r = requests.get(f"https://m.stock.naver.com/api/index/{code}/basic", headers=UA, timeout=15)
     j = r.json()
@@ -198,6 +220,8 @@ def main():
     key = f"{now():%Y-%m-%d}-{slot}"
     if not args.force and key in state.get("done", []):
         return print("이미 발송함:", key)
+    if slot == "close" and not args.force and market_still_open(cfg):
+        return print("아직 장이 열려 있음 → 장마감 브리핑 보류 (다음 실행 때 다시 확인)")
 
     quotes = get_quotes(slot)
     news = get_news(cfg)
