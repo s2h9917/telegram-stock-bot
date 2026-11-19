@@ -31,7 +31,17 @@ def clean_title(t):
     t = re.sub(r"\s+[-|│]\s+[^-|│]{1,25}$", "", t)          # 끝의 '- 언론사' / '| 언론사'
     t = re.sub(r"[\[【<〈][^\]】>〉]{1,20}[\]】>〉]", " ", t)  # [뉴욕증시] 【단독】 <속보> 등 어디에 있든
     t = re.sub(r"\((종합|속보|상보|단독|1보|2보|3보|종합\d*보|영상|포토|사진)\)", " ", t)
+    t = re.sub(r"\s+(By|by|BY)\s+\S+$", "", t)                 # 끝의 'By EBN'
+    t = re.sub(r"\s*[=/]\s*\S{1,10}(기자|특파원)\s*$", "", t)
     return re.sub(r"\s+", " ", t).strip(" ,·-")
+
+
+JUNK = re.compile(r"^(오늘의|주간|금주|이번주|내일의)?\s*(증시|시황|마감시황|개장시황|증시 일정|투자 전략|주요 뉴스|뉴스 브리핑)\s*[\d/.]*$")
+
+
+def is_junk(t):
+    """너무 짧거나 '오늘의 증시'처럼 내용 없는 제목"""
+    return len(re.sub(r"\s", "", t)) < 12 or bool(JUNK.match(t.strip()))
 
 
 def _bigrams(t):
@@ -81,7 +91,7 @@ def similar(a, b, th=0.28):
 def dedupe(titles):
     out = []
     for t in titles:
-        if t and not any(similar(t, o) for o in out):
+        if t and not is_junk(t) and not any(similar(t, o) for o in out):
             out.append(t)
     return out
 
