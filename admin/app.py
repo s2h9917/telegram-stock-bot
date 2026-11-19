@@ -19,7 +19,8 @@ import streamlit as st
 st.set_page_config(page_title="증시봇 관리자", page_icon="📈", layout="wide")
 
 API = "https://api.github.com"
-WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑"}
+WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑",
+             "hot_issue.yml": "④ 오늘의 핫 이슈"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -90,7 +91,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["📊 대시보드", "⚙️ 설정", "▶️ 
 with tab1:
     if st.button("🔄 새로고침"):
         st.cache_data.clear()
-    cols = st.columns(3)
+    cols = st.columns(len(WORKFLOWS))
     for col, (wf, label) in zip(cols, WORKFLOWS.items()):
         with col:
             st.subheader(label)
@@ -169,6 +170,21 @@ with tab2:
         "뉴스 검색 키워드 (쉼표로 구분)", ", ".join(mc.get("keywords", []))).split(",") if s.strip()]
 
     st.divider()
+    st.subheader("④ 오늘의 핫 이슈 (이미지)")
+    hc = cfg.setdefault("hot_issue", {})
+    c1, c2, c3 = st.columns(3)
+    hc["enabled"] = c1.toggle("사용", hc.get("enabled", True), key="h_en")
+    hc["count"] = c2.slider("이슈 개수", 3, 5, int(hc.get("count", 5)))
+    hc["weekdays_only"] = c3.checkbox("평일(장 열리는 날)만 발송", hc.get("weekdays_only", False))
+    c1, c2 = st.columns(2)
+    hc["title"] = c1.text_input("이미지 제목", hc.get("title", "오늘의 핫 이슈"))
+    hc["brand"] = c2.text_input("우측 상단 채널명 (비우면 표시 안 함)", hc.get("brand", ""))
+    hc["keywords"] = [s.strip() for s in st.text_input(
+        "이슈 뉴스 검색 키워드 (쉼표로 구분)",
+        ", ".join(hc.get("keywords") or ["뉴욕증시", "미국 증시 마감", "코스피 전망", "환율",
+                                          "국제유가", "반도체 주가", "트럼프 관세"])).split(",") if s.strip()]
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -205,6 +221,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("④ 오늘의 핫 이슈 지금 보내기"):
+        ok, m = gh_dispatch("hot_issue.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (1~2분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -224,7 +247,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market"]:
+    for name in ["reports", "youtube", "market", "hot_issue"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
