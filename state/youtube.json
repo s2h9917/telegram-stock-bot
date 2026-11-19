@@ -106,12 +106,30 @@
     "X5EYa-5g2Yc": "video",
     "X1-AH2Nctw4": "video",
     "qhRttfpeM_8": "video",
-    "upoD7WqxPZs": "video"
+    "upoD7WqxPZs": "video",
+    "KJ3Gjq3z55I": "video",
+    "kG49bNMls20": "video",
+    "6MHF0NMFoXk": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-19 13:00",
+      "title": "[유튜브] [이슈 PICK! 세 개의 시점] 한한령 해제, 여행·화장품 대박? 진짜 실적주는 디테일이 다르다 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=6MHF0NMFoXk"
+    },
+    {
+      "time": "2026-11-19 13:00",
+      "title": "[유튜브] [이달해의 달달한 10분] 진에어, 한한령 해제로 여객 수요 확대 기대 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=kG49bNMls20"
+    },
+    {
+      "time": "2026-11-19 13:00",
+      "title": "[유튜브] [좋은정보의 오후장 기선제압] 제주항공, 한한령 해제 직수혜주 부각 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=KJ3Gjq3z55I"
+    },
     {
       "time": "2026-11-19 11:47",
       "title": "[유튜브] [진만쌤의 일타종목] 와이씨, 삼성전자 HBM 시장 침투율 상승 수혜 / 머니투데이방송 (증시, 증권)",
@@ -346,22 +364,7 @@
       "time": "2026-11-18 15:01",
       "title": "[유튜브] 이재용 바로 앞에서 \"삼성 면접 봅니다\" 돌직구 던진 순간 #shorts",
       "link": "https://www.youtube.com/shorts/Mc9qPGrxJLE"
-    },
-    {
-      "time": "2026-11-18 15:01",
-      "title": "[유튜브] [오늘장 랭킹5] 엔비디아, 컨콜 통해 시장 우려 완전 해소? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=6HfBxsb5aug"
-    },
-    {
-      "time": "2026-11-18 15:01",
-      "title": "[유튜브] [이용준의 시그널] LG씨엔에스, 차트상 바닥 다지기 이후 지속 상승 구간 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=Q7MHwMnUhYU"
-    },
-    {
-      "time": "2026-11-18 15:00",
-      "title": "[유튜브] [이슈진단] 내년 2월 토큰증권 제도 시행...의미는? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=WBACAKlJ0lE"
     }
   ],
-  "last_run": "2026-11-19 12:00"
+  "last_run": "2026-11-19 13:00"
 }
