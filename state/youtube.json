@@ -89,12 +89,36 @@
     "frdp52pCKOE": "video",
     "UYxq4LrZPm8": "video",
     "GWwisO8kLq4": "video",
-    "Gle-jaJxB44": "video"
+    "Gle-jaJxB44": "video",
+    "qTZGkvPi1RA": "video",
+    "0ePI-x2kipY": "video",
+    "oGRw33RW9O0": "video",
+    "aGMqzF0lR0I": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-19 09:00",
+      "title": "[유튜브] [여의도튜브] \"중국차 안산다더니..\" 泰제친 아시아 최대시장? / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=aGMqzF0lR0I"
+    },
+    {
+      "time": "2026-11-19 09:00",
+      "title": "[유튜브] [투자뉴스7 Q&A] 한한령 10년 만에 해체?! 뷰티·엔터·콘텐츠 각 탑픽 \"텍사스 DC 재허가 영향은\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=oGRw33RW9O0"
+    },
+    {
+      "time": "2026-11-19 09:00",
+      "title": "[유튜브] [고래사냥] 'HPSP·주성엔지니어링·스튜디오드래곤! 내일장 고래 종목은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=0ePI-x2kipY"
+    },
+    {
+      "time": "2026-11-19 09:00",
+      "title": "[유튜브] [여의도 투자본부 1부] '에스엠, 나무가' 명예의 전당 갈 종목은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=qTZGkvPi1RA"
+    },
     {
       "time": "2026-11-19 08:01",
       "title": "[유튜브] [투자뉴스7 브리핑] 수능이 끝나고 생길 일? / 머니투데이방송 (증시, 증권)",
@@ -324,27 +348,7 @@
       "time": "2026-11-18 11:00",
       "title": "[유튜브] [제시카의 레드 시그널] AI 인프라 투자 확대, 반도체 · 전력 수요 지속 재확인 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=jGkBbmpAXl8"
-    },
-    {
-      "time": "2026-11-18 11:00",
-      "title": "[유튜브] [잠금해제 언폴드] 엔비디아 훈풍에 반등...매수 타이밍 왔나? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=ZeenHCFqXqQ"
-    },
-    {
-      "time": "2026-11-18 10:00",
-      "title": "[유튜브] [여의도 투자본부 2부] 코스피 5000선 무너졌다 지금 가장 주목해야 할 핵심 스몰캡 종목! RFHIC, 코리아써키트, 코스메카코리아, 동국제약 | 머니투데이방송(증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=3NblRgGbCtA"
-    },
-    {
-      "time": "2026-11-18 10:00",
-      "title": "[유튜브] [좋은정보의 개장 전 기선제압] 통신, 국방, 레이저 등 다양한 기술 활용처 확보 'RF머트리얼즈'  / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=fLG24HvIv4Q"
-    },
-    {
-      "time": "2026-11-18 10:00",
-      "title": "[유튜브] [적중! 대박 예감] 지금 당장 주목해야 할 실적 모멘텀 종목 탑픽! 오로라, 현대백화점, ACE KPOP포커스 | 머니투데이방송(증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=WIUOWbaVVug"
     }
   ],
-  "last_run": "2026-11-19 08:01"
+  "last_run": "2026-11-19 09:00"
 }
