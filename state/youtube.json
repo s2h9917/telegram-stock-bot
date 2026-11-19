@@ -103,12 +103,30 @@
     "08B-6vpYPuU": "video",
     "KJfpjSQ46Hg": "video",
     "n705OPl5t04": "video",
-    "X5EYa-5g2Yc": "video"
+    "X5EYa-5g2Yc": "video",
+    "X1-AH2Nctw4": "video",
+    "qhRttfpeM_8": "video",
+    "upoD7WqxPZs": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-19 11:47",
+      "title": "[유튜브] [진만쌤의 일타종목] 와이씨, 삼성전자 HBM 시장 침투율 상승 수혜 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=upoD7WqxPZs"
+    },
+    {
+      "time": "2026-11-19 11:47",
+      "title": "[유튜브] [퀵브리핑] 한진그룹, 통합 진에어 출범 앞두고 전방위 주주 소통",
+      "link": "https://www.youtube.com/shorts/qhRttfpeM_8"
+    },
+    {
+      "time": "2026-11-19 11:47",
+      "title": "[유튜브] [황민혁의 히든 트렌드] 앤트로픽 IPO 및 중국발 호재 주목 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=X1-AH2Nctw4"
+    },
     {
       "time": "2026-11-19 11:01",
       "title": "[유튜브] [W디펜스] 우크라 드론 타격 효과적.. 러 병참망 '대혼란' / 머니투데이방송",
@@ -343,22 +361,7 @@
       "time": "2026-11-18 15:00",
       "title": "[유튜브] [이슈진단] 내년 2월 토큰증권 제도 시행...의미는? / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=WBACAKlJ0lE"
-    },
-    {
-      "time": "2026-11-18 14:00",
-      "title": "[유튜브] [배준호의 골든스팟] 쎄트렉아이, 403억원 규모 신규 신설투자 결정 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=dic0w4xENgA"
-    },
-    {
-      "time": "2026-11-18 13:45",
-      "title": "[유튜브] [오후의 쟁점] 레인보우로보 '한풀이 급등' 로봇 대장주로 귀환?! \"삼천당 급락, 바이오 여파는\" / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=mDnZOMJXb_U"
-    },
-    {
-      "time": "2026-11-18 13:00",
-      "title": "[유튜브] [집중분석] 엔비디아·앤트로픽 이후...中 규제 강화 기회 맞이할 '삼전닉스', 그리고 '이 섹터' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=k-Ld2Ul8ST8"
     }
   ],
-  "last_run": "2026-11-19 11:01"
+  "last_run": "2026-11-19 11:47"
 }
