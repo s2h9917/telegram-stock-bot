@@ -116,12 +116,36 @@
     "eUC6rlLqNpc": "video",
     "aJiv_hm9NM8": "video",
     "Y7IypNY5cwg": "video",
-    "BYs5ieMB5Pc": "video"
+    "BYs5ieMB5Pc": "video",
+    "_ZUoydsYgkk": "video",
+    "SprnYo3YZNU": "video",
+    "Y1TLSgpe0gQ": "video",
+    "CyKk9gMkqt4": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-19 16:01",
+      "title": "[유튜브] [김도형의 럭키7] 화장품 vs 로봇 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=CyKk9gMkqt4"
+    },
+    {
+      "time": "2026-11-19 16:00",
+      "title": "[유튜브] [여의도튜브] 美 상무차관 '이상한 잣대' \"엔비 봐주고 삼전닉스 압박\" / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=Y1TLSgpe0gQ"
+    },
+    {
+      "time": "2026-11-19 16:00",
+      "title": "[유튜브] [마감 스퍼트] K팝 중국 진출 확대 기대감.. 에스엠 최대 수혜? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=SprnYo3YZNU"
+    },
+    {
+      "time": "2026-11-19 16:00",
+      "title": "[유튜브] [황금선 종가매매] 오늘의 종가 관심주 'YG PLUS' / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=_ZUoydsYgkk"
+    },
     {
       "time": "2026-11-19 15:00",
       "title": "[유튜브] 현대차 정의선 부부, 뜻밖의 외출…디올 회장 옆에 섰다 #shorts",
@@ -351,27 +375,7 @@
       "time": "2026-11-18 18:00",
       "title": "[유튜브] [내 수익을 부탁해] 오늘의 테마 '반도체' vs '피지컬AI' / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=ms6Hd_wyMy4"
-    },
-    {
-      "time": "2026-11-18 18:00",
-      "title": "[유튜브] [퀵브리핑] 中 한한령 해제…한·중 FTA 실질타결, 영화·게임 '최혜국대우' 첫 명문화",
-      "link": "https://www.youtube.com/shorts/y2Mdj1PQI38"
-    },
-    {
-      "time": "2026-11-18 17:00",
-      "title": "[유튜브] [여튜 쇼츠] \"석유달러 시대는 가고 반도체달러 시대가 왔다\" / 여의도튜브",
-      "link": "https://www.youtube.com/shorts/y7pH3gugDdg"
-    },
-    {
-      "time": "2026-11-18 17:00",
-      "title": "[유튜브] [여의도튜브] 우크라 7단계 작전 11가지 무기 총동원 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=teFQ7ddzWx4"
-    },
-    {
-      "time": "2026-11-18 16:01",
-      "title": "[유튜브] [퀵브리핑] 공정위, 쿠팡·김범석 고발 추진…'총수 지정' 소송 중 또 충돌",
-      "link": "https://www.youtube.com/shorts/Hk59_GZ-o80"
     }
   ],
-  "last_run": "2026-11-19 15:00"
+  "last_run": "2026-11-19 16:01"
 }
