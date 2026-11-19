@@ -5,6 +5,7 @@
 실행: python -m bot.market_brief --slot pre|mid|close   (생략 시 현재 시각으로 자동 판단)
 """
 import argparse
+import json
 import re
 from urllib.parse import quote
 
@@ -63,13 +64,17 @@ def get_quotes(slot):
     return rows
 
 
+UP, DOWN, FLAT = "🔴", "🔵", "⚫"   # 상승=빨강, 하락=파랑, 보합=검정
+
+
 def fmt_quote(name, q):
     try:
-        v = float(str(q["pct"]).replace("%", ""))
-        arrow, pct = ("🔺" if v > 0 else "🔻" if v < 0 else "▪️"), f"{v:+.2f}"
+        v = round(float(str(q["pct"]).replace("%", "")), 2)
+        mark = UP if v > 0 else DOWN if v < 0 else FLAT
+        pct = f"{v:+.2f}" if v else "0.00"
     except ValueError:
-        arrow, pct = "▪️", str(q["pct"])
-    return f"{arrow} {name} {q['price']} ({pct}%)"
+        mark, pct = FLAT, str(q["pct"])
+    return f"{mark} {name} {q['price']} ({pct}%)"
 
 
 def get_news(cfg, limit=30):
@@ -106,12 +111,64 @@ def build_prompt(slot, quotes, news):
     n = "\n".join(f"- {x['title']}" for x in news)
     return (
         f"너는 증권 방송 작가야. {focus}\n"
-        "규칙: 아래 데이터와 헤드라인에 있는 내용만 사용, 없는 수치를 만들지 말 것, "
-        "매수·매도 권유 금지, 한국어, 텔레그램용 짧은 문장.\n"
-        "형식(마크다운·별표 쓰지 말 것):\n"
-        "📌 핵심 요약\n• (2~3줄)\n\n🔥 주요 이슈\n• (4~6줄, 각 1줄)\n\n👀 체크 포인트\n• (1~3줄)\n\n"
+        "공통 규칙: 아래 데이터와 헤드라인에 있는 사실만 사용, 없는 수치·사실을 만들지 말 것, "
+        "매수·매도 권유 금지, 한국어, 마크다운·별표·이모지 쓰지 말 것.\n\n"
+        "[주요 헤드라인 작성 규칙]\n"
+        "- 같은 사건을 다룬 헤드라인은 하나로 묶고, 서로 다른 이슈만 최대 5개 (중요한 순서)\n"
+        "- 헤드라인을 그대로 옮기지 말고, 팩트(수치·고유명사)를 살려 흐름이 보이는 '스토리형 제목'으로 새로 쓰기\n"
+        "  예) '뉴욕증시 혼조 마감…엔비디아 호실적에도' → '엔비디아 호실적에도 웃지 못한 뉴욕증시, 3대지수 혼조'\n"
+        "- 언론사명, [말머리], (종합)·(속보) 같은 표기는 절대 넣지 말 것\n"
+        "- 한 줄 40자 이내\n"
+        "- tone: 시장·해당 자산에 상승/호재면 up, 하락/악재면 down, 중립이면 flat\n\n"
+        "출력은 JSON만:\n"
+        '{"summary": ["핵심 요약 2~3줄"], '
+        '"headlines": [{"title": "스토리형 제목", "tone": "up|down|flat"}], '
+        '"checkpoints": ["체크 포인트 1~3줄"]}\n\n'
         f"[지수·환율]\n{q}\n\n[뉴스 헤드라인]\n{n}"
     )
+
+
+TONE = {"up": UP, "down": DOWN, "flat": FLAT}
+UP_WORDS = ("상승", "급등", "강세", "반등", "돌파", "최고", "호실적", "↑", "상향", "흑자")
+DOWN_WORDS = ("하락", "급락", "약세", "후퇴", "부진", "최저", "↓", "하향", "적자", "우려")
+
+
+def guess_tone(t):
+    up, down = any(w in t for w in UP_WORDS), any(w in t for w in DOWN_WORDS)
+    return "up" if up and not down else "down" if down and not up else "flat"
+
+
+def build_body(slot, quotes, news, cfg):
+    """AI 요약(JSON) → 텔레그램 본문. AI 실패 시 헤드라인 5개만 정리해서 사용"""
+    from bot.hot_issue import clean_title, dedupe
+    data = {}
+    out = gemini(build_prompt(slot, quotes, news), cfg, want_json=True)
+    if out:
+        try:
+            data = json.loads(re.sub(r"^```(json)?|```$", "", out.strip()).strip())
+        except Exception as e:  # noqa
+            print("⚠️ AI 응답 해석 실패:", e, out[:200])
+    else:
+        print("⚠️ AI 응답 없음 → 헤드라인만 발송")
+
+    heads = []
+    for h in data.get("headlines", []) if isinstance(data, dict) else []:
+        t = clean_title(str(h.get("title", "") if isinstance(h, dict) else h))
+        tone = h.get("tone") if isinstance(h, dict) else None
+        if t:
+            heads.append((t, tone if tone in TONE else guess_tone(t)))
+    if not heads:  # AI 실패 → 원 헤드라인에서 말머리·언론사 지우고 중복 제거
+        heads = [(t, guess_tone(t)) for t in dedupe([clean_title(x["title"]) for x in news])]
+    titles = dedupe([t for t, _ in heads])
+    heads = [(t, tone) for t, tone in heads if t in titles][:5]
+
+    blocks = []
+    if data.get("summary"):
+        blocks.append("📌 <b>핵심 요약</b>\n" + "\n".join(f"• {esc(x)}" for x in data["summary"][:3]))
+    blocks.append("📰 <b>주요 헤드라인</b>\n" + "\n".join(f"{TONE[tone]} {esc(t)}" for t, tone in heads))
+    if data.get("checkpoints"):
+        blocks.append("👀 <b>체크 포인트</b>\n" + "\n".join(f"• {esc(x)}" for x in data["checkpoints"][:3]))
+    return "\n\n".join(blocks)
 
 
 def detect_slot(h):
@@ -139,15 +196,12 @@ def main():
 
     quotes = get_quotes(slot)
     news = get_news(cfg)
-    summary = gemini(build_prompt(slot, quotes, news), cfg)
-    if not summary:  # AI 없이 보내는 기본 형식
-        summary = "📰 주요 헤드라인\n" + "\n".join(f"• {x['title']}" for x in news[:8])
-    summary = summary.replace("**", "")
+    body = build_body(slot, quotes, news, cfg)
 
     title = f"{SLOT_NAME[slot]} | {now():%m/%d %H:%M}"
     parts = [f"<b>{esc(title)}</b>",
              "\n".join(esc(fmt_quote(n, q)) for n, q in quotes),
-             esc(summary)]
+             body]
     if cfg.get("footer"):
         parts.append(f"<i>{esc(cfg['footer'])}</i>")
     send_text("\n\n".join(parts), cfg)
