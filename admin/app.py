@@ -165,7 +165,11 @@ with tab2:
     mc["enabled"] = c1.toggle("사용", mc.get("enabled", True), key="m_en")
     mc["slots"]["pre"] = c2.checkbox("장전 08시", mc["slots"].get("pre", True))
     mc["slots"]["mid"] = c3.checkbox("장중 11시", mc["slots"].get("mid", True))
-    mc["slots"]["close"] = c4.checkbox("장마감 16시", mc["slots"].get("close", True))
+    mc["slots"]["close"] = c4.checkbox("장마감 (16시·지연일 17시)", mc["slots"].get("close", True))
+    late_txt = st.text_area(
+        "장마감 지연일 (한 줄에 하나, '날짜 마감시각' 형식 · 예: 2026-11-19 16:30)",
+        "\n".join(f"{d} {t}" for d, t in sorted(mc.get("late_close", {}).items())), height=80)
+    mc["late_close"] = {ln.split()[0]: ln.split()[1] for ln in late_txt.splitlines() if len(ln.split()) == 2}
     mc["keywords"] = [s.strip() for s in st.text_input(
         "뉴스 검색 키워드 (쉼표로 구분)", ", ".join(mc.get("keywords", []))).split(",") if s.strip()]
 
