@@ -166,12 +166,24 @@
     "rDwapWucdg4": "video",
     "UVkWjiq8TeQ": "video",
     "iSFg3HxhEds": "video",
-    "_akWtO5Ll0M": "video"
+    "_akWtO5Ll0M": "video",
+    "mA1O7C1DrZk": "video",
+    "0zJKIqtogfU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-20 14:00",
+      "title": "[유튜브] [오후의 쟁점] 지지선 깨진 시장 \"반도체, 이것 확인해야 숨통\" 반등 노려 볼 낙폭과대 TOP2 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=0zJKIqtogfU"
+    },
+    {
+      "time": "2026-11-20 14:00",
+      "title": "[유튜브] [배준호의 골든스팟] 차트상 하락쐐기형, 기술적 반등 임박 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=mA1O7C1DrZk"
+    },
     {
       "time": "2026-11-20 13:00",
       "title": "[유튜브] [긴급진단] \"AI 성장 '제2장'의 시작\" 반도체와 결합할 실전전략!  / 머니투데이방송 (증시, 증권)",
@@ -411,17 +423,7 @@
       "time": "2026-11-19 16:00",
       "title": "[유튜브] [여의도튜브] 美 상무차관 '이상한 잣대' \"엔비 봐주고 삼전닉스 압박\" / 머니투데이방송",
       "link": "https://www.youtube.com/watch?v=Y1TLSgpe0gQ"
-    },
-    {
-      "time": "2026-11-19 16:00",
-      "title": "[유튜브] [마감 스퍼트] K팝 중국 진출 확대 기대감.. 에스엠 최대 수혜? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=SprnYo3YZNU"
-    },
-    {
-      "time": "2026-11-19 16:00",
-      "title": "[유튜브] [황금선 종가매매] 오늘의 종가 관심주 'YG PLUS' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=_ZUoydsYgkk"
     }
   ],
-  "last_run": "2026-11-20 13:00"
+  "last_run": "2026-11-20 14:00"
 }
