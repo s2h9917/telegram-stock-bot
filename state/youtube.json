@@ -192,12 +192,24 @@
     "nB4J1GilK5M": "video",
     "uKR5gyNJY6k": "video",
     "X0mQQNTpRAk": "video",
-    "9yYCVqR8EjQ": "video"
+    "9yYCVqR8EjQ": "video",
+    "RlCF4EWNM0w": "video",
+    "j0IBuKoruRI": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-20 19:00",
+      "title": "[유튜브] [파워인터뷰 화제人] 트위니 천홍석 대표 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=j0IBuKoruRI"
+    },
+    {
+      "time": "2026-11-20 19:00",
+      "title": "[유튜브] [여의도튜브] \"크름 폭파는 우리 미사일\" 和 대놓고 자랑.. 러 분통 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=RlCF4EWNM0w"
+    },
     {
       "time": "2026-11-20 18:00",
       "title": "[유튜브] 은행연합회장, 대세론-세대교체 팽팽 / 머니투데이방송 (뉴스)",
@@ -437,17 +449,7 @@
       "time": "2026-11-20 08:01",
       "title": "[유튜브] [마켓 링크] SK하이닉스, 日 키옥시아 지분 14% 확보 추진 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=dHDB20VJjfU"
-    },
-    {
-      "time": "2026-11-20 08:00",
-      "title": "[유튜브] [투자뉴스7 브리핑] 앤스로픽, 아직 매수하지 말고, 더 낮은 가격 기다려라  / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=CaDkxo-6l0o"
-    },
-    {
-      "time": "2026-11-20 07:00",
-      "title": "[유튜브] [여의도튜브] \"韓, 선수금만 무려 1조\" 경황없는 엔비도 '제발' / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=W4eiTolCYaM"
     }
   ],
-  "last_run": "2026-11-20 18:00"
+  "last_run": "2026-11-20 19:00"
 }
