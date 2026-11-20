@@ -196,12 +196,18 @@
     "RlCF4EWNM0w": "video",
     "j0IBuKoruRI": "video",
     "jn51KaVB3kw": "video",
-    "5Lej6E99ZWI": "video"
+    "5Lej6E99ZWI": "video",
+    "8VBMdjnA5Dw": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-21 07:00",
+      "title": "[유튜브] [W디펜스] \"이런 대만 무기가 있네!\" 美 '中 맞상대' 눈이 번쩍 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=8VBMdjnA5Dw"
+    },
     {
       "time": "2026-11-20 20:00",
       "title": "[유튜브] [여튜 쇼츠] \"일본, 아 반도체 때문에..\" 한국에 뺏긴 4번째 '훈장' / 여의도튜브",
@@ -446,12 +452,7 @@
       "time": "2026-11-20 09:00",
       "title": "[유튜브] [고래사냥] 앤스로픽 IPO 흥행 국내 반도체주 전반 강세 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=-1iluz9y8J4"
-    },
-    {
-      "time": "2026-11-20 09:00",
-      "title": "[유튜브] [이가근의 근거있는 종목] AI 가늠자 바뀌었다! 눈높이 내려야 할 반도체 SK하이닉스 저점 '이 가격' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=5641dhaidDI"
     }
   ],
-  "last_run": "2026-11-21 06:00"
+  "last_run": "2026-11-21 07:00"
 }
