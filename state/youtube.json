@@ -159,12 +159,30 @@
     "7dGtqGA44uU": "video",
     "x7gtfYhmAF8": "video",
     "8omU4BrEabU": "video",
-    "-lxDZjp6i0I": "video"
+    "-lxDZjp6i0I": "video",
+    "E84ugfh6v3E": "video",
+    "myjPP5RxLcs": "video",
+    "6c3_ulc98tA": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-20 12:01",
+      "title": "[유튜브] [퀵브리핑] 앤트로픽 IPO 흥행…첫날 17% 급등, AI 투자심리 되살릴까",
+      "link": "https://www.youtube.com/shorts/6c3_ulc98tA"
+    },
+    {
+      "time": "2026-11-20 12:00",
+      "title": "[유튜브] [최태훈의 골든아워] 조정장엔 화장품 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=myjPP5RxLcs"
+    },
+    {
+      "time": "2026-11-20 12:00",
+      "title": "[유튜브] [황민혁의 고민 종목 상담실] 앤스로픽 상장 흥행에도 불안한 증시...대응은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=E84ugfh6v3E"
+    },
     {
       "time": "2026-11-20 11:00",
       "title": "[유튜브] [잠금해제 언폴드] 앤스로픽 상장에도 무너진 5천피...대응은? / 머니투데이방송 (증시, 증권)",
@@ -399,22 +417,7 @@
       "time": "2026-11-19 15:00",
       "title": "[유튜브] [이슈진단] 한한령 해제 급물살 꼴지들 반란 시작되나 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=eUC6rlLqNpc"
-    },
-    {
-      "time": "2026-11-19 14:01",
-      "title": "[유튜브] [에디터 PICK] 기관·외국인 다 비웠는데 왜 못 살까? 삼전·하이닉스 '역사적 하단'의 함정",
-      "link": "https://www.youtube.com/watch?v=FmWs5KMmia4"
-    },
-    {
-      "time": "2026-11-19 14:00",
-      "title": "[유튜브] [오후의 쟁점] 빗장 열린 한한령 화장품·엔터·항공·콘텐츠 \"최대 수혜는 이 섹터\" / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=-OnS3nGhlME"
-    },
-    {
-      "time": "2026-11-19 14:00",
-      "title": "[유튜브] [배준호의 골든스팟] 글로벌 광섬유 공급부족 판가 상승 기대 '대한광통신' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=ARcpcq4gj9g"
     }
   ],
-  "last_run": "2026-11-20 11:00"
+  "last_run": "2026-11-20 12:01"
 }
