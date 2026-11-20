@@ -194,12 +194,24 @@
     "X0mQQNTpRAk": "video",
     "9yYCVqR8EjQ": "video",
     "RlCF4EWNM0w": "video",
-    "j0IBuKoruRI": "video"
+    "j0IBuKoruRI": "video",
+    "jn51KaVB3kw": "video",
+    "5Lej6E99ZWI": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-20 20:00",
+      "title": "[유튜브] [여튜 쇼츠] \"일본, 아 반도체 때문에..\" 한국에 뺏긴 4번째 '훈장' / 여의도튜브",
+      "link": "https://www.youtube.com/shorts/5Lej6E99ZWI"
+    },
+    {
+      "time": "2026-11-20 20:00",
+      "title": "[유튜브] 신영일의 비즈정보 플러스 351회 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=jn51KaVB3kw"
+    },
     {
       "time": "2026-11-20 19:00",
       "title": "[유튜브] [파워인터뷰 화제人] 트위니 천홍석 대표 / 머니투데이방송",
@@ -439,17 +451,7 @@
       "time": "2026-11-20 09:00",
       "title": "[유튜브] [이가근의 근거있는 종목] AI 가늠자 바뀌었다! 눈높이 내려야 할 반도체 SK하이닉스 저점 '이 가격' / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=5641dhaidDI"
-    },
-    {
-      "time": "2026-11-20 09:00",
-      "title": "[유튜브] [여의도 투자본부 1부] '빅웨이브로보틱스, 스피어' 명예의 전당 갈 종목은? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=59z8uylXxAo"
-    },
-    {
-      "time": "2026-11-20 08:01",
-      "title": "[유튜브] [마켓 링크] SK하이닉스, 日 키옥시아 지분 14% 확보 추진 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=dHDB20VJjfU"
     }
   ],
-  "last_run": "2026-11-20 19:00"
+  "last_run": "2026-11-20 20:00"
 }
