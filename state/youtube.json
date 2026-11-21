@@ -206,12 +206,18 @@
     "vG7IqGVueq0": "video",
     "7MbvpMGwj9E": "video",
     "GjKUBWrfPBk": "video",
-    "c1HDGuDyrZY": "video"
+    "c1HDGuDyrZY": "video",
+    "Q4AV35KfgMU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-22 08:57",
+      "title": "[유튜브] [W디펜스] \"천금 줘도 못구할 메모리\" 美 스텔스 F-22 '날벼락' / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=Q4AV35KfgMU"
+    },
     {
       "time": "2026-11-22 07:00",
       "title": "[유튜브] [K디펜스] 이미 K9 자주포 도입...이젠 '한국식 재블린'도 탐내 / 머니투데이방송",
@@ -456,12 +462,7 @@
       "time": "2026-11-20 11:00",
       "title": "[유튜브] [퀵브리핑] 앤트로픽 IPO 흥행…첫날 17% 급등, AI 투자심리 되살릴까",
       "link": "https://www.youtube.com/shorts/8omU4BrEabU"
-    },
-    {
-      "time": "2026-11-20 11:00",
-      "title": "[유튜브] [예민수의 딥사이트] 오천피 앞두고 숨 고르기 vs 환승 타이밍? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=x7gtfYhmAF8"
     }
   ],
-  "last_run": "2026-11-22 08:00"
+  "last_run": "2026-11-22 08:57"
 }
