@@ -205,12 +205,18 @@
     "wdBpnLOP4z0": "video",
     "vG7IqGVueq0": "video",
     "7MbvpMGwj9E": "video",
-    "GjKUBWrfPBk": "video"
+    "GjKUBWrfPBk": "video",
+    "c1HDGuDyrZY": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-22 07:00",
+      "title": "[유튜브] [K디펜스] 이미 K9 자주포 도입...이젠 '한국식 재블린'도 탐내 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=c1HDGuDyrZY"
+    },
     {
       "time": "2026-11-21 15:00",
       "title": "[유튜브] [강남큰손의 명품투자] 한한령 해빙 무드에 기대 반, 우려 반 / 머니투데이방송 (증시, 증권)",
@@ -455,12 +461,7 @@
       "time": "2026-11-20 11:00",
       "title": "[유튜브] [예민수의 딥사이트] 오천피 앞두고 숨 고르기 vs 환승 타이밍? / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=x7gtfYhmAF8"
-    },
-    {
-      "time": "2026-11-20 10:20",
-      "title": "[유튜브] [W디펜스] \"튀르키예 너 자신을 알라\" 泰 호위함 입찰 '딜레마' / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=7dGtqGA44uU"
     }
   ],
-  "last_run": "2026-11-22 06:00"
+  "last_run": "2026-11-22 07:00"
 }
