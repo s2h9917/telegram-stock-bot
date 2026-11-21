@@ -199,12 +199,30 @@
     "5Lej6E99ZWI": "video",
     "8VBMdjnA5Dw": "video",
     "6DtjHatn3To": "video",
-    "kuM369eq1Vs": "video"
+    "kuM369eq1Vs": "video",
+    "71jElccYdYU": "video",
+    "Pn0s1roRvds": "video",
+    "wdBpnLOP4z0": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-21 13:00",
+      "title": "[유튜브] [여의도 투자본부 1부] '키다리스튜디오, HLB생명과학' 명예의 전당 갈 종목은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=wdBpnLOP4z0"
+    },
+    {
+      "time": "2026-11-21 13:00",
+      "title": "[유튜브] [여의도 투자본부 2부] 카카오게임즈 vs 노머스 vs 에스엠 vs 오이솔루션, 공략법은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=Pn0s1roRvds"
+    },
+    {
+      "time": "2026-11-21 13:00",
+      "title": "[유튜브] [적중! 대박예감] '한한령 해제 수혜 항공주' 월요일에 선택할 이 종목은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=71jElccYdYU"
+    },
     {
       "time": "2026-11-21 12:00",
       "title": "[유튜브] [고래사냥] '케이씨·미래에셋벤처투자·아모레퍼시픽! 내일장 고래 종목은?! / 머니투데이방송 (증시, 증권)",
@@ -439,22 +457,7 @@
       "time": "2026-11-20 10:00",
       "title": "[유튜브] [여의도 투자본부 2부] 수출 1조 달러 시대, 소부장 기업 다시 주목해야 할 이유와 유망주 분석! 성호전자, 대덕전자, SK오션플랜트, RFHIC | 머니투데이방송(증시, 증권)",
       "link": "https://www.youtube.com/watch?v=XHdgwR0tZ64"
-    },
-    {
-      "time": "2026-11-20 10:00",
-      "title": "[유튜브] [좋은정보의 개장 전 기선제압] 공모가 대비 저평가 '브릴스' 실적 성장 본격화! 반등 시동 건다 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=4H1-jOEpahA"
-    },
-    {
-      "time": "2026-11-20 10:00",
-      "title": "[유튜브] [적중! 대박 예감] 증시 급등 테마, 지금 바로 주목해야 할 핵심 스몰캡 종목! 에스와이스틸텍, TIGER 차이나반도체FACTSET, 하이브 | 머니투데이방송(증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=2rmkY1S7qzQ"
-    },
-    {
-      "time": "2026-11-20 09:01",
-      "title": "[유튜브] [W디펜스] \"러 앞서 사상최대 전차전\" 'K2' 폴란드+3국 '경고장' / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=BfPa5bXI8is"
     }
   ],
-  "last_run": "2026-11-21 12:00"
+  "last_run": "2026-11-21 13:00"
 }
