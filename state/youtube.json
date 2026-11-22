@@ -208,12 +208,30 @@
     "GjKUBWrfPBk": "video",
     "c1HDGuDyrZY": "video",
     "Q4AV35KfgMU": "video",
-    "JU2xyz-QGjQ": "ended"
+    "JU2xyz-QGjQ": "ended",
+    "rE0yIYv7JFs": "video",
+    "6gLdh2lzoJQ": "video",
+    "sI0TtP11WNM": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-23 07:01",
+      "title": "[유튜브] [여의도튜브] \"韓반도체 협력 어때요!\" 방산 삐걱 印尼 '러브콜' / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=sI0TtP11WNM"
+    },
+    {
+      "time": "2026-11-23 07:00",
+      "title": "[유튜브] [클로징 킥] 연준과 ECB, 동시에 AI 부채 경고  / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=6gLdh2lzoJQ"
+    },
+    {
+      "time": "2026-11-23 07:00",
+      "title": "[유튜브] [이항영의 히트앤 비트] 기술주 투매 속 뉴욕증시 조정장 진입...마감 평가는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=rE0yIYv7JFs"
+    },
     {
       "time": "2026-11-22 19:00",
       "title": "[유튜브] 황금선 매매 전략 비법!｜박진섭의 달빛 황금선 [주말라이브 달빛 황금선]",
@@ -448,22 +466,7 @@
       "time": "2026-11-20 12:01",
       "title": "[유튜브] [퀵브리핑] 앤트로픽 IPO 흥행…첫날 17% 급등, AI 투자심리 되살릴까",
       "link": "https://www.youtube.com/shorts/6c3_ulc98tA"
-    },
-    {
-      "time": "2026-11-20 12:00",
-      "title": "[유튜브] [최태훈의 골든아워] 조정장엔 화장품 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=myjPP5RxLcs"
-    },
-    {
-      "time": "2026-11-20 12:00",
-      "title": "[유튜브] [황민혁의 고민 종목 상담실] 앤스로픽 상장 흥행에도 불안한 증시...대응은? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=E84ugfh6v3E"
-    },
-    {
-      "time": "2026-11-20 11:00",
-      "title": "[유튜브] [잠금해제 언폴드] 앤스로픽 상장에도 무너진 5천피...대응은? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=-lxDZjp6i0I"
     }
   ],
-  "last_run": "2026-11-23 06:00"
+  "last_run": "2026-11-23 07:01"
 }
