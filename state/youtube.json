@@ -208,7 +208,7 @@
     "GjKUBWrfPBk": "video",
     "c1HDGuDyrZY": "video",
     "Q4AV35KfgMU": "video",
-    "JU2xyz-QGjQ": "live"
+    "JU2xyz-QGjQ": "ended"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -465,5 +465,5 @@
       "link": "https://www.youtube.com/watch?v=-lxDZjp6i0I"
     }
   ],
-  "last_run": "2026-11-22 19:00"
+  "last_run": "2026-11-22 20:00"
 }
