@@ -1,0 +1,265 @@
+"""⑥ 주간 경제일정 — 매주 월요일 아침, SBS Biz '[주간경제일정]' 기사를 찾아 요일별로 정리한 이미지로 업로드
+- 기사 찾기: 구글 뉴스 RSS ('주간경제일정' + SBS Biz, 최근 1일) → 실패 시 설정의 기사 주소
+- 본문 추출: 페이지 HTML (본문 영역 → 구조화 데이터 → 메타 설명) 순서로 시도
+- 정리: Gemini가 방송 원고체 본문을 '요일별 일정 목록'으로 변환 (기사에 있는 내용만)
+- 같은 기사는 한 번만 발송 (월요일 두 번 실행해도 중복 없음)
+실행: python -m bot.weekly_calendar                (평소: 월요일만)
+      python -m bot.weekly_calendar --force        (요일·중복 무시)
+      python -m bot.weekly_calendar --url 기사주소  (특정 기사로 테스트)
+      DRY_RUN=1 python -m bot.weekly_calendar --force --save week.png
+"""
+import argparse
+import html as htmlmod
+import io
+import json
+import re
+from urllib.parse import quote
+
+import feedparser
+import requests
+from bs4 import BeautifulSoup
+
+from bot.common import UA, add_history, esc, gemini, load_config, load_state, now, save_state, send_photo
+from bot.hot_issue import background, font, gold_text
+
+W = 1080
+
+
+# ---------------------------------------------------------------- 1) 기사 찾기
+def find_article(wc):
+    q = wc.get("search", "주간경제일정 SBS Biz")
+    url = f"https://news.google.com/rss/search?q={quote(q)}+when:2d&hl=ko&gl=KR&ceid=KR:ko"
+    try:
+        feed = feedparser.parse(requests.get(url, headers=UA, timeout=15).content)
+        for e in feed.entries:
+            title = e.get("title", "")
+            src = (e.get("source") or {}).get("href", "")
+            if "주간경제일정" in title.replace(" ", "") and ("sbs" in src.lower() or "SBS" in title):
+                print("[기사] 구글 뉴스에서 찾음:", title)
+                return e.get("link"), title
+    except Exception as e:  # noqa
+        print("구글 뉴스 검색 실패:", e)
+    print("⚠️ 이번 주 기사를 찾지 못함")
+    return None, None
+
+
+# ---------------------------------------------------------------- 2) 본문 추출
+def fetch_body(url):
+    r = requests.get(url, headers={**UA, "Accept-Language": "ko-KR"}, timeout=20, allow_redirects=True)
+    print(f"[접속] {r.url} → HTTP {r.status_code}, {len(r.content):,} bytes")
+    r.encoding = r.apparent_encoding or "utf-8"
+    soup = BeautifulSoup(r.text, "html.parser")
+    title = (soup.find("meta", property="og:title") or {}).get("content") or (soup.title.string if soup.title else "")
+
+    # (1) 본문 영역: '◇ ○월 ○일' 이 들어 있는 가장 짧은 큰 덩어리
+    best = ""
+    for el in soup.find_all(["div", "article", "section"]):
+        t = el.get_text("\n", strip=True)
+        if "◇" in t and re.search(r"\d+월\s*\d+일", t) and len(t) > 200:
+            if not best or len(t) < len(best):
+                best = t
+    # (2) 구조화 데이터(JSON-LD)의 articleBody
+    if not best:
+        for sc in soup.find_all("script", type="application/ld+json"):
+            try:
+                data = json.loads(sc.string or "")
+                for d in data if isinstance(data, list) else [data]:
+                    if isinstance(d, dict) and len(d.get("articleBody", "")) > 200:
+                        best = d["articleBody"]
+            except Exception:  # noqa
+                pass
+    # (3) 스크립트 안에 들어 있는 본문 문자열
+    if not best:
+        for m in re.finditer(r'"(?:content|body|articleBody|text)"\s*:\s*"((?:[^"\\]|\\.){300,})"', r.text):
+            s = json.loads(f'"{m.group(1)}"')
+            if "◇" in s:
+                best = BeautifulSoup(s, "html.parser").get_text("\n", strip=True)
+                break
+    # (4) 최후: 메타 설명 (앞부분만 있음)
+    if not best:
+        best = (soup.find("meta", property="og:description") or {}).get("content", "")
+        print("⚠️ 본문을 찾지 못해 메타 설명만 사용 (일부 요일만 나올 수 있음)")
+    best = htmlmod.unescape(best)
+    print(f"[본문] {len(best)}자")
+    return (title or "").replace(" - SBS Biz", "").strip(), best
+
+
+# ---------------------------------------------------------------- 3) 요일별 정리 (AI)
+def structure(body, cfg):
+    prompt = (
+        "아래는 경제방송의 '주간경제일정' 원고다. 요일별 일정을 목록으로 정리해.\n"
+        "규칙:\n"
+        "- 원고에 나온 일정만, 없는 일정·수치 추가 금지\n"
+        "- 각 항목은 '국가) 일정명' 형식의 짧은 명사구, 25자 이내 (예: '美) 11월 제조업 PMI 예비치', '韓) 11월 1~20일 수출입')\n"
+        "- 국가 표기: 한국 韓, 미국 美, 중국 中, 일본 日, 유로존 유로존, 독일 獨, 영국 英. 기업 일정은 국가 생략 가능\n"
+        "- 원고에 나온 전망치·이전치 같은 숫자는 note에 짧게 (없으면 빈 문자열)\n"
+        "- week_title: 이번 주 핵심 키워드를 '·'로 이은 한 줄 (25자 이내)\n"
+        '출력 JSON만: {"week_title": "...", "days": [{"date": "11월 23일", "weekday": "월", '
+        '"items": [{"text": "...", "note": "..."}]}]}\n\n' + body[:12000]
+    )
+    out = gemini(prompt, cfg, want_json=True)
+    if out:
+        try:
+            data = json.loads(re.sub(r"^```(json)?|```$", "", out.strip()).strip())
+            if data.get("days"):
+                return data
+        except Exception as e:  # noqa
+            print("⚠️ AI 응답 해석 실패:", e)
+    # AI 실패 → '◇ 날짜' 기준으로 문장 단위 정리
+    print("AI 정리 실패 → 원문 문장으로 정리")
+    days = []
+    for block in re.split(r"◇", body)[1:]:
+        m = re.match(r"\s*(\d+월\s*\d+일)\s*([월화수목금토일])?요?일?", block)
+        if not m:
+            continue
+        sents = [s.strip() for s in re.split(r"(?<=[다요])\.\s*", block[m.end():]) if len(s.strip()) > 8]
+        days.append({"date": m.group(1), "weekday": m.group(2) or "",
+                     "items": [{"text": s[:45], "note": ""} for s in sents[:8]]})
+    return {"week_title": "", "days": days}
+
+
+# ---------------------------------------------------------------- 4) 이미지
+NAVY, INK, SUB, LINE = (14, 32, 78), (24, 30, 44), (110, 120, 140), (226, 231, 240)
+DAY_COLOR = {"월": (37, 99, 235), "화": (14, 165, 233), "수": (16, 150, 110), "목": (217, 119, 6),
+             "금": (220, 38, 38), "토": (100, 116, 139), "일": (100, 116, 139)}
+FLAG = re.compile(r"^(韓|美|中|日|獨|英|佛|유로존|EU|한국|미국|중국|일본|독일|영국)\)\s*")
+
+
+def wrap(d, text, fnt, max_w):
+    lines, cur = [], ""
+    for ch in text:
+        if d.textlength(cur + ch, font=fnt) > max_w and cur:
+            lines.append(cur)
+            cur = ch.lstrip()
+        else:
+            cur += ch
+    return lines + ([cur] if cur else [])
+
+
+def render(data, title_txt, source_txt):
+    from PIL import Image, ImageDraw
+    f_day, f_item, f_note, f_tag = font(40, "heavy"), font(34, "bold"), font(27, "regular"), font(26, "bold")
+    tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    pad, text_x, max_w = 60, 60 + 34, W - 60 - 34 - 60
+
+    # 높이 미리 계산
+    blocks, h = [], 0
+    for day in data["days"]:
+        rows = []
+        for it in day.get("items", []):
+            t = str(it.get("text", "")).strip()
+            if not t:
+                continue
+            m = FLAG.match(t)
+            tag, body = (m.group(1), t[m.end():]) if m else ("", t)
+            indent = (tmp.textlength(tag, font=f_tag) + 34) if tag else 0
+            lines = wrap(tmp, body, f_item, max_w - indent)
+            note = wrap(tmp, str(it.get("note") or ""), f_note, max_w - indent) if it.get("note") else []
+            rh = len(lines) * 48 + len(note) * 38 + 22
+            rows.append((tag, indent, lines, note, rh))
+        bh = 86 + sum(r[4] for r in rows) + 26
+        blocks.append((day, rows, bh))
+        h += bh + 26
+    header_h, footer_h = 400, 90
+    H = header_h + h + footer_h
+
+    img = Image.new("RGB", (W, H), (244, 246, 251))
+    head = background(now().strftime("%Y%W")).crop((0, 0, W, header_h))
+    img.paste(head.convert("RGB"), (0, 0))
+    canvas = Image.new("RGBA", (W, 1350), (0, 0, 0, 0))
+    canvas.paste(head, (0, 0))
+    gold_text(canvas, (W // 2, 170), "주간 경제일정", font(104, "heavy"))
+    img.paste(canvas.crop((0, 0, W, header_h)).convert("RGB"), (0, 0))
+    d = ImageDraw.Draw(img)
+    days = data["days"]
+    rng = f"{days[0].get('date', '')}({days[0].get('weekday', '')}) ~ {days[-1].get('date', '')}({days[-1].get('weekday', '')})"
+    d.text((W // 2, 268), rng, font=font(34, "bold"), fill=(205, 222, 255), anchor="mm")
+    if title_txt:
+        d.text((W // 2, 330), title_txt[:30], font=font(30, "bold"), fill=(255, 226, 150), anchor="mm")
+
+    y = header_h + 26
+    for day, rows, bh in blocks:
+        wd = day.get("weekday", "")
+        color = DAY_COLOR.get(wd, NAVY)
+        d.rounded_rectangle([pad - 20, y, W - pad + 20, y + bh], 22, fill="white", outline=LINE, width=2)
+        d.rounded_rectangle([pad - 20, y, W - pad + 20, y + 72], 22, fill=color)
+        d.rectangle([pad - 20, y + 50, W - pad + 20, y + 72], fill=color)
+        d.text((pad + 8, y + 36), f"{day.get('date', '')} ({wd})", font=f_day, fill="white", anchor="lm")
+        yy = y + 96
+        for tag, indent, lines, note, rh in rows:
+            d.ellipse([pad + 4, yy + 14, pad + 16, yy + 26], fill=color)
+            x = text_x
+            if tag:
+                tw = d.textlength(tag, font=f_tag)
+                d.rounded_rectangle([x, yy + 2, x + tw + 22, yy + 40], 10, fill=(236, 241, 252))
+                d.text((x + 11, yy + 21), tag, font=f_tag, fill=NAVY, anchor="lm")
+                x += indent
+            for ln in lines:
+                d.text((x, yy), ln, font=f_item, fill=INK)
+                yy += 48
+            for ln in note:
+                d.text((x, yy), ln, font=f_note, fill=SUB)
+                yy += 38
+            yy += 22
+        y += bh + 26
+    if source_txt:
+        d.text((W // 2, H - 48), source_txt, font=font(24, "regular"), fill=SUB, anchor="mm")
+    buf = io.BytesIO()
+    img.save(buf, "PNG", optimize=True)
+    return buf.getvalue(), H
+
+
+# ---------------------------------------------------------------- 실행
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--url")
+    ap.add_argument("--save")
+    args = ap.parse_args()
+
+    cfg = load_config()
+    wc = cfg.get("weekly_calendar", {})
+    if not wc.get("enabled", True):
+        return print("주간 경제일정 기능 꺼짐")
+    if not args.force and now().weekday() != 0:
+        return print("월요일이 아님 → 건너뜀")
+
+    url, title = (args.url, None) if args.url else find_article(wc)
+    if not url:
+        return print("기사를 찾지 못해 발송하지 않음 (다음 실행 때 다시 시도)")
+    state = load_state("weekly_calendar")
+    page_title, body = fetch_body(url)
+    title = page_title or title or ""
+    key = re.sub(r"\s+", "", title)[:60]
+    if not args.force and key and key in state.get("done", []):
+        return print("이미 발송한 기사:", title)
+    if len(body) < 100:
+        return print("❌ 본문이 너무 짧아 발송하지 않음")
+
+    data = structure(body, cfg)
+    data["days"] = [dd for dd in data.get("days", []) if dd.get("items")]
+    if not data["days"]:
+        return print("❌ 일정을 정리하지 못해 발송하지 않음")
+    print("[정리]", [(dd["date"], len(dd["items"])) for dd in data["days"]])
+
+    week_title = data.get("week_title") or re.sub(r"^\[[^\]]+\]\s*", "", title)
+    source = wc.get("source_text", "")       # 비우면 이미지·설명글에 출처 표기 없음
+    png, h = render(data, week_title, source)
+    if args.save:
+        open(args.save, "wb").write(png)
+    first, last = data["days"][0], data["days"][-1]
+    cap = (f"📅 <b>주간 경제일정</b> | {esc(first.get('date'))}~{esc(last.get('date'))}\n"
+           f"{esc(week_title)}")
+    if source:
+        cap += f"\n<i>{esc(source)}</i>"
+    send_photo(png, cap, cfg)
+
+    state.setdefault("done", []).append(key)
+    state["done"] = state["done"][-20:]
+    add_history(state, f"[주간일정] {title}", url)
+    state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
+    save_state("weekly_calendar", state)
+
+
+if __name__ == "__main__":
+    main()
