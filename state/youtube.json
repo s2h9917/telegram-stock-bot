@@ -214,12 +214,30 @@
     "sI0TtP11WNM": "video",
     "49CPnrkYFqk": "video",
     "KUeBaz3x6x0": "video",
-    "ZeP20KtpQ8Y": "video"
+    "ZeP20KtpQ8Y": "video",
+    "6Qi5o-cTLE0": "video",
+    "6Xe5KsAFe38": "video",
+    "nQT1bZmlkws": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-23 09:01",
+      "title": "[유튜브] [여의도튜브] \"韓기업엔 메모리 있겠지!\" 해외 고객들 '경악' / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=nQT1bZmlkws"
+    },
+    {
+      "time": "2026-11-23 09:00",
+      "title": "[유튜브] [투자뉴스7 Q&A] 18년 만에 증안펀드 기대, \"투매에 동참하지 마라\" '진짜' 바닥 신호 3가지는! / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=6Xe5KsAFe38"
+    },
+    {
+      "time": "2026-11-23 09:00",
+      "title": "[유튜브] [단야선생의 단칼전략] AMD 공매도 + 엔비디아 SEC 회계처리조사 등 악재 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=6Qi5o-cTLE0"
+    },
     {
       "time": "2026-11-23 08:00",
       "title": "[유튜브] [마켓 링크] 패닉에 빠진 뉴욕증시, 앤트로픽 상장 방아쇠 됐나? / 머니투데이방송 (증시, 증권)",
@@ -454,22 +472,7 @@
       "time": "2026-11-20 14:00",
       "title": "[유튜브] [오후의 쟁점] 지지선 깨진 시장 \"반도체, 이것 확인해야 숨통\" 반등 노려 볼 낙폭과대 TOP2 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=0zJKIqtogfU"
-    },
-    {
-      "time": "2026-11-20 14:00",
-      "title": "[유튜브] [배준호의 골든스팟] 차트상 하락쐐기형, 기술적 반등 임박 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=mA1O7C1DrZk"
-    },
-    {
-      "time": "2026-11-20 13:00",
-      "title": "[유튜브] [긴급진단] \"AI 성장 '제2장'의 시작\" 반도체와 결합할 실전전략!  / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=_akWtO5Ll0M"
-    },
-    {
-      "time": "2026-11-20 13:00",
-      "title": "[유튜브] [여의도튜브] \"감히 시진핑 심기를..\" 美기자 '3국회담' 퇴출 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=iSFg3HxhEds"
     }
   ],
-  "last_run": "2026-11-23 08:00"
+  "last_run": "2026-11-23 09:01"
 }
