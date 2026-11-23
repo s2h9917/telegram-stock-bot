@@ -224,12 +224,36 @@
     "bWiptRVDPEA": "video",
     "DnS_HNBvrN8": "video",
     "6yM5pbprSZo": "video",
-    "MdwOE2a7LXc": "video"
+    "MdwOE2a7LXc": "video",
+    "niSF2S3vWjc": "video",
+    "N7cRf717avs": "video",
+    "UtAXECJPKfA": "video",
+    "rklxbXHkMQw": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-23 13:00",
+      "title": "[유튜브] [긴급진단] '시계제로' AI 패닉 증시, 아직 '바닥'은 오지 않았다! / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=rklxbXHkMQw"
+    },
+    {
+      "time": "2026-11-23 13:00",
+      "title": "[유튜브] [퀵브리핑] 삼성증권, 8241명 개인정보 유출… 홈페이지 고객 민원 시스템 해킹",
+      "link": "https://www.youtube.com/shorts/UtAXECJPKfA"
+    },
+    {
+      "time": "2026-11-23 13:00",
+      "title": "[유튜브] [이달해의 달달한 10분] 美 · 러 · 우 크리스마스 전 종전협상 추진 '에스와이' / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=N7cRf717avs"
+    },
+    {
+      "time": "2026-11-23 13:00",
+      "title": "[유튜브] [좋은정보의 오후장 기선제압] 코스피 장중 매도 사이드카..오후장 대응은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=niSF2S3vWjc"
+    },
     {
       "time": "2026-11-23 12:01",
       "title": "[유튜브] [전략의 해석 찬찬찬] 반도체가 먼저 뛸까? 코스피 연말 랠리의 조건 / 머니투데이방송 (증시, 증권)",
@@ -459,27 +483,7 @@
       "time": "2026-11-20 17:00",
       "title": "[유튜브] [여튜 쇼츠] \"엔비디아도 선금을...\" 韓 지갑에 먼저 챙긴 1조 / 여의도튜브",
       "link": "https://www.youtube.com/shorts/vm410hLjx8A"
-    },
-    {
-      "time": "2026-11-20 17:00",
-      "title": "[유튜브] [오늘의 단서, 다음주 섹터] 반도체 폭락, 오히려 기회!낙폭 끝자락에서 터질 '소부장' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=sITx2Lce1tw"
-    },
-    {
-      "time": "2026-11-20 16:01",
-      "title": "[유튜브] [김도형의 럭키7] 화장품 vs 로봇 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=gQKTvlOKPgw"
-    },
-    {
-      "time": "2026-11-20 16:00",
-      "title": "[유튜브] [에디터PICK] 비수기에도 선케어 주문 폭증…한국콜마, 14만원 다시 갈까?",
-      "link": "https://www.youtube.com/watch?v=CyVESJ2deIk"
-    },
-    {
-      "time": "2026-11-20 16:00",
-      "title": "[유튜브] [여의도튜브] 미국 수출통제 조치 따라 반도체 출하 중단 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=9FSKcUeQEZQ"
     }
   ],
-  "last_run": "2026-11-23 12:01"
+  "last_run": "2026-11-23 13:00"
 }
