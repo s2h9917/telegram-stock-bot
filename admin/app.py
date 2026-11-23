@@ -20,7 +20,8 @@ st.set_page_config(page_title="증시봇 관리자", page_icon="📈", layout="w
 
 API = "https://api.github.com"
 WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑",
-             "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스"}
+             "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스",
+             "weekly_calendar.yml": "⑥ 주간 경제일정"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -217,6 +218,13 @@ with tab2:
         ", ".join(sc.get("exclude_names", []))).split(",") if x.strip()]
 
     st.divider()
+    st.subheader("⑥ 주간 경제일정 (매주 월요일 이미지)")
+    wc = cfg.setdefault("weekly_calendar", {})
+    c1, c2 = st.columns([1, 3])
+    wc["enabled"] = c1.toggle("사용", wc.get("enabled", True), key="w_en")
+    wc["source_text"] = c2.text_input("출처 표기 (비우면 표시 안 함)", wc.get("source_text", ""))
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -267,6 +275,15 @@ with tab3:
         else:
             st.error(m)
 
+    c1, c2 = st.columns([3, 1])
+    wurl = c1.text_input("⑥ 주간 경제일정 기사 주소 (비우면 이번 주 기사를 자동으로 찾음)")
+    if c2.button("⑥ 주간 경제일정 지금 보내기"):
+        ok, m = gh_dispatch("weekly_calendar.yml", {"force": True, "url": wurl.strip()})
+        if ok:
+            st.success("요청 완료 (1~2분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -286,7 +303,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
