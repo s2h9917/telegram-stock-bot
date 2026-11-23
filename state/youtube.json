@@ -263,12 +263,18 @@
     "HAkwb_WI_Mo": "video",
     "cQmLKkhyYJ8": "video",
     "4uVSfF_Xnro": "video",
-    "Vwg8hSxs-6A": "video"
+    "Vwg8hSxs-6A": "video",
+    "8aO9kRF7Pp8": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-24 08:00",
+      "title": "[유튜브] [투자뉴스7 브리핑] 엔비디아, 젠슨 황 CEO 전격 복귀 결정 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=8aO9kRF7Pp8"
+    },
     {
       "time": "2026-11-24 07:01",
       "title": "[유튜브] [여의도튜브] \"인니 도대체 뭘 했길래\" '외환위기'때보다 더 폭락 / 머니투데이방송",
@@ -513,12 +519,7 @@
       "time": "2026-11-23 09:00",
       "title": "[유튜브] [단야선생의 단칼전략] AMD 공매도 + 엔비디아 SEC 회계처리조사 등 악재 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=6Qi5o-cTLE0"
-    },
-    {
-      "time": "2026-11-23 08:00",
-      "title": "[유튜브] [마켓 링크] 패닉에 빠진 뉴욕증시, 앤트로픽 상장 방아쇠 됐나? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=ZeP20KtpQ8Y"
     }
   ],
-  "last_run": "2026-11-24 07:01"
+  "last_run": "2026-11-24 08:00"
 }
