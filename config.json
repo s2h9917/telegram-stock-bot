@@ -7,20 +7,27 @@
     "model": "gemini-flash-latest"
   },
   "footer": "※ 본 내용은 정보 제공 목적이며 투자 권유가 아닙니다. 투자 판단의 책임은 투자자 본인에게 있습니다.",
-  "holidays": ["2026-12-25", "2026-12-31"],
+  "holidays": [
+    "2026-12-25",
+    "2026-12-31"
+  ],
   "reports": {
     "enabled": true,
     "format": "text",
     "max_reports": 20,
     "header": "☀️ {date} 오늘의 종목 리포트",
     "brokers_exclude": [],
-    "stocks_watch": []
+    "stocks_watch": [],
+    "per_message": 5
   },
   "youtube": {
     "enabled": true,
     "notify_live": "start",
     "channels": [
-      {"name": "MTN", "channel_id": "UClErHbdZKUnD1NyIUeQWvuQ"}
+      {
+        "name": "MTN",
+        "channel_id": "UClErHbdZKUnD1NyIUeQWvuQ"
+      }
     ],
     "templates": {
       "video": "🎬 <b>{channel}</b> 새 영상\n{title}\n{link}",
@@ -30,7 +37,87 @@
   },
   "market": {
     "enabled": true,
-    "slots": {"pre": true, "mid": true, "close": true},
-    "keywords": ["코스피", "증시", "뉴욕증시", "환율", "외국인 순매수"]
+    "slots": {
+      "pre": true,
+      "mid": true,
+      "close": true
+    },
+    "keywords": [
+      "코스피",
+      "증시",
+      "뉴욕증시",
+      "환율",
+      "외국인 순매수"
+    ],
+    "late_close": {}
+  },
+  "hot_issue": {
+    "enabled": true,
+    "count": 5,
+    "weekdays_only": false,
+    "title": "오늘의 핫 이슈",
+    "brand": "",
+    "keywords": [
+      "뉴욕증시",
+      "미국 증시 마감",
+      "코스피 전망",
+      "환율",
+      "국제유가",
+      "반도체 주가",
+      "트럼프 관세"
+    ]
+  },
+  "stock_news": {
+    "enabled": true,
+    "max_per_hour": 3,
+    "min_score": 4,
+    "show_link": true,
+    "start_hour": 7,
+    "end_hour": 20,
+    "weekdays_only": false,
+    "keywords": [
+      "단독",
+      "수주",
+      "공급계약",
+      "계약 체결",
+      "영업이익",
+      "실적",
+      "흑자전환",
+      "최대 실적",
+      "기술수출",
+      "FDA",
+      "인수",
+      "합병",
+      "자사주",
+      "유상증자",
+      "임상"
+    ],
+    "media": [
+      {
+        "name": "머니투데이방송",
+        "domain": "mtn.co.kr"
+      },
+      {
+        "name": "머니투데이",
+        "domain": "mt.co.kr"
+      },
+      {
+        "name": "뉴시스",
+        "domain": "www.newsis.com"
+      },
+      {
+        "name": "뉴스1",
+        "domain": "news1.kr"
+      },
+      {
+        "name": "지디넷코리아",
+        "domain": "zdnet.co.kr"
+      },
+      {
+        "name": "더벨",
+        "domain": "thebell.co.kr"
+      }
+    ],
+    "exclude_names": []
   }
 }
