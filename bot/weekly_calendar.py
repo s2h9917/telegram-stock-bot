@@ -43,8 +43,62 @@ def find_article(wc):
     return None, None
 
 
+def resolve_url(url):
+    """구글 뉴스 중간 페이지 주소 → 실제 기사 주소 (SBS Biz)"""
+    if "news.google.com" not in url:
+        return url
+    try:  # 1) 중간 페이지 안에 원래 주소가 들어 있는 경우
+        t = requests.get(url, headers=UA, timeout=20).text
+        m = re.search(r"https?://biz\.sbs\.co\.kr/article/\d+", t) or re.search(r'data-n-au="([^"]+)"', t)
+        if m:
+            real = m.group(1) if m.re.groups else m.group(0)
+            print("[주소 변환] 중간 페이지에서 찾음:", real)
+            return real
+    except Exception as e:  # noqa
+        print("중간 페이지 읽기 실패:", e)
+    try:  # 2) 구글 뉴스 주소 해독 라이브러리
+        from googlenewsdecoder import gnewsdecoder
+        res = gnewsdecoder(url, interval=1)
+        if res.get("success") or res.get("status"):
+            print("[주소 변환] 해독 성공:", res["decoded_url"])
+            return res["decoded_url"]
+        print("⚠️ 주소 해독 실패:", res.get("message"))
+    except Exception as e:  # noqa
+        print("⚠️ 주소 해독 라이브러리 오류:", e)
+    return url
+
+
+def feed_api_body(article_url):
+    """SBS 기사 데이터 주소에서 본문 받기 (페이지에 본문이 바로 없을 때)"""
+    m = re.search(r"/article/(\d+)", article_url)
+    if not m:
+        return ""
+    try:
+        r = requests.get(f"https://feedapi.cloud.sbs.co.kr/feed-api/article_hub/{m.group(1)}",
+                         headers={**UA, "Referer": article_url}, timeout=20)
+        print(f"[데이터 주소] HTTP {r.status_code}, {len(r.content):,} bytes")
+        texts = []
+
+        def walk(o):
+            if isinstance(o, dict):
+                for v in o.values():
+                    walk(v)
+            elif isinstance(o, list):
+                for v in o:
+                    walk(v)
+            elif isinstance(o, str) and len(o) > 200:
+                texts.append(o)
+        walk(r.json())
+        best = max(texts, key=lambda t: ("◇" in t, len(t)), default="")
+        return BeautifulSoup(best.replace("<br", "\n<br"), "html.parser").get_text("\n", strip=True)
+    except Exception as e:  # noqa
+        print("⚠️ 데이터 주소 실패:", e)
+        return ""
+
+
 # ---------------------------------------------------------------- 2) 본문 추출
 def fetch_body(url):
+    url = resolve_url(url)
     r = requests.get(url, headers={**UA, "Accept-Language": "ko-KR"}, timeout=20, allow_redirects=True)
     print(f"[접속] {r.url} → HTTP {r.status_code}, {len(r.content):,} bytes")
     r.encoding = r.apparent_encoding or "utf-8"
@@ -75,7 +129,12 @@ def fetch_body(url):
             if "◇" in s:
                 best = BeautifulSoup(s, "html.parser").get_text("\n", strip=True)
                 break
-    # (4) 최후: 메타 설명 (앞부분만 있음)
+    # (4) SBS 기사 데이터 주소
+    if not best or "◇" not in best:
+        alt = feed_api_body(r.url)
+        if len(alt) > len(best):
+            best = alt
+    # (5) 최후: 메타 설명 (앞부분만 있음)
     if not best:
         best = (soup.find("meta", property="og:description") or {}).get("content", "")
         print("⚠️ 본문을 찾지 못해 메타 설명만 사용 (일부 요일만 나올 수 있음)")
