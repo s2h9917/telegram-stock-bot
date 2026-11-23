@@ -126,24 +126,42 @@ def score_of(title):
     return s, (tags[0] if tags else "")
 
 
-def collect(keywords, hours):
+def media_ok(src_name, src_url, media):
+    """지정 매체 목록이 비어 있으면 모두 허용, 있으면 이름이나 주소가 맞는 기사만"""
+    if not media:
+        return True
+    for m in media:
+        name, dom = (m.get("name") or "").strip(), (m.get("domain") or "").strip().lower()
+        if (name and name in src_name) or (dom and dom in src_url.lower()):
+            return True
+    return False
+
+
+def collect(keywords, hours, media=()):
+    queries = list(keywords)
+    # 지정 매체가 있으면 '매체 주소 + 핵심 키워드' 검색도 추가 → 해당 매체 기사를 충분히 확보
+    ors = " OR ".join(f'"{k}"' if " " in k else k for k in keywords[:10])
+    queries += [f"site:{m['domain'].strip()} ({ors})" for m in media if (m.get("domain") or "").strip()]
     items, seen = [], set()
-    for kw in keywords:
-        url = f"https://news.google.com/rss/search?q={quote(kw)}+when:{hours}h&hl=ko&gl=KR&ceid=KR:ko"
+    for q in queries:
+        url = f"https://news.google.com/rss/search?q={quote(q)}+when:{hours}h&hl=ko&gl=KR&ceid=KR:ko"
         try:
             feed = feedparser.parse(requests.get(url, headers=UA, timeout=15).content)
         except Exception as e:  # noqa
-            print("뉴스 실패:", kw, e)
+            print("뉴스 실패:", q, e)
             continue
-        for e in feed.entries[:25]:
+        for e in feed.entries[:40]:
             raw = e.get("title", "")
-            if raw in seen:
+            src = e.get("source") or {}
+            src_name = (src.get("title") or "").strip() or (raw.rsplit(" - ", 1)[-1] if " - " in raw else "")
+            src_url = src.get("href") or ""
+            if raw in seen or not media_ok(src_name, src_url, media):
                 continue
             seen.add(raw)
             pub = e.get("published_parsed")
             items.append({"raw": raw, "title": clean_title(raw), "link": e.get("link", ""),
-                          "ts": calendar.timegm(pub) if pub else 0})
-    print(f"[뉴스] 수집 {len(items)}건")
+                          "source": src_name, "ts": calendar.timegm(pub) if pub else 0})
+    print(f"[뉴스] 검색 {len(queries)}회, " + ("지정 매체 " if media else "") + f"기사 {len(items)}건")
     return items
 
 
@@ -211,7 +229,10 @@ def main():
 
     min_score = int(sc.get("min_score", 4))
     cands, used = [], set()
-    for it in sorted(collect(sc.get("keywords") or DEFAULT_KEYWORDS, int(sc.get("lookback_hours", 2))),
+    media = [m for m in sc.get("media", []) if (m.get("name") or m.get("domain"))]
+    if media:
+        print("[매체] " + ", ".join(m.get("name") or m.get("domain") for m in media))
+    for it in sorted(collect(sc.get("keywords") or DEFAULT_KEYWORDS, int(sc.get("lookback_hours", 2)), media),
                      key=lambda x: -x["ts"]):
         t = it["title"]
         if it["link"] in sent_links or EXCLUDE.search(it["raw"]) or len(t) < 10:
@@ -258,10 +279,13 @@ def main():
     for c in picked:
         code, mkt = companies.get(c["company"], ["", ""])
         tag = f" · {c['tag']}" if c.get("tag") else ""
+        head = esc(c["headline"])
+        if sc.get("show_link", True) and c.get("link"):   # 제목을 누르면 기사로 이동
+            head = f"<a href=\"{esc(c['link'])}\">{head}</a> 🔗"
+        if c.get("source"):
+            head += f" <i>{esc(c['source'])}</i>"
         line = (f"{TONE[c['tone']]} <b>{esc(c['company'])}</b> <code>{code}</code> {esc(mkt)}{esc(tag)}\n"
-                f"{esc(c['headline'])}")
-        if sc.get("show_link"):
-            line += f"\n<a href=\"{c['link']}\">기사 보기</a>"
+                f"{head}")
         blocks.append(line)
     if cfg.get("footer"):
         blocks.append(f"<i>{esc(cfg['footer'])}</i>")
