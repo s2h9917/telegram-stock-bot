@@ -243,12 +243,30 @@
     "tYz7EZq5ERA": "video",
     "nEZKTek6-yw": "video",
     "nu7pXeQ04DE": "video",
-    "zwXFQ9EwtXY": "video"
+    "zwXFQ9EwtXY": "video",
+    "u6ku_dlNaXM": "video",
+    "OVRYzErl1F4": "video",
+    "2aJIkpB4CF4": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-23 17:57",
+      "title": "[유튜브] [황금선 종가매매] 스킨케어 브랜드 '에딧비' 中 진출 모색 기대 '삐아' / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=2aJIkpB4CF4"
+    },
+    {
+      "time": "2026-11-23 17:57",
+      "title": "[유튜브] [퀵브리핑] 최태원 \"9440억 전액 내겠다\" 화해권고 신청…9년 '세기의 이혼' 마침표 찍나",
+      "link": "https://www.youtube.com/shorts/OVRYzErl1F4"
+    },
+    {
+      "time": "2026-11-23 17:57",
+      "title": "[유튜브] [퀵브리핑] [단독] 현대해상, IFRS17 맞춰 성과급 손질…수익·건전성 연동한다",
+      "link": "https://www.youtube.com/shorts/u6ku_dlNaXM"
+    },
     {
       "time": "2026-11-23 17:01",
       "title": "[유튜브] [오늘의 단서, 내일의 섹터] 누적된 악재 속 반등 조건은? '반도체주' / 머니투데이방송 (증시, 증권)",
@@ -483,22 +501,7 @@
       "time": "2026-11-21 07:00",
       "title": "[유튜브] [W디펜스] \"이런 대만 무기가 있네!\" 美 '中 맞상대' 눈이 번쩍 / 머니투데이방송",
       "link": "https://www.youtube.com/watch?v=8VBMdjnA5Dw"
-    },
-    {
-      "time": "2026-11-20 20:00",
-      "title": "[유튜브] [여튜 쇼츠] \"일본, 아 반도체 때문에..\" 한국에 뺏긴 4번째 '훈장' / 여의도튜브",
-      "link": "https://www.youtube.com/shorts/5Lej6E99ZWI"
-    },
-    {
-      "time": "2026-11-20 20:00",
-      "title": "[유튜브] 신영일의 비즈정보 플러스 351회 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=jn51KaVB3kw"
-    },
-    {
-      "time": "2026-11-20 19:00",
-      "title": "[유튜브] [파워인터뷰 화제人] 트위니 천홍석 대표 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=j0IBuKoruRI"
     }
   ],
-  "last_run": "2026-11-23 17:01"
+  "last_run": "2026-11-23 17:57"
 }
