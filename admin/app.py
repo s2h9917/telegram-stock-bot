@@ -196,7 +196,7 @@ with tab2:
     sc["max_per_hour"] = c2.slider("1시간 최대 건수", 1, 5, int(sc.get("max_per_hour", 3)))
     sc["min_score"] = c3.slider("최소 중요도 점수", 2, 10, int(sc.get("min_score", 4)),
                                 help="높일수록 수주·단독·대형 계약 같은 굵직한 뉴스만 올라갑니다")
-    sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", False))
+    sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", True))
     c1, c2, c3 = st.columns(3)
     sc["start_hour"] = c1.number_input("시작 시각(시)", 0, 23, int(sc.get("start_hour", 7)))
     sc["end_hour"] = c2.number_input("종료 시각(시)", 0, 23, int(sc.get("end_hour", 20)))
@@ -206,6 +206,12 @@ with tab2:
         ", ".join(sc.get("keywords") or ["단독", "수주", "공급계약", "계약 체결", "영업이익", "실적", "흑자전환",
                                           "최대 실적", "기술수출", "FDA", "인수", "합병", "자사주", "유상증자", "임상"])
     ).split(",") if x.strip()]
+    st.markdown("**뉴스 매체 지정** — 비워 두면 모든 매체. 매체명은 구글 뉴스에 표시되는 이름, 주소는 도메인만 (예: 머니투데이 / mt.co.kr)")
+    med_df = pd.DataFrame(sc.get("media", []), columns=["name", "domain"])
+    med_ed = st.data_editor(med_df, num_rows="dynamic", width="stretch", key="media_ed",
+                            column_config={"name": "매체명", "domain": "도메인 (예: mt.co.kr)"})
+    sc["media"] = [{"name": r["name"].strip(), "domain": r["domain"].strip()}
+                   for r in med_ed.fillna("").to_dict("records") if r["name"].strip() or r["domain"].strip()]
     sc["exclude_names"] = [x.strip() for x in st.text_input(
         "잘못 잡히는 회사명 제외 (쉼표로 구분, 예: 흔한 단어와 같은 회사명)",
         ", ".join(sc.get("exclude_names", []))).split(",") if x.strip()]
