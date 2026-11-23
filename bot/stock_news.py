@@ -199,6 +199,25 @@ def ai_pick(cands, n, cfg):
         return None
 
 
+def resolve_links(items):
+    """구글 뉴스 중간 주소를 실제 언론사 기사 주소로 바꿈 (짧고, 누르면 바로 기사로 이동)"""
+    g = [c for c in items if "news.google.com" in c.get("link", "")]
+    if not g:
+        return
+    try:
+        from googlenewsdecoder import gnewsdecoder
+        res = gnewsdecoder([c["link"] for c in g], interval=1)
+        for c, r in zip(g, res if isinstance(res, list) else [res]):
+            if r.get("success") or r.get("status"):
+                c["orig_link"] = c["link"]
+                c["link"] = r["decoded_url"]
+            else:
+                print("⚠️ 주소 변환 실패:", c["company"], r.get("message"))
+        print(f"[링크] {sum(1 for c in g if 'orig_link' in c)}/{len(g)}건 실제 기사 주소로 변환")
+    except Exception as e:  # noqa
+        print("⚠️ 주소 변환 오류 → 구글 뉴스 주소 사용:", e)
+
+
 # ---------------------------------------------------------------- 실행
 TONE = {"up": "🔸", "down": "🔹", "flat": "▪️"}
 NEG = ("파업", "유상증자", "상장폐지", "거래정지", "횡령", "배임", "압수수색", "리콜", "적자전환", "어닝 쇼크", "하한가")
@@ -274,25 +293,29 @@ def main():
         save_state("stock_news", state)
         return print("AI 판단: 이번 시간 중요 뉴스 없음")
 
+    if sc.get("show_link", True):
+        resolve_links(picked)
+
     companies = load_listed()
     blocks = [f"📢 <b>종목 뉴스</b> | {now():%m/%d %H}:00"]
     for c in picked:
         code, mkt = companies.get(c["company"], ["", ""])
         tag = f" · {c['tag']}" if c.get("tag") else ""
         head = esc(c["headline"])
-        if sc.get("show_link", True) and c.get("link"):   # 제목을 누르면 기사로 이동
-            head = f"<a href=\"{esc(c['link'])}\">{head}</a> 🔗"
         if c.get("source"):
             head += f" <i>{esc(c['source'])}</i>"
         line = (f"{TONE[c['tone']]} <b>{esc(c['company'])}</b> <code>{code}</code> {esc(mkt)}{esc(tag)}\n"
                 f"{head}")
+        if sc.get("show_link", True) and c.get("link"):
+            # 주소를 그대로 보여줘야 텔레그램이 '이 링크를 열까요?'를 묻지 않고 바로 열어 줌
+            line += f"\n🔗 {esc(c['link'])}"
         blocks.append(line)
     if cfg.get("footer"):
         blocks.append(f"<i>{esc(cfg['footer'])}</i>")
     send_text("\n\n".join(blocks), cfg)
 
     for c in picked:
-        sent_links.add(c["link"])
+        sent_links.add(c.get("orig_link", c["link"]))
         recent.append([c["company"], c["title"]])
         add_history(state, f"[종목뉴스] {c['company']} - {c['headline']}", c["link"])
     state["links"] = list(sent_links)[-400:]
