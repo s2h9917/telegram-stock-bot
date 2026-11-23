@@ -134,6 +134,13 @@ def fetch_body(url):
         alt = feed_api_body(r.url)
         if len(alt) > len(best):
             best = alt
+    if not best or "◇" not in best:   # 원인 파악용: 본문을 불러오는 주소 후보
+        aid = (re.search(r"/article/(\d+)", r.url) or [None, ""])[1]
+        cands = sorted(set(re.findall(r"""["'(]((?:https?:)?//[^"'()\s]*(?:api|feed|article|content)[^"'()\s]*)""", r.text)))
+        print("  🔎 본문 후보 주소:", [c for c in cands if aid in c or "api" in c][:12])
+        print("  🔎 script 파일:", [sc.get("src") for sc in soup.find_all("script", src=True)][:12])
+        print("  🔎 '◇' 포함 여부:", "◇" in r.text, "/ 첫 날짜 위치 문맥:",
+              (lambda i: r.text[max(0, i - 80):i + 120].replace("\n", " ") if i >= 0 else "없음")(r.text.find("◇")))
     # (5) 최후: 메타 설명 (앞부분만 있음)
     if not best:
         best = (soup.find("meta", property="og:description") or {}).get("content", "")
@@ -300,6 +307,8 @@ def main():
     if not data["days"]:
         return print("❌ 일정을 정리하지 못해 발송하지 않음")
     print("[정리]", [(dd["date"], len(dd["items"])) for dd in data["days"]])
+    if len(data["days"]) < int(wc.get("min_days", 3)):
+        return print(f"❌ 요일이 {len(data['days'])}개뿐 → 본문 일부만 읽은 것으로 보고 발송하지 않음")
 
     week_title = data.get("week_title") or re.sub(r"^\[[^\]]+\]\s*", "", title)
     source = wc.get("source_text", "")       # 비우면 이미지·설명글에 출처 표기 없음
