@@ -20,7 +20,7 @@ st.set_page_config(page_title="증시봇 관리자", page_icon="📈", layout="w
 
 API = "https://api.github.com"
 WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑",
-             "hot_issue.yml": "④ 오늘의 핫 이슈"}
+             "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -189,6 +189,28 @@ with tab2:
                                           "국제유가", "반도체 주가", "트럼프 관세"])).split(",") if s.strip()]
 
     st.divider()
+    st.subheader("⑤ 종목 뉴스 (매시간)")
+    sc = cfg.setdefault("stock_news", {})
+    c1, c2, c3, c4 = st.columns(4)
+    sc["enabled"] = c1.toggle("사용", sc.get("enabled", True), key="s_en")
+    sc["max_per_hour"] = c2.slider("1시간 최대 건수", 1, 5, int(sc.get("max_per_hour", 3)))
+    sc["min_score"] = c3.slider("최소 중요도 점수", 2, 10, int(sc.get("min_score", 4)),
+                                help="높일수록 수주·단독·대형 계약 같은 굵직한 뉴스만 올라갑니다")
+    sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", False))
+    c1, c2, c3 = st.columns(3)
+    sc["start_hour"] = c1.number_input("시작 시각(시)", 0, 23, int(sc.get("start_hour", 7)))
+    sc["end_hour"] = c2.number_input("종료 시각(시)", 0, 23, int(sc.get("end_hour", 20)))
+    sc["weekdays_only"] = c3.checkbox("평일(장 열리는 날)만", sc.get("weekdays_only", False), key="s_wd")
+    sc["keywords"] = [x.strip() for x in st.text_input(
+        "뉴스 검색 키워드 (쉼표로 구분)",
+        ", ".join(sc.get("keywords") or ["단독", "수주", "공급계약", "계약 체결", "영업이익", "실적", "흑자전환",
+                                          "최대 실적", "기술수출", "FDA", "인수", "합병", "자사주", "유상증자", "임상"])
+    ).split(",") if x.strip()]
+    sc["exclude_names"] = [x.strip() for x in st.text_input(
+        "잘못 잡히는 회사명 제외 (쉼표로 구분, 예: 흔한 단어와 같은 회사명)",
+        ", ".join(sc.get("exclude_names", []))).split(",") if x.strip()]
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -232,6 +254,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑤ 종목 뉴스 지금 확인"):
+        ok, m = gh_dispatch("stock_news.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (1~2분 후, 중요 뉴스가 있으면 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -251,7 +280,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
