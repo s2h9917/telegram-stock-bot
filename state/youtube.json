@@ -259,12 +259,36 @@
     "l6px8mzYoGg": "video",
     "taBacLuf7QY": "video",
     "l7eOIUMnWhs": "video",
-    "qplG6WkY-40": "video"
+    "qplG6WkY-40": "video",
+    "HAkwb_WI_Mo": "video",
+    "cQmLKkhyYJ8": "video",
+    "4uVSfF_Xnro": "video",
+    "Vwg8hSxs-6A": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-24 07:01",
+      "title": "[유튜브] [여의도튜브] \"인니 도대체 뭘 했길래\" '외환위기'때보다 더 폭락 / 머니투데이방송",
+      "link": "https://www.youtube.com/watch?v=Vwg8hSxs-6A"
+    },
+    {
+      "time": "2026-11-24 07:00",
+      "title": "[유튜브] [클로징 킥] AI 투자 부활에도 근본적 문제는 남았다  / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=4uVSfF_Xnro"
+    },
+    {
+      "time": "2026-11-24 07:00",
+      "title": "[유튜브] [이항영의 히트앤 비트] 젠슨 황 CEO 복귀로 시장 매도세 멈출까?...마감 평가는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=cQmLKkhyYJ8"
+    },
+    {
+      "time": "2026-11-24 07:00",
+      "title": "[유튜브] [마켓 링크] 젠슨 황 복귀에 환호...추세 전환 vs 단기 급등? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=HAkwb_WI_Mo"
+    },
     {
       "time": "2026-11-23 20:00",
       "title": "[유튜브] [여튜 쇼츠] \"30년전 메모리카드 급구\" 스텔스 F-22 '당장 위기' / 여의도튜브",
@@ -494,27 +518,7 @@
       "time": "2026-11-23 08:00",
       "title": "[유튜브] [마켓 링크] 패닉에 빠진 뉴욕증시, 앤트로픽 상장 방아쇠 됐나? / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=ZeP20KtpQ8Y"
-    },
-    {
-      "time": "2026-11-23 08:00",
-      "title": "[유튜브] [에디터 PICK] \"엔비디아·AMD까지 무너졌다! 지금 팔아야 할까 버텨야 할까?\"",
-      "link": "https://www.youtube.com/watch?v=KUeBaz3x6x0"
-    },
-    {
-      "time": "2026-11-23 08:00",
-      "title": "[유튜브] [투자뉴스7 브리핑] 금융위기를 반영 중 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=49CPnrkYFqk"
-    },
-    {
-      "time": "2026-11-23 07:01",
-      "title": "[유튜브] [여의도튜브] \"韓반도체 협력 어때요!\" 방산 삐걱 印尼 '러브콜' / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=sI0TtP11WNM"
-    },
-    {
-      "time": "2026-11-23 07:00",
-      "title": "[유튜브] [클로징 킥] 연준과 ECB, 동시에 AI 부채 경고  / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=6gLdh2lzoJQ"
     }
   ],
-  "last_run": "2026-11-24 06:00"
+  "last_run": "2026-11-24 07:01"
 }
