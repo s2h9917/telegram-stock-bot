@@ -258,12 +258,18 @@
     "kR-xdg54DTM": "video",
     "l6px8mzYoGg": "video",
     "taBacLuf7QY": "video",
-    "l7eOIUMnWhs": "video"
+    "l7eOIUMnWhs": "video",
+    "qplG6WkY-40": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-23 20:00",
+      "title": "[유튜브] [여튜 쇼츠] \"30년전 메모리카드 급구\" 스텔스 F-22 '당장 위기' / 여의도튜브",
+      "link": "https://www.youtube.com/shorts/qplG6WkY-40"
+    },
     {
       "time": "2026-11-23 19:01",
       "title": "[유튜브] [단독]삼성전자, 정부 '로봇 칩' 개발 요청 거절…국산화 해법은 / 머니투데이방송 (뉴스)",
@@ -508,12 +514,7 @@
       "time": "2026-11-23 07:00",
       "title": "[유튜브] [클로징 킥] 연준과 ECB, 동시에 AI 부채 경고  / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=6gLdh2lzoJQ"
-    },
-    {
-      "time": "2026-11-23 07:00",
-      "title": "[유튜브] [이항영의 히트앤 비트] 기술주 투매 속 뉴욕증시 조정장 진입...마감 평가는? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=rE0yIYv7JFs"
     }
   ],
-  "last_run": "2026-11-23 19:01"
+  "last_run": "2026-11-23 20:00"
 }
