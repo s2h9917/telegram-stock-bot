@@ -134,11 +134,10 @@ def gemini(prompt, cfg, want_json=False):
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         for attempt in range(2):
             try:
-                r = requests.post(url, params={"key": key}, json=body, timeout=120)
-            except Exception as e:  # noqa
-                print(f"⚠️ [AI] {model} 접속 오류: {e}")
-                time.sleep(5)
-                continue
+                r = requests.post(url, params={"key": key}, json=body, timeout=75)
+            except Exception as e:  # noqa  시간 초과·접속 오류 → 같은 모델 재시도 없이 다음 모델로
+                print(f"⚠️ [AI] {model} 응답 지연/접속 오류 → 다음 모델: {str(e)[:120]}")
+                break
             if r.ok:
                 try:
                     parts = r.json()["candidates"][0]["content"]["parts"]
