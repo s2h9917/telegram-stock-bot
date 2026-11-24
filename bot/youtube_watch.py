@@ -4,6 +4,8 @@
 실행: python -m bot.youtube_watch
 """
 import calendar
+import json
+import html
 import datetime as dt
 import os
 import re
@@ -12,7 +14,7 @@ import time
 import feedparser
 import requests
 
-from bot.common import UA, add_history, esc, load_config, load_state, now, save_state, send_text
+from bot.common import UA, add_history, tg_call, esc, load_config, load_state, now, save_state, send_text
 
 RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={}"
 
@@ -38,6 +40,84 @@ def video_status(vid):
 def build_msg(cfg, ch_name, title, link, kind):
     tpl = cfg["youtube"].get("templates", {}).get(kind) or "🎬 {channel} 새 영상\n<b>{title}</b>\n{link}"
     return tpl.format(channel=esc(ch_name), title=esc(title), link=link)
+
+
+# ---------------------------------------------------------------- 라이브 상단 고정 메시지
+def current_live(cid):
+    """채널의 /live 페이지로 지금 방송 중인 영상 찾기 (API 사용량 거의 없음)"""
+    try:
+        r = requests.get(f"https://www.youtube.com/channel/{cid}/live",
+                         headers={**UA, "Accept-Language": "ko-KR"}, cookies={"CONSENT": "YES+"}, timeout=20)
+        t = r.text
+        m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', t)
+             or re.search(r'"videoDetails":\{"videoId":"([\w-]{11})"', t))
+        if not m:
+            return None
+        vid = m.group(1)
+        is_live = '"isLiveNow":true' in t or '"isLive":true' in t
+        title_m = re.search(r'<meta name="title" content="([^"]+)"', t) or re.search(r'"title":"([^"]+)"', t)
+        title = html.unescape(title_m.group(1)) if title_m else ""
+    except Exception as e:  # noqa
+        print("  ⚠️ /live 페이지 확인 실패:", e)
+        return None
+    st = video_status(vid)                       # API 키가 있으면 정확히 확인 (1회 사용량 1)
+    if st is not None:
+        is_live = st == "live"
+    return {"vid": vid, "title": title} if is_live else None
+
+
+def update_live_pin(cfg, state):
+    yc = cfg["youtube"]
+    lp = yc.get("live_pin", {})
+    if not lp.get("enabled", False):
+        return
+    chans = [c for c in yc.get("channels", []) if re.fullmatch(r"UC[\w-]{22}", c.get("channel_id", "").strip())]
+    if not chans:
+        return
+    ch = next((c for c in chans if c["channel_id"] == lp.get("channel_id")), chans[0])
+    pin = state.setdefault("live_pin", {})
+    live = current_live(ch["channel_id"].strip())
+    cur = now()
+    if live:
+        url = f"https://www.youtube.com/watch?v={live['vid']}"
+        caption = (f"🔴 <b>지금 LIVE</b> | {esc(ch.get('name', ''))}\n{esc(live['title'])}\n\n"
+                   f"▶️ 바로 시청: {url}\n<i>{cur:%m/%d %H:%M} 기준</i>")
+        photo = f"https://i.ytimg.com/vi/{live['vid']}/hqdefault_live.jpg?t={int(cur.timestamp())}"
+    else:
+        url = f"https://www.youtube.com/channel/{ch['channel_id'].strip()}/live"
+        caption = (f"⚪ <b>방송 대기 중</b> | {esc(ch.get('name', ''))}\n"
+                   f"라이브가 시작되면 이 메시지가 자동으로 바뀝니다.\n\n▶️ 채널 라이브: {url}\n"
+                   f"<i>{cur:%m/%d %H:%M} 기준</i>")
+        photo = None
+    key = live["vid"] + live["title"] if live else "offline"
+    last = pin.get("updated")
+    stale = not last or cur - dt.datetime.fromisoformat(last) > dt.timedelta(minutes=int(lp.get("refresh_min", 30)))
+    if pin.get("message_id") and pin.get("key") == key and not stale:
+        print("[라이브 고정] 변화 없음")
+        return
+    if not pin.get("message_id") and not live:
+        print("[라이브 고정] 아직 고정 메시지 없음 → 첫 라이브 때 만듦")
+        return
+    print("[라이브 고정]", "LIVE " + live["title"][:30] if live else "방송 대기 중")
+    ok = False
+    if pin.get("message_id"):                          # 기존 고정 메시지 수정
+        if photo:
+            media = {"type": "photo", "media": photo, "caption": caption, "parse_mode": "HTML"}
+            res = tg_call("editMessageMedia", cfg, {"message_id": pin["message_id"],
+                                                     "media": json.dumps(media, ensure_ascii=False)})
+        else:
+            res = tg_call("editMessageCaption", cfg, {"message_id": pin["message_id"], "caption": caption,
+                                                       "parse_mode": "HTML"})
+        ok = res.get("ok") or "not modified" in str(res.get("description", ""))
+    if not ok and photo:                                # 처음이거나 메시지가 지워졌으면 새로 올리고 고정
+        res = tg_call("sendPhoto", cfg, {"photo": photo, "caption": caption, "parse_mode": "HTML",
+                                          "disable_notification": "true"})
+        if res.get("ok"):
+            pin["message_id"] = res["result"]["message_id"]
+            tg_call("pinChatMessage", cfg, {"message_id": pin["message_id"], "disable_notification": "true"})
+            ok = True
+    if ok:
+        pin.update(key=key, updated=cur.isoformat())
 
 
 # ---------------------------------------------------------------- 프로그램별 발송 시각
@@ -164,6 +244,10 @@ def main():
             print(f"  [{name}] 채널 첫 등록 완료 (3시간 이내 영상만 공유, 이후 새 영상 자동 알림)")
 
     flush_queue(state, cfg)                       # 방금 예약된 것 중 바로 보낼 시각인 것
+    try:
+        update_live_pin(cfg, state)
+    except Exception as e:  # noqa  고정 메시지 오류가 영상 알림을 막지 않도록
+        print("⚠️ 라이브 고정 메시지 오류:", e)
     state["initialized"] = sorted(inited)
     state["seen"] = dict(list(seen.items())[-500:])
     state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
