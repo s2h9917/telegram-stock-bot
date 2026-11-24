@@ -287,7 +287,9 @@
     "qbaLN1iGbTw": "video",
     "pHu1VHZDxnQ": "video",
     "KyP-YgIdWzg": "video",
-    "zJpVOYxFdqo": "video"
+    "zJpVOYxFdqo": "video",
+    "nkiHgiZd3Po": "video",
+    "SK3abKUVrI8": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -544,6 +546,15 @@
       "link": "https://www.youtube.com/watch?v=W5HsUwzna9w"
     }
   ],
-  "last_run": "2026-11-24 14:40",
-  "queue": []
+  "last_run": "2026-11-24 14:50",
+  "queue": [
+    {
+      "vid": "SK3abKUVrI8",
+      "title": "[오늘장 랭킹5] 젠슨 황 복귀에 AI주 '환호'...추세 전환 vs 기술적 반등? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=SK3abKUVrI8",
+      "program": "오늘장랭킹5",
+      "ready_at": "2026-11-24T15:05:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] 젠슨 황 복귀에 AI주 '환호'...추세 전환 vs 기술적 반등? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=SK3abKUVrI8"
+    }
+  ]
 }
