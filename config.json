@@ -144,7 +144,10 @@
           "19:00"
         ]
       }
-    ]
+    ],
+    "live_pin": {
+      "enabled": true
+    }
   },
   "market": {
     "enabled": true,
