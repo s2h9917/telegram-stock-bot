@@ -89,7 +89,10 @@ def update_live_pin(cfg, state):
                    f"라이브가 시작되면 이 메시지가 자동으로 바뀝니다.\n\n▶️ 채널 라이브: {url}\n"
                    f"<i>{cur:%m/%d %H:%M} 기준</i>")
         photo = None
-    key = live["vid"] + live["title"] if live else "offline"
+    # 링크 버튼: 고정 바 오른쪽에도 표시되어, 누르면 바로 라이브로 이동
+    btn_text = lp.get("button_text", "▶️ LIVE 보기") if live else "▶️ 채널 라이브"
+    markup = json.dumps({"inline_keyboard": [[{"text": btn_text, "url": url}]]}, ensure_ascii=False)
+    key = (live["vid"] + live["title"] if live else "offline") + "|btn2"
     last = pin.get("updated")
     stale = not last or cur - dt.datetime.fromisoformat(last) > dt.timedelta(minutes=int(lp.get("refresh_min", 30)))
     if pin.get("message_id") and pin.get("key") == key and not stale:
@@ -103,15 +106,15 @@ def update_live_pin(cfg, state):
     if pin.get("message_id"):                          # 기존 고정 메시지 수정
         if photo:
             media = {"type": "photo", "media": photo, "caption": caption, "parse_mode": "HTML"}
-            res = tg_call("editMessageMedia", cfg, {"message_id": pin["message_id"],
+            res = tg_call("editMessageMedia", cfg, {"message_id": pin["message_id"], "reply_markup": markup,
                                                      "media": json.dumps(media, ensure_ascii=False)})
         else:
             res = tg_call("editMessageCaption", cfg, {"message_id": pin["message_id"], "caption": caption,
-                                                       "parse_mode": "HTML"})
+                                                       "parse_mode": "HTML", "reply_markup": markup})
         ok = res.get("ok") or "not modified" in str(res.get("description", ""))
     if not ok and photo:                                # 처음이거나 메시지가 지워졌으면 새로 올리고 고정
         res = tg_call("sendPhoto", cfg, {"photo": photo, "caption": caption, "parse_mode": "HTML",
-                                          "disable_notification": "true"})
+                                          "disable_notification": "true", "reply_markup": markup})
         if res.get("ok"):
             pin["message_id"] = res["result"]["message_id"]
             tg_call("pinChatMessage", cfg, {"message_id": pin["message_id"], "disable_notification": "true"})
