@@ -4,6 +4,7 @@
 실행: python -m bot.youtube_watch
 """
 import calendar
+import datetime as dt
 import os
 import re
 import time
@@ -39,6 +40,52 @@ def build_msg(cfg, ch_name, title, link, kind):
     return tpl.format(channel=esc(ch_name), title=esc(title), link=link)
 
 
+# ---------------------------------------------------------------- 프로그램별 발송 시각
+def match_program(title, programs):
+    """제목에 프로그램 키워드가 들어 있으면 그 프로그램 설정 반환"""
+    t = title.replace(" ", "").lower()
+    for p in programs:
+        for kw in p.get("keywords", []):
+            if kw and kw.replace(" ", "").lower() in t:
+                return p
+    return None
+
+
+def next_slot(times, base):
+    """base 이후 가장 가까운 발송 시각 (오늘 남은 시각 → 없으면 다음 날 첫 시각)"""
+    slots = sorted(t for t in times if re.fullmatch(r"\d{1,2}:\d{2}", t))
+    if not slots:
+        return base
+    for day in range(0, 8):
+        d = base.date() + dt.timedelta(days=day)
+        for t in slots:
+            hh, mm = map(int, t.split(":"))
+            cand = base.replace(year=d.year, month=d.month, day=d.day, hour=hh, minute=mm, second=0, microsecond=0)
+            if cand >= base:
+                return cand
+    return base
+
+
+def flush_queue(state, cfg):
+    """발송 시각이 된 대기 영상 공유"""
+    q, keep, cur = state.get("queue", []), [], now()
+    for it in q:
+        ready = dt.datetime.fromisoformat(it["ready_at"])
+        if ready <= cur:
+            if cur - ready > dt.timedelta(hours=20):
+                print(f"  ⏭️ 발송 시각이 너무 지나 생략: {it['title'][:30]}")
+                continue
+            send_text(it["msg"], cfg, preview=True)
+            add_history(state, f"[유튜브] {it['title']}", it["link"])
+            print(f"  ⏰ 예약 공유: {it['title'][:40]} ({it['program']}, {ready:%H:%M})")
+            time.sleep(1)
+        else:
+            keep.append(it)
+    state["queue"] = keep
+    if keep:
+        print("[대기] " + ", ".join(f"{i['title'][:15]}→{i['ready_at'][11:16]}" for i in keep))
+
+
 def main():
     cfg = load_config()
     yc = cfg["youtube"]
@@ -48,6 +95,9 @@ def main():
     state = load_state("youtube")
     seen = state.setdefault("seen", {})          # vid -> 마지막으로 처리한 상태
     inited = set(state.setdefault("initialized", []))
+    programs = [p for p in yc.get("programs", []) if p.get("keywords")]
+    only_programs = yc.get("only_programs", False) and bool(programs)
+    flush_queue(state, cfg)                       # 먼저, 발송 시각이 된 예약 영상부터
 
     for ch in yc.get("channels", []):
         cid = ch.get("channel_id", "").strip()
@@ -95,14 +145,25 @@ def main():
                 kind = "video"
             print(f"  · {title[:40]} | {age_h:.1f}시간 전 | 상태 {st} → {'공유' if kind else '대기/생략'}")
             if kind:
-                send_text(build_msg(cfg, name, title, link, kind), cfg, preview=True)
-                add_history(state, f"[유튜브] {title}", link)
-                time.sleep(1)
+                prog = match_program(title, programs)
+                if only_programs and not prog:
+                    print("    → 지정 프로그램이 아니라 공유 안 함")
+                elif prog and prog.get("times") and kind != "live":   # 라이브 시작 알림은 즉시
+                    ready = next_slot(prog["times"], now())
+                    state.setdefault("queue", []).append({
+                        "vid": vid, "title": title, "link": link, "program": prog.get("name", ""),
+                        "ready_at": ready.isoformat(), "msg": build_msg(cfg, name, title, link, kind)})
+                    print(f"    → [{prog.get('name')}] {ready:%m/%d %H:%M} 공유 예약")
+                else:
+                    send_text(build_msg(cfg, name, title, link, kind), cfg, preview=True)
+                    add_history(state, f"[유튜브] {title}", link)
+                    time.sleep(1)
             seen[vid] = st
         if first_time:
             inited.add(cid)
             print(f"  [{name}] 채널 첫 등록 완료 (3시간 이내 영상만 공유, 이후 새 영상 자동 알림)")
 
+    flush_queue(state, cfg)                       # 방금 예약된 것 중 바로 보낼 시각인 것
     state["initialized"] = sorted(inited)
     state["seen"] = dict(list(seen.items())[-500:])
     state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
