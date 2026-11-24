@@ -21,7 +21,7 @@
     "per_message": 5
   },
   "youtube": {
-    "enabled": false,
+    "enabled": true,
     "notify_live": "start",
     "channels": [
       {
