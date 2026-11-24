@@ -43,49 +43,77 @@ def build_msg(cfg, ch_name, title, link, kind):
 
 
 # ---------------------------------------------------------------- 라이브 상단 고정 메시지
-def live_page_vid(cid):
-    """채널 /live 페이지가 가리키는 영상 ID (라이브가 아닐 수도 있음)"""
+def _norm(t):
+    return re.sub(r"\s+", "", t or "").lower()
+
+
+def streams_tab(cid):
+    """채널 '라이브' 탭 페이지의 영상 목록: [(영상ID, 제목, 방송중 표시 여부)] — API 사용 안 함"""
     try:
-        r = requests.get(f"https://www.youtube.com/channel/{cid}/live",
+        r = requests.get(f"https://www.youtube.com/channel/{cid}/streams",
                          headers={**UA, "Accept-Language": "ko-KR"}, cookies={"CONSENT": "YES+"}, timeout=20)
-        m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', r.text)
-             or re.search(r'"videoDetails":\{"videoId":"([\w-]{11})"', r.text))
-        return (m.group(1), '"isLiveNow":true' in r.text, r.text) if m else (None, False, r.text)
+        m = re.search(r"var ytInitialData\s*=\s*(\{.*?\});\s*</script>", r.text, re.S)
+        data = json.loads(m.group(1)) if m else {}
     except Exception as e:  # noqa
-        print("  ⚠️ /live 페이지 확인 실패:", e)
-        return None, False, ""
+        print("  ⚠️ 라이브 탭 확인 실패:", e)
+        return []
+    out, seen, stack = [], set(), [data]
+    while stack:
+        o = stack.pop()
+        if isinstance(o, dict):
+            vid = o.get("videoId")
+            t = o.get("title")
+            if vid and isinstance(t, dict) and vid not in seen:
+                title = t.get("simpleText") or "".join(x.get("text", "") for x in t.get("runs", []))
+                blob = json.dumps(o, ensure_ascii=False)
+                is_live = "LIVE_NOW" in blob or '"style": "LIVE"' in blob
+                seen.add(vid)
+                out.append((vid, title, is_live))
+            stack.extend(o.values())
+        elif isinstance(o, list):
+            stack.extend(o)
+    return out
 
 
-def current_live(cid, last_vid=None):
-    """지금 방송 중인 라이브 찾기.
-    후보(/live 페이지 영상 + 직전 라이브 + 최근 업로드 15개)를 유튜브 API로 한 번에 조회(사용량 1)해서
-    실제 '방송 중'인 것 가운데 시청자가 가장 많은 라이브를 고름"""
-    page_vid, page_live, page = live_page_vid(cid)
-    cands = [v for v in [page_vid, last_vid] if v]
-    try:
-        feed = feedparser.parse(requests.get(RSS.format(cid), headers=UA, timeout=20).content)
-        cands += [e.get("yt_videoid") for e in feed.entries[:15] if e.get("yt_videoid")]
-    except Exception:  # noqa
-        pass
-    cands = list(dict.fromkeys(cands))[:50]
-    key = os.getenv("YOUTUBE_API_KEY")
-    if key and cands:
-        try:
-            r = requests.get("https://www.googleapis.com/youtube/v3/videos", timeout=20, params={
-                "part": "snippet,liveStreamingDetails", "id": ",".join(cands), "key": key})
-            lives = [it for it in r.json().get("items", [])
-                     if it["snippet"].get("liveBroadcastContent") == "live"]
-            print(f"  [라이브 확인] 후보 {len(cands)}개 중 방송 중 {len(lives)}개")
-            if lives:
-                best = max(lives, key=lambda it: int(it.get("liveStreamingDetails", {}).get("concurrentViewers", 0) or 0))
-                return {"vid": best["id"], "title": best["snippet"]["title"]}
-            return None
-        except Exception as e:  # noqa
-            print("  ⚠️ 유튜브 API 확인 실패 → 페이지 정보로 판단:", e)
-    if page_vid and page_live:                     # API 키가 없을 때: 페이지 정보로만 판단
-        m = re.search(r'<meta name="title" content="([^"]+)"', page)
-        return {"vid": page_vid, "title": html.unescape(m.group(1)) if m else ""}
-    return None
+def api_videos(ids, key):
+    r = requests.get("https://www.googleapis.com/youtube/v3/videos", timeout=20, params={
+        "part": "snippet,liveStreamingDetails", "id": ",".join(ids), "key": key})
+    if not r.ok:
+        print("  ⚠️ 유튜브 API 오류:", r.status_code, r.text[:150])
+    return r.json().get("items", []) if r.ok else []
+
+
+def current_live(cid, pin, keyword):
+    """제목에 keyword가 들어간 라이브만 찾음 (예: '부자되는 좋은습관')
+    1) 직전에 고정한 라이브가 아직 방송 중이면 그대로 (API 사용량 1)
+    2) 아니면 채널 '라이브' 탭에서 제목이 맞는 영상을 찾아 방송 중인지 확인 (API 사용량 1)"""
+    key = (os.getenv("YOUTUBE_API_KEY") or "").strip()
+    kw = _norm(keyword)
+
+    def live_items(ids):
+        items = api_videos(ids, key) if key and ids else []
+        return [it for it in items if it["snippet"].get("liveBroadcastContent") == "live"
+                and kw in _norm(it["snippet"].get("title"))]
+
+    if key and pin.get("vid"):
+        still = live_items([pin["vid"]])
+        if still:
+            print("  [라이브 확인] 고정 중인 라이브가 계속 방송 중")
+            return {"vid": still[0]["id"], "title": still[0]["snippet"]["title"]}
+
+    tab = [(v, t, lv) for v, t, lv in streams_tab(cid) if kw in _norm(t)]
+    print(f"  [라이브 탭] '{keyword}' 제목 영상 {len(tab)}개" + (f", 방송중 표시 {sum(1 for x in tab if x[2])}개" if tab else ""))
+    if not tab:
+        return None
+    if not key:                                     # API 키가 없으면 페이지의 '방송 중' 표시로 판단
+        live = next(((v, t) for v, t, lv in tab if lv), None)
+        return {"vid": live[0], "title": live[1]} if live else None
+    ordered = [v for v, t, lv in tab if lv] + [v for v, t, lv in tab if not lv]
+    lives = live_items(ordered[:10])
+    if not lives:
+        return None
+    best = max(lives, key=lambda it: int(it.get("liveStreamingDetails", {}).get("concurrentViewers", 0) or 0))
+    return {"vid": best["id"], "title": best["snippet"]["title"]}
 
 
 def update_live_pin(cfg, state):
@@ -98,7 +126,16 @@ def update_live_pin(cfg, state):
         return
     ch = next((c for c in chans if c["channel_id"] == lp.get("channel_id")), chans[0])
     pin = state.setdefault("live_pin", {})
-    live = current_live(ch["channel_id"].strip(), pin.get("vid"))
+    # 24시간 송출 라이브라 자주 확인할 필요 없음: 방송 중이면 N시간마다, 대기 중·미확인이면 30분마다
+    hours = float(lp.get("check_hours", 6))
+    gap = dt.timedelta(minutes=30) if (not pin.get("message_id") or pin.get("key", "").startswith("offline")
+                                        or pin.get("miss")) else dt.timedelta(hours=hours)
+    last_check = pin.get("last_check")
+    if last_check and now() - dt.datetime.fromisoformat(last_check) < gap:
+        print(f"[라이브 고정] 다음 확인: {(dt.datetime.fromisoformat(last_check) + gap):%H:%M} 이후")
+        return
+    pin["last_check"] = now().isoformat()
+    live = current_live(ch["channel_id"].strip(), pin, lp.get("title_keyword", "부자되는 좋은습관"))
     cur = now()
     if live:
         pin["vid"], pin["miss"] = live["vid"], 0
@@ -123,7 +160,7 @@ def update_live_pin(cfg, state):
     markup = json.dumps({"inline_keyboard": [[{"text": btn_text, "url": url}]]}, ensure_ascii=False)
     key = (live["vid"] + live["title"] if live else "offline") + "|btn2"
     last = pin.get("updated")
-    stale = not last or cur - dt.datetime.fromisoformat(last) > dt.timedelta(minutes=int(lp.get("refresh_min", 30)))
+    stale = not last or cur - dt.datetime.fromisoformat(last) > dt.timedelta(minutes=int(lp.get("refresh_min", 60)))
     if pin.get("message_id") and pin.get("key") == key and not stale:
         print("[라이브 고정] 변화 없음")
         return
