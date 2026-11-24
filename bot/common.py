@@ -80,6 +80,21 @@ def _tg(method, cfg, data=None, files=None):
     return False
 
 
+def tg_call(method, cfg, data=None):
+    """텔레그램 API 호출 후 결과 JSON 반환 (고정 메시지 수정 등 결과값이 필요할 때)"""
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID") or cfg["telegram"]["chat_id"]
+    if DRY_RUN or not token:
+        print(f"[DRY-RUN {method}] {json.dumps(data or {}, ensure_ascii=False)[:300]}")
+        return {"ok": True, "result": {"message_id": 999}}
+    r = requests.post(f"https://api.telegram.org/bot{token}/{method}",
+                      data={"chat_id": chat_id, **(data or {})}, timeout=30)
+    j = r.json() if r.headers.get("content-type", "").startswith("application/json") else {"ok": False}
+    if not j.get("ok"):
+        print(f"Telegram {method} 실패:", r.status_code, r.text[:200])
+    return j
+
+
 def split_text(text, limit=4000):
     parts, buf = [], ""
     for block in text.split("\n\n"):
