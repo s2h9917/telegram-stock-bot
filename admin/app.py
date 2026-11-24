@@ -147,6 +147,9 @@ with tab2:
     edited = st.data_editor(ch_df, num_rows="dynamic", width="stretch",
                             column_config={"name": "채널 이름", "channel_id": "채널 ID (UC...)"})
     yc["channels"] = [r for r in edited.fillna("").to_dict("records") if r["channel_id"]]
+    lp = yc.setdefault("live_pin", {})
+    lp["enabled"] = st.checkbox("📌 라이브 상단 고정 메시지 자동 갱신 (첫 번째 채널 기준, 봇에 '메시지 고정' 권한 필요)",
+                                lp.get("enabled", False))
     st.markdown("**프로그램별 공유 시각** — 제목에 키워드가 들어간 영상을 지정 시각에 공유 (시각을 비우면 올라오는 즉시)")
     yc["only_programs"] = st.checkbox("아래 지정 프로그램만 공유 (목록에 없는 영상은 공유 안 함)",
                                       yc.get("only_programs", False))
