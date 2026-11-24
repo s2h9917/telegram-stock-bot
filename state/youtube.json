@@ -283,7 +283,8 @@
     "tFCmilF-UJY": "video",
     "sdY-R9IrUUg": "video",
     "ZXXhi5o-0cU": "video",
-    "9Gteqe2geB4": "video"
+    "9Gteqe2geB4": "video",
+    "qbaLN1iGbTw": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -540,6 +541,15 @@
       "link": "https://www.youtube.com/watch?v=0XGLhpZjNTU"
     }
   ],
-  "last_run": "2026-11-24 13:20",
-  "queue": []
+  "last_run": "2026-11-24 13:30",
+  "queue": [
+    {
+      "vid": "qbaLN1iGbTw",
+      "title": "[오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=qbaLN1iGbTw",
+      "program": "오후의쟁점",
+      "ready_at": "2026-11-24T14:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=qbaLN1iGbTw"
+    }
+  ]
 }
