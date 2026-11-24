@@ -99,6 +99,9 @@ def feed_api_body(article_url):
 # ---------------------------------------------------------------- 2) 본문 추출
 def fetch_body(url):
     url = resolve_url(url)
+    m = re.search(r"biz\.sbs\.co\.kr/(?:amp/)?article/(\d+)", url)
+    if m:   # SBS Biz 일반 페이지는 본문을 나중에 불러오므로, 본문이 들어 있는 AMP 페이지를 먼저 읽음
+        url = f"https://biz.sbs.co.kr/amp/article/{m.group(1)}"
     r = requests.get(url, headers={**UA, "Accept-Language": "ko-KR"}, timeout=20, allow_redirects=True)
     print(f"[접속] {r.url} → HTTP {r.status_code}, {len(r.content):,} bytes")
     r.encoding = r.apparent_encoding or "utf-8"
@@ -131,7 +134,7 @@ def fetch_body(url):
                 break
     # (4) SBS 기사 데이터 주소
     if not best or "◇" not in best:
-        alt = feed_api_body(r.url)
+        alt = feed_api_body(r.url.replace("/amp/", "/"))
         if len(alt) > len(best):
             best = alt
     if not best or "◇" not in best:   # 원인 파악용: 본문을 불러오는 주소 후보
