@@ -47,31 +47,55 @@ def _norm(t):
     return re.sub(r"\s+", "", t or "").lower()
 
 
-def streams_tab(cid):
-    """채널 '라이브' 탭 페이지의 영상 목록: [(영상ID, 제목, 방송중 표시 여부)] — API 사용 안 함"""
+def streams_tab(cid, keyword=""):
+    """채널 '라이브' 탭 페이지의 영상 목록: [(영상ID, 제목, 방송중 표시 여부)] — API 사용 안 함
+    유튜브의 옛 형식(videoRenderer)과 새 형식(lockupViewModel)을 모두 읽고,
+    그래도 못 찾으면 페이지에서 제목 글자 바로 근처의 영상 ID를 찾음"""
     try:
         r = requests.get(f"https://www.youtube.com/channel/{cid}/streams",
                          headers={**UA, "Accept-Language": "ko-KR"}, cookies={"CONSENT": "YES+"}, timeout=20)
-        m = re.search(r"var ytInitialData\s*=\s*(\{.*?\});\s*</script>", r.text, re.S)
-        data = json.loads(m.group(1)) if m else {}
+        text = r.text
     except Exception as e:  # noqa
         print("  ⚠️ 라이브 탭 확인 실패:", e)
         return []
+    m = re.search(r"var ytInitialData\s*=\s*(\{.*?\});\s*</script>", text, re.S) \
+        or re.search(r'window\["ytInitialData"\]\s*=\s*(\{.*?\});', text, re.S)
+    data = {}
+    if m:
+        try:
+            data = json.loads(m.group(1))
+        except Exception:  # noqa
+            pass
     out, seen, stack = [], set(), [data]
     while stack:
         o = stack.pop()
         if isinstance(o, dict):
-            vid = o.get("videoId")
-            t = o.get("title")
-            if vid and isinstance(t, dict) and vid not in seen:
-                title = t.get("simpleText") or "".join(x.get("text", "") for x in t.get("runs", []))
+            vid, title = None, ""
+            if o.get("videoId") and isinstance(o.get("title"), dict):              # 옛 형식
+                t = o["title"]
+                vid, title = o["videoId"], t.get("simpleText") or "".join(x.get("text", "") for x in t.get("runs", []))
+            elif o.get("contentId") and "VIDEO" in str(o.get("contentType", "")):  # 새 형식
+                vid = o["contentId"]
+                meta = o.get("metadata", {}).get("lockupMetadataViewModel", {})
+                title = (meta.get("title") or {}).get("content", "")
+            if vid and vid not in seen and re.fullmatch(r"[\w-]{11}", vid):
                 blob = json.dumps(o, ensure_ascii=False)
-                is_live = "LIVE_NOW" in blob or '"style": "LIVE"' in blob
+                is_live = any(x in blob for x in ("LIVE_NOW", '"style": "LIVE"', "BADGE_STYLE_LIVE", '"text": "라이브"',
+                                                  '"text": "LIVE"', "OVERLAY_BADGE_STYLE_LIVE"))
                 seen.add(vid)
                 out.append((vid, title, is_live))
             stack.extend(o.values())
         elif isinstance(o, list):
             stack.extend(o)
+    print(f"  [라이브 탭] 페이지 {len(text):,}자, 데이터 {'있음' if data else '없음'}, 영상 {len(out)}개 읽음")
+    if keyword and not any(_norm(keyword) in _norm(t) for _, t, _ in out):
+        # 비상 방법: 페이지에서 키워드가 나오는 곳 앞쪽 3,000자 안의 마지막 영상 ID
+        for km in re.finditer(re.escape(keyword), text):
+            ids = re.findall(r'"(?:videoId|contentId)":"([\w-]{11})"', text[max(0, km.start() - 3000):km.start()])
+            if ids and ids[-1] not in seen:
+                seen.add(ids[-1])
+                out.append((ids[-1], keyword, False))
+        print(f"  [라이브 탭] 비상 방법으로 '{keyword}' 근처 영상 {sum(1 for _, t, _ in out if t == keyword)}개 찾음")
     return out
 
 
@@ -101,7 +125,7 @@ def current_live(cid, pin, keyword):
             print("  [라이브 확인] 고정 중인 라이브가 계속 방송 중")
             return {"vid": still[0]["id"], "title": still[0]["snippet"]["title"]}
 
-    tab = [(v, t, lv) for v, t, lv in streams_tab(cid) if kw in _norm(t)]
+    tab = [(v, t, lv) for v, t, lv in streams_tab(cid, keyword) if kw in _norm(t)]
     print(f"  [라이브 탭] '{keyword}' 제목 영상 {len(tab)}개" + (f", 방송중 표시 {sum(1 for x in tab if x[2])}개" if tab else ""))
     if not tab:
         return None
