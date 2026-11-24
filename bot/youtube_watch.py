@@ -43,27 +43,49 @@ def build_msg(cfg, ch_name, title, link, kind):
 
 
 # ---------------------------------------------------------------- 라이브 상단 고정 메시지
-def current_live(cid):
-    """채널의 /live 페이지로 지금 방송 중인 영상 찾기 (API 사용량 거의 없음)"""
+def live_page_vid(cid):
+    """채널 /live 페이지가 가리키는 영상 ID (라이브가 아닐 수도 있음)"""
     try:
         r = requests.get(f"https://www.youtube.com/channel/{cid}/live",
                          headers={**UA, "Accept-Language": "ko-KR"}, cookies={"CONSENT": "YES+"}, timeout=20)
-        t = r.text
-        m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', t)
-             or re.search(r'"videoDetails":\{"videoId":"([\w-]{11})"', t))
-        if not m:
-            return None
-        vid = m.group(1)
-        is_live = '"isLiveNow":true' in t or '"isLive":true' in t
-        title_m = re.search(r'<meta name="title" content="([^"]+)"', t) or re.search(r'"title":"([^"]+)"', t)
-        title = html.unescape(title_m.group(1)) if title_m else ""
+        m = (re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', r.text)
+             or re.search(r'"videoDetails":\{"videoId":"([\w-]{11})"', r.text))
+        return (m.group(1), '"isLiveNow":true' in r.text, r.text) if m else (None, False, r.text)
     except Exception as e:  # noqa
         print("  ⚠️ /live 페이지 확인 실패:", e)
-        return None
-    st = video_status(vid)                       # API 키가 있으면 정확히 확인 (1회 사용량 1)
-    if st is not None:
-        is_live = st == "live"
-    return {"vid": vid, "title": title} if is_live else None
+        return None, False, ""
+
+
+def current_live(cid, last_vid=None):
+    """지금 방송 중인 라이브 찾기.
+    후보(/live 페이지 영상 + 직전 라이브 + 최근 업로드 15개)를 유튜브 API로 한 번에 조회(사용량 1)해서
+    실제 '방송 중'인 것 가운데 시청자가 가장 많은 라이브를 고름"""
+    page_vid, page_live, page = live_page_vid(cid)
+    cands = [v for v in [page_vid, last_vid] if v]
+    try:
+        feed = feedparser.parse(requests.get(RSS.format(cid), headers=UA, timeout=20).content)
+        cands += [e.get("yt_videoid") for e in feed.entries[:15] if e.get("yt_videoid")]
+    except Exception:  # noqa
+        pass
+    cands = list(dict.fromkeys(cands))[:50]
+    key = os.getenv("YOUTUBE_API_KEY")
+    if key and cands:
+        try:
+            r = requests.get("https://www.googleapis.com/youtube/v3/videos", timeout=20, params={
+                "part": "snippet,liveStreamingDetails", "id": ",".join(cands), "key": key})
+            lives = [it for it in r.json().get("items", [])
+                     if it["snippet"].get("liveBroadcastContent") == "live"]
+            print(f"  [라이브 확인] 후보 {len(cands)}개 중 방송 중 {len(lives)}개")
+            if lives:
+                best = max(lives, key=lambda it: int(it.get("liveStreamingDetails", {}).get("concurrentViewers", 0) or 0))
+                return {"vid": best["id"], "title": best["snippet"]["title"]}
+            return None
+        except Exception as e:  # noqa
+            print("  ⚠️ 유튜브 API 확인 실패 → 페이지 정보로 판단:", e)
+    if page_vid and page_live:                     # API 키가 없을 때: 페이지 정보로만 판단
+        m = re.search(r'<meta name="title" content="([^"]+)"', page)
+        return {"vid": page_vid, "title": html.unescape(m.group(1)) if m else ""}
+    return None
 
 
 def update_live_pin(cfg, state):
@@ -76,8 +98,15 @@ def update_live_pin(cfg, state):
         return
     ch = next((c for c in chans if c["channel_id"] == lp.get("channel_id")), chans[0])
     pin = state.setdefault("live_pin", {})
-    live = current_live(ch["channel_id"].strip())
+    live = current_live(ch["channel_id"].strip(), pin.get("vid"))
     cur = now()
+    if live:
+        pin["vid"], pin["miss"] = live["vid"], 0
+    else:                                          # 한 번 놓친 것으로 바로 '대기 중'이 되지 않게 2회 연속 확인
+        pin["miss"] = pin.get("miss", 0) + 1
+        if pin.get("key", "").split("|")[0] != "offline" and pin["miss"] < 2:
+            print("[라이브 고정] 라이브가 안 보임 (1회) → 다음 확인 때 다시 판단")
+            return
     if live:
         url = f"https://www.youtube.com/watch?v={live['vid']}"
         caption = (f"🔴 <b>지금 LIVE</b> | {esc(ch.get('name', ''))}\n{esc(live['title'])}\n\n"
