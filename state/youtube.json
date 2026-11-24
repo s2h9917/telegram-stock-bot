@@ -548,7 +548,7 @@
       "link": "https://www.youtube.com/watch?v=PyaO5gFGS7g"
     }
   ],
-  "last_run": "2026-11-24 15:09",
+  "last_run": "2026-11-24 15:10",
   "queue": [
     {
       "vid": "eXP4KiCzeks",
@@ -567,5 +567,9 @@
       "msg": "🎬 <b>MTN</b> 새 영상\n[이슈진단] 젠슨황 AI랠리 · 삼전발 기대 \"로봇주, 대세 상승 시작되나?\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=9gjBC-VvsYU"
     }
   ],
-  "live_pin": {}
+  "live_pin": {
+    "message_id": 357,
+    "key": "12VFt4XHSjE[LIVE] 부자되는 좋은습관 MTN 머니투데이방송 (뉴스&증권 경제방송)",
+    "updated": "2026-11-24T15:10:44.143722+09:00"
+  }
 }
