@@ -150,6 +150,10 @@ with tab2:
     lp = yc.setdefault("live_pin", {})
     lp["enabled"] = st.checkbox("📌 라이브 상단 고정 메시지 자동 갱신 (첫 번째 채널 기준, 봇에 '메시지 고정' 권한 필요)",
                                 lp.get("enabled", False))
+    lp["check_hours"] = st.number_input("고정 라이브 확인 간격(시간) — 24시간 송출이면 6시간(하루 4번) 권장",
+                                        1, 24, int(lp.get("check_hours", 6)))
+    lp["title_keyword"] = st.text_input("고정할 라이브 제목 키워드 (이 단어가 들어간 라이브만 고정)",
+                                        lp.get("title_keyword", "부자되는 좋은습관"))
     st.markdown("**프로그램별 공유 시각** — 제목에 키워드가 들어간 영상을 지정 시각에 공유 (시각을 비우면 올라오는 즉시)")
     yc["only_programs"] = st.checkbox("아래 지정 프로그램만 공유 (목록에 없는 영상은 공유 안 함)",
                                       yc.get("only_programs", False))
