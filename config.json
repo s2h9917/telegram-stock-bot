@@ -21,7 +21,7 @@
     "per_message": 5
   },
   "youtube": {
-    "enabled": true,
+    "enabled": false,
     "notify_live": "start",
     "channels": [
       {
@@ -33,7 +33,73 @@
       "video": "🎬 <b>{channel}</b> 새 영상\n{title}\n{link}",
       "live": "🔴 <b>{channel}</b> 라이브 시작!\n{title}\n{link}",
       "ended": "📺 <b>{channel}</b> 라이브 다시보기\n{title}\n{link}"
-    }
+    },
+    "only_programs": true,
+    "programs": [
+      {
+        "name": "클로징킥",
+        "keywords": [
+          "클로징 킥"
+        ],
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "이하영의히트앤비트",
+        "keywords": [
+          "이항영의 히트앤 비트"
+        ],
+        "times": [
+          "07:05"
+        ]
+      },
+      {
+        "name": "마켓링크",
+        "keywords": [
+          "마켓 링크"
+        ],
+        "times": [
+          "07:10"
+        ]
+      },
+      {
+        "name": "투자뉴스7브리핑",
+        "keywords": [
+          "투자뉴스7 브리핑"
+        ],
+        "times": [
+          "08:00"
+        ]
+      },
+      {
+        "name": "투자뉴스7Q&A",
+        "keywords": [
+          "투자뉴스7 Q&A"
+        ],
+        "times": [
+          "09:00"
+        ]
+      },
+      {
+        "name": "김도형의럭키7",
+        "keywords": [
+          "김도형의 럭키7"
+        ],
+        "times": [
+          "09:05"
+        ]
+      },
+      {
+        "name": "전략의해석찬찬찬",
+        "keywords": [
+          "전략의 해석 찬찬찬"
+        ],
+        "times": [
+          "11:00"
+        ]
+      }
+    ]
   },
   "market": {
     "enabled": true,
@@ -118,6 +184,11 @@
         "domain": "thebell.co.kr"
       }
     ],
-    "exclude_names": []
+    "exclude_names": [],
+    "perspectives": true
+  },
+  "weekly_calendar": {
+    "enabled": true,
+    "source_text": ""
   }
 }
