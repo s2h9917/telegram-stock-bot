@@ -553,7 +553,7 @@
       "link": "https://www.youtube.com/watch?v=PyaO5gFGS7g"
     }
   ],
-  "last_run": "2026-11-24 16:40",
+  "last_run": "2026-11-24 16:41",
   "queue": [
     {
       "vid": "eXP4KiCzeks",
@@ -575,6 +575,7 @@
   "live_pin": {
     "message_id": 357,
     "key": "offline|btn2",
-    "updated": "2026-11-24T16:29:40.524005+09:00"
+    "updated": "2026-11-24T16:29:40.524005+09:00",
+    "miss": 1
   }
 }
