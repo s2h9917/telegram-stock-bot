@@ -147,6 +147,19 @@ with tab2:
     edited = st.data_editor(ch_df, num_rows="dynamic", width="stretch",
                             column_config={"name": "채널 이름", "channel_id": "채널 ID (UC...)"})
     yc["channels"] = [r for r in edited.fillna("").to_dict("records") if r["channel_id"]]
+    st.markdown("**프로그램별 공유 시각** — 제목에 키워드가 들어간 영상을 지정 시각에 공유 (시각을 비우면 올라오는 즉시)")
+    yc["only_programs"] = st.checkbox("아래 지정 프로그램만 공유 (목록에 없는 영상은 공유 안 함)",
+                                      yc.get("only_programs", False))
+    prog_df = pd.DataFrame([{"name": p.get("name", ""), "keywords": ", ".join(p.get("keywords", [])),
+                             "times": ", ".join(p.get("times", []))} for p in yc.get("programs", [])],
+                           columns=["name", "keywords", "times"])
+    prog_ed = st.data_editor(prog_df, num_rows="dynamic", width="stretch", key="prog_ed",
+                             column_config={"name": "프로그램명", "keywords": "제목 키워드 (쉼표로 여러 개)",
+                                            "times": "공유 시각 (예: 08:00, 18:30)"})
+    yc["programs"] = [{"name": r["name"].strip(),
+                       "keywords": [k.strip() for k in r["keywords"].split(",") if k.strip()],
+                       "times": [t.strip() for t in r["times"].split(",") if t.strip()]}
+                      for r in prog_ed.fillna("").to_dict("records") if r["keywords"].strip()]
     with st.expander("🔎 채널 ID 찾기 (@핸들이나 채널 주소 입력)"):
         h = st.text_input("예: @mtnschool 또는 https://www.youtube.com/@...")
         if st.button("찾기") and h:
