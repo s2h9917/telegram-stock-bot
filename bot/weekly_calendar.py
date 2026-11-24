@@ -207,9 +207,9 @@ def wrap(d, text, fnt, max_w):
 
 def render(data, title_txt, source_txt):
     from PIL import Image, ImageDraw
-    f_day, f_item, f_note, f_tag = font(40, "heavy"), font(34, "bold"), font(27, "regular"), font(26, "bold")
+    f_day, f_item, f_note, f_tag = font(50, "heavy"), font(44, "bold"), font(34, "regular"), font(33, "bold")
     tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
-    pad, text_x, max_w = 60, 60 + 34, W - 60 - 34 - 60
+    pad, text_x, max_w = 50, 50 + 38, W - 50 - 38 - 44
 
     # 높이 미리 계산
     blocks, h = [], 0
@@ -221,15 +221,15 @@ def render(data, title_txt, source_txt):
                 continue
             m = FLAG.match(t)
             tag, body = (m.group(1), t[m.end():]) if m else ("", t)
-            indent = (tmp.textlength(tag, font=f_tag) + 34) if tag else 0
+            indent = (tmp.textlength(tag, font=f_tag) + 40) if tag else 0
             lines = wrap(tmp, body, f_item, max_w - indent)
             note = wrap(tmp, str(it.get("note") or ""), f_note, max_w - indent) if it.get("note") else []
-            rh = len(lines) * 48 + len(note) * 38 + 22
+            rh = len(lines) * 60 + len(note) * 46 + 26
             rows.append((tag, indent, lines, note, rh))
-        bh = 86 + sum(r[4] for r in rows) + 26
+        bh = 104 + sum(r[4] for r in rows) + 24
         blocks.append((day, rows, bh))
         h += bh + 26
-    header_h, footer_h = 400, 90
+    header_h, footer_h = 400, (90 if source_txt else 30)   # 출처 문구가 없으면 하단 여백 줄임
     H = header_h + h + footer_h
 
     img = Image.new("RGB", (W, H), (244, 246, 251))
@@ -237,39 +237,39 @@ def render(data, title_txt, source_txt):
     img.paste(head.convert("RGB"), (0, 0))
     canvas = Image.new("RGBA", (W, 1350), (0, 0, 0, 0))
     canvas.paste(head, (0, 0))
-    gold_text(canvas, (W // 2, 170), "주간 경제일정", font(104, "heavy"))
+    gold_text(canvas, (W // 2, 165), "주간 경제일정", font(118, "heavy"))
     img.paste(canvas.crop((0, 0, W, header_h)).convert("RGB"), (0, 0))
     d = ImageDraw.Draw(img)
     days = data["days"]
     rng = f"{days[0].get('date', '')}({days[0].get('weekday', '')}) ~ {days[-1].get('date', '')}({days[-1].get('weekday', '')})"
-    d.text((W // 2, 268), rng, font=font(34, "bold"), fill=(205, 222, 255), anchor="mm")
+    d.text((W // 2, 272), rng, font=font(40, "bold"), fill=(205, 222, 255), anchor="mm")
     if title_txt:
-        d.text((W // 2, 330), title_txt[:30], font=font(30, "bold"), fill=(255, 226, 150), anchor="mm")
+        d.text((W // 2, 340), title_txt[:28], font=font(36, "bold"), fill=(255, 226, 150), anchor="mm")
 
     y = header_h + 26
     for day, rows, bh in blocks:
         wd = day.get("weekday", "")
         color = DAY_COLOR.get(wd, NAVY)
         d.rounded_rectangle([pad - 20, y, W - pad + 20, y + bh], 22, fill="white", outline=LINE, width=2)
-        d.rounded_rectangle([pad - 20, y, W - pad + 20, y + 72], 22, fill=color)
-        d.rectangle([pad - 20, y + 50, W - pad + 20, y + 72], fill=color)
-        d.text((pad + 8, y + 36), f"{day.get('date', '')} ({wd})", font=f_day, fill="white", anchor="lm")
-        yy = y + 96
+        d.rounded_rectangle([pad - 20, y, W - pad + 20, y + 84], 22, fill=color)
+        d.rectangle([pad - 20, y + 60, W - pad + 20, y + 84], fill=color)
+        d.text((pad + 8, y + 42), f"{day.get('date', '')} ({wd})", font=f_day, fill="white", anchor="lm")
+        yy = y + 110
         for tag, indent, lines, note, rh in rows:
-            d.ellipse([pad + 4, yy + 14, pad + 16, yy + 26], fill=color)
+            d.ellipse([pad + 2, yy + 18, pad + 18, yy + 34], fill=color)
             x = text_x
             if tag:
                 tw = d.textlength(tag, font=f_tag)
-                d.rounded_rectangle([x, yy + 2, x + tw + 22, yy + 40], 10, fill=(236, 241, 252))
-                d.text((x + 11, yy + 21), tag, font=f_tag, fill=NAVY, anchor="lm")
+                d.rounded_rectangle([x, yy + 3, x + tw + 24, yy + 51], 10, fill=(236, 241, 252))
+                d.text((x + 12, yy + 27), tag, font=f_tag, fill=NAVY, anchor="lm")
                 x += indent
             for ln in lines:
                 d.text((x, yy), ln, font=f_item, fill=INK)
-                yy += 48
+                yy += 60
             for ln in note:
                 d.text((x, yy), ln, font=f_note, fill=SUB)
-                yy += 38
-            yy += 22
+                yy += 46
+            yy += 26
         y += bh + 26
     if source_txt:
         d.text((W // 2, H - 48), source_txt, font=font(24, "regular"), fill=SUB, anchor="mm")
