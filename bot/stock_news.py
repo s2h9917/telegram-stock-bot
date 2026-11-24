@@ -113,6 +113,11 @@ def find_company(title, names):
     return None
 
 
+def same_event(comp, a, b):
+    """같은 회사의 두 기사가 같은 사건인지 (회사명은 빼고 비교해야 다른 사건을 구분할 수 있음)"""
+    return similar(a.replace(comp, " "), b.replace(comp, " "))
+
+
 # ---------------------------------------------------------------- 뉴스 수집·점수
 def score_of(title):
     s, tags = 0, []
@@ -218,6 +223,80 @@ def resolve_links(items):
         print("⚠️ 주소 변환 오류 → 구글 뉴스 주소 사용:", e)
 
 
+# ---------------------------------------------------------------- 투자 대가 관점 (AI)
+PERSPECTIVES = [("value", "🧓", "가치투자(버핏 스타일)"),
+                ("growth", "🚀", "성장투자(캐시 우드 스타일)"),
+                ("quant", "📊", "퀀트·수급 관점")]
+
+
+def stock_metrics(code):
+    """네이버 증권: 시총·PER·PBR·배당·52주 범위·컨센서스·외국인/기관 수급 (있는 것만)"""
+    out = {}
+    if not code:
+        return out
+    try:
+        j = requests.get(f"https://m.stock.naver.com/api/stock/{code}/integration", headers=UA, timeout=15).json()
+        for it in j.get("totalInfos", []) or []:
+            k, v = it.get("key"), it.get("value")
+            if k and v and v not in ("-", "N/A"):
+                out[k] = v
+        cons = j.get("consensusInfo") or {}
+        if cons.get("priceTargetMean"):
+            out["목표주가 평균"] = cons["priceTargetMean"]
+        deal = (j.get("dealTrendInfos") or [{}])[0]
+        for k, label in [("foreignerPureBuyQuant", "외국인 순매수(주)"), ("organPureBuyQuant", "기관 순매수(주)")]:
+            if deal.get(k):
+                out[label] = deal[k]
+    except Exception as e:  # noqa
+        print("지표 수집 실패:", code, e)
+    try:
+        b = requests.get(f"https://m.stock.naver.com/api/stock/{code}/basic", headers=UA, timeout=15).json()
+        if b.get("closePrice"):
+            out["현재가"] = b["closePrice"]
+            out["등락률(%)"] = b.get("fluctuationsRatio", "")
+    except Exception:  # noqa
+        pass
+    return out
+
+
+def make_perspectives(items, companies, cfg):
+    """새로 분석할 종목들을 한 번의 AI 호출로 처리 → {회사명: {value, growth, quant}}"""
+    rows = []
+    for c in items:
+        code = companies.get(c["company"], [""])[0]
+        m = stock_metrics(code)
+        rows.append({"company": c["company"], "news": c["headline"],
+                     "metrics": {k: str(v) for k, v in list(m.items())[:14]}})
+    print("[관점] 분석 대상:", [r["company"] for r in rows])
+    prompt = (
+        "너는 투자 교육 콘텐츠 작가야. 각 종목 뉴스를 세 가지 투자 철학으로 해석한 '관전 포인트'를 써.\n"
+        "1) value: 가치투자(버핏 스타일) — 경제적 해자, 이익의 지속성, 밸류에이션(PER·PBR), 재무 안정성\n"
+        "2) growth: 성장투자(캐시 우드 스타일) — 혁신성, 시장 확장성, 장기 성장 스토리\n"
+        "3) quant: 퀀트·수급 관점 — 지표 수준, 주가 위치(52주 범위), 외국인·기관 수급\n"
+        "규칙:\n"
+        "- 각 항목 한 문장, 45자 이내, 한국어\n"
+        "- 주어진 뉴스와 지표(metrics)에 있는 사실·숫자만 사용, 없는 숫자 만들기 금지 (지표가 없으면 일반 원칙으로)\n"
+        "- 매수·매도·목표가 제시 등 투자 권유 금지, '~를 확인할 필요', '~가 관건'처럼 체크포인트로 표현\n"
+        "- 실제 인물이 한 말처럼 쓰지 말 것 (따옴표·'버핏은 말했다' 금지)\n"
+        '출력 JSON만: {"items": [{"company": "...", "value": "...", "growth": "...", "quant": "..."}]}\n\n'
+        + json.dumps(rows, ensure_ascii=False)
+    )
+    out = gemini(prompt, cfg, want_json=True)
+    if not out:
+        return {}
+    try:
+        data = json.loads(re.sub(r"^```(json)?|```$", "", out.strip()).strip())
+        res = {}
+        for it in data.get("items", []):
+            name = str(it.get("company", "")).strip()
+            if name and all(str(it.get(k, "")).strip() for k, _, _ in PERSPECTIVES):
+                res[name] = {k: clean_title(str(it[k]))[:80] for k, _, _ in PERSPECTIVES}
+        return res
+    except Exception as e:  # noqa
+        print("⚠️ 관점 응답 해석 실패:", e)
+        return {}
+
+
 # ---------------------------------------------------------------- 실행
 TONE = {"up": "🔸", "down": "🔹", "flat": "▪️"}
 NEG = ("파업", "유상증자", "상장폐지", "거래정지", "횡령", "배임", "압수수색", "리콜", "적자전환", "어닝 쇼크", "하한가")
@@ -262,8 +341,8 @@ def main():
         s, tag = score_of(it["raw"])
         if s < min_score:
             continue
-        if any(c == comp and similar(t, rt) for c, rt in recent) or \
-                any(c["company"] == comp and similar(t, c["title"]) for c in cands):
+        if any(c == comp and same_event(comp, t, rt) for c, rt in recent) or \
+                any(c["company"] == comp and same_event(comp, t, c["title"]) for c in cands):
             continue                              # 이미 보냈거나 같은 사건의 다른 기사
         it.update(company=comp, score=s, tag=tag)
         cands.append(it)
@@ -297,7 +376,23 @@ def main():
         resolve_links(picked)
 
     companies = load_listed()
+    today = now().strftime("%Y-%m-%d")
+    analyzed = state.get("analyzed", {})
+    analyzed = {today: analyzed.get(today, [])}          # 오늘 기록만 유지
+    views = {}
+    if sc.get("perspectives", True):
+        targets, seen_c = [], set(analyzed[today])
+        for c in picked:                                    # 같은 종목은 당일 최초 1회만
+            if c["company"] not in seen_c:
+                seen_c.add(c["company"])
+                targets.append(c)
+        if targets:
+            views = make_perspectives(targets, companies, cfg)
+        else:
+            print("[관점] 오늘 이미 분석한 종목뿐 → 생략")
+
     blocks = [f"📢 <b>종목 뉴스</b> | {now():%m/%d %H}:00"]
+    shown = set()
     for c in picked:
         code, mkt = companies.get(c["company"], ["", ""])
         tag = f" · {c['tag']}" if c.get("tag") else ""
@@ -309,7 +404,14 @@ def main():
         if sc.get("show_link", True) and c.get("link"):
             # 주소를 그대로 보여줘야 텔레그램이 '이 링크를 열까요?'를 묻지 않고 바로 열어 줌
             line += f"\n🔗 {esc(c['link'])}"
+        v = views.get(c["company"])
+        if v and c["company"] not in shown:
+            shown.add(c["company"])
+            body = "\n".join(f"{ic} <b>{esc(label)}</b>: {esc(v[k])}" for k, ic, label in PERSPECTIVES)
+            line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b> (눌러서 보기)\n<tg-spoiler>{body}</tg-spoiler>"
         blocks.append(line)
+    if shown:
+        blocks.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
     if cfg.get("footer"):
         blocks.append(f"<i>{esc(cfg['footer'])}</i>")
     send_text("\n\n".join(blocks), cfg)
@@ -318,6 +420,8 @@ def main():
         sent_links.add(c.get("orig_link", c["link"]))
         recent.append([c["company"], c["title"]])
         add_history(state, f"[종목뉴스] {c['company']} - {c['headline']}", c["link"])
+    analyzed[today] = sorted(set(analyzed[today]) | shown)
+    state["analyzed"] = analyzed
     state["links"] = list(sent_links)[-400:]
     state["recent"] = recent[-200:]
     state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
