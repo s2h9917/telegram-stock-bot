@@ -292,6 +292,11 @@
   ],
   "history": [
     {
+      "time": "2026-11-24 14:09",
+      "title": "[유튜브] [오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=qbaLN1iGbTw"
+    },
+    {
       "time": "2026-11-24 11:01",
       "title": "[유튜브] [W디펜스] 크름대교 무너져 군수 대동맥 1/3 손실 / 머니투데이방송",
       "link": "https://www.youtube.com/watch?v=C7oPhG-0hyQ"
@@ -535,22 +540,8 @@
       "time": "2026-11-23 14:00",
       "title": "[유튜브] [오후의 쟁점] 코스피 추가 하락 염두?! 반도체 투톱·소부장 대응 \"반등, 이것 확인이 필수\" / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=W5HsUwzna9w"
-    },
-    {
-      "time": "2026-11-23 14:00",
-      "title": "[유튜브] [배준호의 골든스팟] LG전자 피지컬Ai · 로봇 사업 직수혜 기대 '로보스타' / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=0XGLhpZjNTU"
     }
   ],
-  "last_run": "2026-11-24 13:50",
-  "queue": [
-    {
-      "vid": "qbaLN1iGbTw",
-      "title": "[오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=qbaLN1iGbTw",
-      "program": "오후의쟁점",
-      "ready_at": "2026-11-24T14:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=qbaLN1iGbTw"
-    }
-  ]
+  "last_run": "2026-11-24 14:09",
+  "queue": []
 }
