@@ -150,12 +150,13 @@ def update_live_pin(cfg, state):
         return
     ch = next((c for c in chans if c["channel_id"] == lp.get("channel_id")), chans[0])
     pin = state.setdefault("live_pin", {})
-    # 24시간 송출 라이브라 자주 확인할 필요 없음: 방송 중이면 N시간마다, 대기 중·미확인이면 30분마다
+    # 24시간 송출 라이브라 자주 확인할 필요 없음: 방송 중이면 N시간마다,
+    # 대기 중·미확인 상태는 잘못 판단했을 가능성이 높으므로 매번 다시 확인
     hours = float(lp.get("check_hours", 6))
-    gap = dt.timedelta(minutes=30) if (not pin.get("message_id") or pin.get("key", "").startswith("offline")
-                                        or pin.get("miss")) else dt.timedelta(hours=hours)
+    unsure = not pin.get("message_id") or pin.get("key", "").startswith("offline") or pin.get("miss")
     last_check = pin.get("last_check")
-    if last_check and now() - dt.datetime.fromisoformat(last_check) < gap:
+    if not unsure and last_check and now() - dt.datetime.fromisoformat(last_check) < dt.timedelta(hours=hours):
+        gap = dt.timedelta(hours=hours)
         print(f"[라이브 고정] 다음 확인: {(dt.datetime.fromisoformat(last_check) + gap):%H:%M} 이후")
         return
     pin["last_check"] = now().isoformat()
