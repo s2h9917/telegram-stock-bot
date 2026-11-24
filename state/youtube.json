@@ -289,12 +289,19 @@
     "KyP-YgIdWzg": "video",
     "zJpVOYxFdqo": "video",
     "nkiHgiZd3Po": "video",
-    "SK3abKUVrI8": "video"
+    "SK3abKUVrI8": "video",
+    "eXP4KiCzeks": "video",
+    "9gjBC-VvsYU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-24 15:09",
+      "title": "[유튜브] [오늘장 랭킹5] 젠슨 황 복귀에 AI주 '환호'...추세 전환 vs 기술적 반등? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=SK3abKUVrI8"
+    },
     {
       "time": "2026-11-24 14:09",
       "title": "[유튜브] [오후의 쟁점] CES 기대에 젠슨 황 복귀까지! 로봇주 상한가 랠리 \"이 종목, 반등의 초입\" / 머니투데이방송 (증시, 증권)",
@@ -539,22 +546,26 @@
       "time": "2026-11-23 15:00",
       "title": "[유튜브] [이슈진단] AI 악재에 '검은 월요일' 공포장 생존 전략 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=PyaO5gFGS7g"
-    },
-    {
-      "time": "2026-11-23 14:00",
-      "title": "[유튜브] [오후의 쟁점] 코스피 추가 하락 염두?! 반도체 투톱·소부장 대응 \"반등, 이것 확인이 필수\" / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=W5HsUwzna9w"
     }
   ],
-  "last_run": "2026-11-24 14:50",
+  "last_run": "2026-11-24 15:09",
   "queue": [
     {
-      "vid": "SK3abKUVrI8",
-      "title": "[오늘장 랭킹5] 젠슨 황 복귀에 AI주 '환호'...추세 전환 vs 기술적 반등? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=SK3abKUVrI8",
-      "program": "오늘장랭킹5",
-      "ready_at": "2026-11-24T15:05:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] 젠슨 황 복귀에 AI주 '환호'...추세 전환 vs 기술적 반등? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=SK3abKUVrI8"
+      "vid": "eXP4KiCzeks",
+      "title": "[김도형의 럭키7] 로봇 vs 반도체 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=eXP4KiCzeks",
+      "program": "김도형의럭키7",
+      "ready_at": "2026-11-25T09:05:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[김도형의 럭키7] 로봇 vs 반도체 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=eXP4KiCzeks"
+    },
+    {
+      "vid": "9gjBC-VvsYU",
+      "title": "[이슈진단] 젠슨황 AI랠리 · 삼전발 기대 \"로봇주, 대세 상승 시작되나?\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=9gjBC-VvsYU",
+      "program": "이슈진단",
+      "ready_at": "2026-11-25T15:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[이슈진단] 젠슨황 AI랠리 · 삼전발 기대 \"로봇주, 대세 상승 시작되나?\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=9gjBC-VvsYU"
     }
-  ]
+  ],
+  "live_pin": {}
 }
