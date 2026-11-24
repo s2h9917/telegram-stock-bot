@@ -198,6 +198,8 @@ with tab2:
     sc["min_score"] = c3.slider("최소 중요도 점수", 2, 10, int(sc.get("min_score", 4)),
                                 help="높일수록 수주·단독·대형 계약 같은 굵직한 뉴스만 올라갑니다")
     sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", True))
+    sc["perspectives"] = st.checkbox("🧠 투자 대가 관점 붙이기 (가치·성장·퀀트, 같은 종목은 하루 1회)",
+                                     sc.get("perspectives", True))
     c1, c2, c3 = st.columns(3)
     sc["start_hour"] = c1.number_input("시작 시각(시)", 0, 23, int(sc.get("start_hour", 7)))
     sc["end_hour"] = c2.number_input("종료 시각(시)", 0, 23, int(sc.get("end_hour", 20)))
