@@ -367,12 +367,31 @@
     "u9X_DK0wQ1s": "video",
     "pn4pAX97J2s": "video",
     "yU-PCOjEnEM": "video",
-    "RYyrOBkvttA": "video"
+    "RYyrOBkvttA": "video",
+    "1ufNetbGYmY": "video",
+    "LZCotnMdMyo": "video",
+    "rBYV_ZTBEtU": "video",
+    "6G6r2S_mCkU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-26 07:10",
+      "title": "[유튜브] [마켓 링크] 머스크 제국의 결합...3.5조 달러 합병 협상 속도 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=5lAGw_io984"
+    },
+    {
+      "time": "2026-11-26 07:10",
+      "title": "[유튜브] [클로징 킥] 미 소비심리 22개월 만에 최고....예상치 대폭 상회 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=U05knGtcsR4"
+    },
+    {
+      "time": "2026-11-26 07:10",
+      "title": "[유튜브] [이항영의 히트앤 비트] 뉴욕증시, 엔비디아 · 앤트로픽 급락에 휘청...마감 평가는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=NPY-H4NyedI"
+    },
     {
       "time": "2026-11-25 19:10",
       "title": "[유튜브] [주식민원처리반] 무엇이든 물어보세요! '티엘비, 에이엘비바이오, 한라캐스트, 지투지바이오, 엘앤씨바이오' 外 / 머니투데이방송(증시, 증권)",
@@ -607,49 +626,10 @@
       "time": "2026-11-23 17:00",
       "title": "[유튜브] [여의도튜브] 中으로 반도체 밀반출...'젠슨황 불륜' 일파만파 / 머니투데이방송",
       "link": "https://www.youtube.com/watch?v=nEZKTek6-yw"
-    },
-    {
-      "time": "2026-11-23 16:01",
-      "title": "[유튜브] [김도형의 럭키7] 화장품 vs 로봇 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=tYz7EZq5ERA"
-    },
-    {
-      "time": "2026-11-23 16:01",
-      "title": "[유튜브] [주간 경제 이야기] 제조현장 '암묵지' 전수 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=yD8ZWcsrw50"
-    },
-    {
-      "time": "2026-11-23 16:01",
-      "title": "[유튜브] [라이프 스타일] 다름을 넘어 예술로! '제3회 아트 노마드 아트페어' 개막 / 머니투데이방송",
-      "link": "https://www.youtube.com/watch?v=9K_lMUjc0iU"
     }
   ],
-  "last_run": "2026-11-26 03:58",
+  "last_run": "2026-11-26 07:10",
   "queue": [
-    {
-      "vid": "NPY-H4NyedI",
-      "title": "[이항영의 히트앤 비트] 뉴욕증시, 엔비디아 · 앤트로픽 급락에 휘청...마감 평가는? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=NPY-H4NyedI",
-      "program": "이하영의히트앤비트",
-      "ready_at": "2026-11-26T07:05:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[이항영의 히트앤 비트] 뉴욕증시, 엔비디아 · 앤트로픽 급락에 휘청...마감 평가는? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=NPY-H4NyedI"
-    },
-    {
-      "vid": "U05knGtcsR4",
-      "title": "[클로징 킥] 미 소비심리 22개월 만에 최고....예상치 대폭 상회 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=U05knGtcsR4",
-      "program": "클로징킥",
-      "ready_at": "2026-11-26T07:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[클로징 킥] 미 소비심리 22개월 만에 최고....예상치 대폭 상회 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=U05knGtcsR4"
-    },
-    {
-      "vid": "5lAGw_io984",
-      "title": "[마켓 링크] 머스크 제국의 결합...3.5조 달러 합병 협상 속도 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=5lAGw_io984",
-      "program": "마켓링크",
-      "ready_at": "2026-11-26T07:10:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[마켓 링크] 머스크 제국의 결합...3.5조 달러 합병 협상 속도 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=5lAGw_io984"
-    },
     {
       "vid": "OIf8y8tZed4",
       "title": "[투자뉴스7 브리핑] 미국, 수십 개국 대상 '관세 인상 준비' / 머니투데이방송 (증시, 증권)",
@@ -673,6 +653,30 @@
       "program": "오늘장랭킹5",
       "ready_at": "2026-11-26T15:05:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] 삼전닉스 하방 지지선 '이 가격'? 깨지 않으면 비중 확대 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=lWcIb7PkqVw"
+    },
+    {
+      "vid": "1ufNetbGYmY",
+      "title": "[마켓 링크] AI 꼬인 매듭, 내년엔 어떻게 풀어갈까? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=1ufNetbGYmY",
+      "program": "마켓링크",
+      "ready_at": "2026-11-27T07:10:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[마켓 링크] AI 꼬인 매듭, 내년엔 어떻게 풀어갈까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=1ufNetbGYmY"
+    },
+    {
+      "vid": "LZCotnMdMyo",
+      "title": "[이항영의 히트앤 비트] 뉴욕증시, 저가매수 유입에 낙폭 회복...마감 평가는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=LZCotnMdMyo",
+      "program": "이하영의히트앤비트",
+      "ready_at": "2026-11-27T07:05:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[이항영의 히트앤 비트] 뉴욕증시, 저가매수 유입에 낙폭 회복...마감 평가는? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=LZCotnMdMyo"
+    },
+    {
+      "vid": "rBYV_ZTBEtU",
+      "title": "[클로징 킥] 워크데이 반등 오토데스크 약세...소프트웨어 실적 반응 엇갈려 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=rBYV_ZTBEtU",
+      "program": "클로징킥",
+      "ready_at": "2026-11-27T07:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[클로징 킥] 워크데이 반등 오토데스크 약세...소프트웨어 실적 반응 엇갈려 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=rBYV_ZTBEtU"
     }
   ],
   "live_pin": {
