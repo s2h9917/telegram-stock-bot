@@ -364,7 +364,9 @@
     "lQpzcUPW-fw": "video",
     "q_5W-ZlZKHQ": "video",
     "u1nQgO-gaV0": "video",
-    "u9X_DK0wQ1s": "video"
+    "u9X_DK0wQ1s": "video",
+    "pn4pAX97J2s": "video",
+    "yU-PCOjEnEM": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -621,7 +623,7 @@
       "link": "https://www.youtube.com/watch?v=1w8na_wx3KQ"
     }
   ],
-  "last_run": "2026-11-25 18:30",
+  "last_run": "2026-11-25 18:40",
   "queue": [
     {
       "vid": "od811yRzzj4",
@@ -678,6 +680,14 @@
       "program": "오늘장랭킹5",
       "ready_at": "2026-11-26T15:05:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] 삼전닉스 하방 지지선 '이 가격'? 깨지 않으면 비중 확대 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=lWcIb7PkqVw"
+    },
+    {
+      "vid": "pn4pAX97J2s",
+      "title": "[주식민원처리반] 무엇이든 물어보세요! '티엘비, 에이엘비바이오, 한라캐스트, 지투지바이오, 엘앤씨바이오' 外 / 머니투데이방송(증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=pn4pAX97J2s",
+      "program": "주식민원처리반",
+      "ready_at": "2026-11-25T19:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[주식민원처리반] 무엇이든 물어보세요! '티엘비, 에이엘비바이오, 한라캐스트, 지투지바이오, 엘앤씨바이오' 外 / 머니투데이방송(증시, 증권)\nhttps://www.youtube.com/watch?v=pn4pAX97J2s"
     }
   ],
   "live_pin": {
