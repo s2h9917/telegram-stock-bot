@@ -341,12 +341,19 @@
     "7mxcINlEEHI": "video",
     "l9zWCntU3X4": "video",
     "VMHAVWIg_rU": "video",
-    "xTn8e7zSGT4": "video"
+    "xTn8e7zSGT4": "video",
+    "2vmkETrFtcE": "live",
+    "9o-0Nb644yU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-25 14:10",
+      "title": "[유튜브] [오후의 쟁점] 반도체, 추세 전환은 아직?! 非AI로 눈 돌릴 때? \"로봇·뷰티·보안 탑픽은\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=VMHAVWIg_rU"
+    },
     {
       "time": "2026-11-25 11:10",
       "title": "[유튜브] [전략의 해석 찬찬찬] 극단적인 변동성, 위기에서 찾는 기회는? / 머니투데이방송 (증시, 증권)",
@@ -591,14 +598,9 @@
       "time": "2026-11-23 16:00",
       "title": "[유튜브] [마감 스퍼트] 오후장 회복 시도 하는 증시, 악재 소화 마무리 국면? / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=1tR2RptBkLQ"
-    },
-    {
-      "time": "2026-11-23 15:01",
-      "title": "[유튜브] 셀린느 코트에 로로피아나 든 이부진, 성수동 외출 포착 #shorts",
-      "link": "https://www.youtube.com/shorts/G_PKQUK3LaA"
     }
   ],
-  "last_run": "2026-11-25 13:50",
+  "last_run": "2026-11-25 14:10",
   "queue": [
     {
       "vid": "9gjBC-VvsYU",
@@ -647,14 +649,6 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-26T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 미국, 수십 개국 대상 '관세 인상 준비' / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=OIf8y8tZed4"
-    },
-    {
-      "vid": "VMHAVWIg_rU",
-      "title": "[오후의 쟁점] 반도체, 추세 전환은 아직?! 非AI로 눈 돌릴 때? \"로봇·뷰티·보안 탑픽은\" / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=VMHAVWIg_rU",
-      "program": "오후의쟁점",
-      "ready_at": "2026-11-25T14:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] 반도체, 추세 전환은 아직?! 非AI로 눈 돌릴 때? \"로봇·뷰티·보안 탑픽은\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=VMHAVWIg_rU"
     }
   ],
   "live_pin": {
