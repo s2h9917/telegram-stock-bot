@@ -340,6 +340,11 @@
   ],
   "history": [
     {
+      "time": "2026-11-25 11:10",
+      "title": "[유튜브] [전략의 해석 찬찬찬] 극단적인 변동성, 위기에서 찾는 기회는? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=s_KGbZusypQ"
+    },
+    {
       "time": "2026-11-25 09:10",
       "title": "[유튜브] [투자뉴스7 Q&A] 엔비디아 상승분 일부 반납, 향후 추이 지켜봐야 / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=N6oo7e-TPfE"
@@ -583,14 +588,9 @@
       "time": "2026-11-23 15:01",
       "title": "[유튜브] 셀린느 코트에 로로피아나 든 이부진, 성수동 외출 포착 #shorts",
       "link": "https://www.youtube.com/shorts/G_PKQUK3LaA"
-    },
-    {
-      "time": "2026-11-23 15:00",
-      "title": "[유튜브] [오늘장 랭킹5] 엔비디아發 반도체 한파 속 종목 선별, 딱 이것만 체크! 기회는 기판과 MLCC / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=K0bEam2QpFA"
     }
   ],
-  "last_run": "2026-11-25 10:50",
+  "last_run": "2026-11-25 11:10",
   "queue": [
     {
       "vid": "9gjBC-VvsYU",
@@ -639,14 +639,6 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-26T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 미국, 수십 개국 대상 '관세 인상 준비' / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=OIf8y8tZed4"
-    },
-    {
-      "vid": "s_KGbZusypQ",
-      "title": "[전략의 해석 찬찬찬] 극단적인 변동성, 위기에서 찾는 기회는? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=s_KGbZusypQ",
-      "program": "전략의해석찬찬찬",
-      "ready_at": "2026-11-25T11:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[전략의 해석 찬찬찬] 극단적인 변동성, 위기에서 찾는 기회는? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=s_KGbZusypQ"
     }
   ],
   "live_pin": {
