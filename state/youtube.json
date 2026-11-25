@@ -339,7 +339,8 @@
     "RwqPd3HRp7o": "video",
     "KEww1foO5fk": "video",
     "7mxcINlEEHI": "video",
-    "l9zWCntU3X4": "video"
+    "l9zWCntU3X4": "video",
+    "VMHAVWIg_rU": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -596,7 +597,7 @@
       "link": "https://www.youtube.com/shorts/G_PKQUK3LaA"
     }
   ],
-  "last_run": "2026-11-25 13:10",
+  "last_run": "2026-11-25 13:20",
   "queue": [
     {
       "vid": "9gjBC-VvsYU",
@@ -645,6 +646,14 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-26T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 미국, 수십 개국 대상 '관세 인상 준비' / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=OIf8y8tZed4"
+    },
+    {
+      "vid": "VMHAVWIg_rU",
+      "title": "[오후의 쟁점] 반도체, 추세 전환은 아직?! 非AI로 눈 돌릴 때? \"로봇·뷰티·보안 탑픽은\" / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=VMHAVWIg_rU",
+      "program": "오후의쟁점",
+      "ready_at": "2026-11-25T14:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] 반도체, 추세 전환은 아직?! 非AI로 눈 돌릴 때? \"로봇·뷰티·보안 탑픽은\" / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=VMHAVWIg_rU"
     }
   ],
   "live_pin": {
