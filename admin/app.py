@@ -221,6 +221,11 @@ with tab2:
     sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", True))
     sc["perspectives"] = st.checkbox("🧠 투자 대가 관점 붙이기 (가치·성장·퀀트, 같은 종목은 하루 1회)",
                                      sc.get("perspectives", True))
+    styles = ["plain", "expand", "spoiler"]
+    sc["perspective_style"] = st.radio(
+        "관점 표시 방식", styles, horizontal=True, index=styles.index(sc.get("perspective_style", "plain")),
+        format_func={"plain": "항상 보이기", "expand": "접어두기 (앞부분만 보이고 눌러서 펼침)",
+                     "spoiler": "가림 처리 (다시 들어오면 또 가려짐)"}.get)
     c1, c2, c3 = st.columns(3)
     sc["start_hour"] = c1.number_input("시작 시각(시)", 0, 23, int(sc.get("start_hour", 7)))
     sc["end_hour"] = c2.number_input("종료 시각(시)", 0, 23, int(sc.get("end_hour", 20)))
