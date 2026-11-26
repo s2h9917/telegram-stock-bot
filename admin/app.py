@@ -293,15 +293,15 @@ with tab2:
 
     st.divider()
     st.subheader("⑨ 52주 신고가·신저가 TOP (평일 15:40, 한 메시지)")
-    hc = cfg.setdefault("stock_highs", {})
+    shc = cfg.setdefault("stock_highs", {})
     c1, c2, c3 = st.columns(3)
-    hc["enabled"] = c1.toggle("사용", hc.get("enabled", True), key="h_en")
-    hc["include_low"] = c2.checkbox("신저가도 함께", hc.get("include_low", True))
-    hc["check_alltime"] = c3.checkbox("(역사적)/(52주) 구분", hc.get("check_alltime", True))
-    hc["top_n"] = int(st.number_input("신고가 상승률 / 신저가 하락률 상위 몇 종목", 1, 30, int(hc.get("top_n", 5))))
+    shc["enabled"] = c1.toggle("사용", shc.get("enabled", True), key="sh_en")
+    shc["include_low"] = c2.checkbox("신저가도 함께", shc.get("include_low", True), key="sh_low")
+    shc["check_alltime"] = c3.checkbox("(역사적)/(52주) 구분", shc.get("check_alltime", True), key="sh_all")
+    shc["top_n"] = int(st.number_input("신고가 상승률 / 신저가 하락률 상위 몇 종목", 1, 30, int(shc.get("top_n", 5)), key="sh_top"))
     st.caption("네이버 실시간랭킹 '52주 최고·최저' 종목 중 상위 종목만 한 메시지로 보냅니다.")
-    hc["exclude_names"] = [x.strip() for x in st.text_input(
-        "제외할 종목명 (쉼표로 구분)", ", ".join(hc.get("exclude_names", []))).split(",") if x.strip()]
+    shc["exclude_names"] = [x.strip() for x in st.text_input(
+        "제외할 종목명 (쉼표로 구분)", ", ".join(shc.get("exclude_names", [])), key="sh_ex").split(",") if x.strip()]
 
     st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
