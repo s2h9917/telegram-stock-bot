@@ -107,7 +107,13 @@ def get_news(cfg, limit=30):
     for kw in cfg["market"].get("keywords", ["증시"]):
         url = (f"https://news.google.com/rss/search?q={quote(kw)}+when:1d"
                "&hl=ko&gl=KR&ceid=KR:ko")
-        for e in feedparser.parse(url).entries[:10]:
+        try:  # 기본 접속 정보로는 구글이 가끔 빈 결과를 줘서 브라우저처럼 접속
+            entries = feedparser.parse(requests.get(url, headers=UA, timeout=15).content).entries
+        except Exception as e:  # noqa
+            print("구글 뉴스 실패:", kw, str(e)[:100])
+            entries = []
+        print(f"[뉴스] '{kw}' {len(entries)}건")
+        for e in entries[:10]:
             t = re.sub(r"\s+-\s+[^-]+$", "", e.title)  # 끝의 '- 언론사' 제거
             if t not in seen:
                 seen.add(t)
@@ -123,6 +129,7 @@ def get_news(cfg, limit=30):
                 heads.append({"title": t, "link": "https://finance.naver.com" + a["href"]})
     except Exception as e:  # noqa
         print("네이버 뉴스 실패:", e)
+    print(f"[뉴스] 합계 {len(heads)}건 (헤드라인 후보)")
     return heads[:limit]
 
 
@@ -135,7 +142,7 @@ def build_prompt(slot, quotes, news):
     q = "\n".join(fmt_quote(n, v) for n, v in quotes)
     n = "\n".join(f"- {x['title']}" for x in news)
     return (
-        f"너는 증권 방송 작가야. {focus}\n"
+        f"오늘 텔레그램 증시 브리핑을 쓴다. {focus}\n"
         "공통 규칙: 아래 데이터와 헤드라인에 있는 사실만 사용, 없는 수치·사실을 만들지 말 것, "
         "매수·매도 권유 금지, 한국어, 마크다운·별표·이모지 쓰지 말 것.\n\n"
         "[주요 헤드라인 작성 규칙]\n"
@@ -192,7 +199,10 @@ def build_body(slot, quotes, news, cfg):
     blocks = []
     if data.get("summary"):
         blocks.append("📌 <b>핵심 요약</b>\n" + "\n".join(f"• {esc(x)}" for x in data["summary"][:3]))
-    blocks.append("📰 <b>주요 헤드라인</b>\n" + "\n".join(f"{TONE[tone]} {esc(t)}" for t, tone in heads))
+    if heads:
+        blocks.append("📰 <b>주요 헤드라인</b>\n" + "\n".join(f"{TONE[tone]} {esc(t)}" for t, tone in heads))
+    else:
+        print("⚠️ 헤드라인 0건 → '주요 헤드라인' 칸은 빼고 발송")
     if data.get("checkpoints"):
         blocks.append("👀 <b>체크 포인트</b>\n" + "\n".join(f"• {esc(x)}" for x in data["checkpoints"][:3]))
     return "\n\n".join(blocks)
