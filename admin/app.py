@@ -304,6 +304,11 @@ with tab2:
         "제외할 종목명 (쉼표로 구분)", ", ".join(shc.get("exclude_names", [])), key="sh_ex").split(",") if x.strip()]
 
     st.divider()
+    st.subheader("🧠 AI 작성 관점 (모든 AI 글에 공통 적용)")
+    st.caption("브리핑·리포트 요약·핫이슈·종목뉴스·카드뉴스·주간일정 정리에 모두 적용됩니다. "
+               "비워 두면 기본값(30년 경력 증권·경제 전문가 관점)을 씁니다.")
+    cfg["gemini"]["persona"] = st.text_area("AI 작성 관점", cfg["gemini"].get("persona", ""), height=220,
+                                            key="g_persona", placeholder="비워 두면 기본 전문가 관점 사용")
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
