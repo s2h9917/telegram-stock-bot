@@ -120,6 +120,17 @@ def send_text(text, cfg, preview=None):
     return ok
 
 
+def send_album(pngs, caption, cfg):
+    """이미지 여러 장을 앨범(넘겨 보기)으로 한 번에 발송. 1장이면 일반 사진으로"""
+    if len(pngs) == 1:
+        return send_photo(pngs[0], caption, cfg)
+    media = [{"type": "photo", "media": f"attach://p{i}"} for i in range(len(pngs))]
+    media[0].update(caption=caption[:1024], parse_mode="HTML")
+    files = {f"p{i}": (f"card{i}.png", b, "image/png") for i, b in enumerate(pngs)}
+    return _tg("sendMediaGroup", cfg, {"media": json.dumps(media, ensure_ascii=False), "caption": caption},
+               files=files)
+
+
 def send_photo(png_bytes, caption, cfg):
     return _tg("sendPhoto", cfg, {"caption": caption[:1024], "parse_mode": "HTML"},
                files={"photo": ("card.png", png_bytes, "image/png")})
