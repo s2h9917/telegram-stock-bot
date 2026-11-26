@@ -264,7 +264,18 @@
   "breaking": {
     "enabled": true,
     "require_flash": true,
-    "events": [],
+    "events": [
+      {
+        "date": "2026-11-26",
+        "start": "09:55",
+        "end": "11:20",
+        "name": "한은 금통위",
+        "keywords": [
+          "기준금리",
+          "금통위"
+        ]
+      }
+    ],
     "sources": [
       {
         "name": "연합뉴스",
