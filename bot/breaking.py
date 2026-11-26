@@ -9,6 +9,7 @@
 import argparse
 import calendar
 import datetime as dt
+import math
 import re
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote
@@ -49,14 +50,14 @@ def active_events(bc, t, force=False):
     return out[:1] if force else out
 
 
-def fetch(src, keywords):
-    """매체 하나에서 최근 기사 가져오기"""
+def fetch(src, keywords, hours=1):
+    """매체 하나에서 최근 기사 가져오기 (hours: 검색할 최근 시간 범위)"""
     urls = []
     if (src.get("rss") or "").strip():
         urls.append(src["rss"].strip())
     if (src.get("domain") or "").strip():
         q = f"site:{src['domain'].strip()} (" + " OR ".join(keywords) + ")"
-        urls.append(f"https://news.google.com/rss/search?q={quote(q)}+when:1h&hl=ko&gl=KR&ceid=KR:ko")
+        urls.append(f"https://news.google.com/rss/search?q={quote(q)}+when:{hours}h&hl=ko&gl=KR&ceid=KR:ko")
     items = []
     for u in urls:
         try:
@@ -76,8 +77,9 @@ def find_flash(ev, sources, require_flash):
     kws = [k.strip() for k in ev.get("keywords", []) if k.strip()]
     norm = lambda s: re.sub(r"\s+", "", s or "").lower()
     since = ev["_start"] - dt.timedelta(minutes=5)
+    hours = max(1, math.ceil((now() - since).total_seconds() / 3600))   # 이벤트 시작부터 지금까지
     with ThreadPoolExecutor(max_workers=8) as ex:
-        results = list(ex.map(lambda s: fetch(s, kws), sources))
+        results = list(ex.map(lambda s: fetch(s, kws, hours), sources))
     hits = []
     for items in results:
         for it in items:
