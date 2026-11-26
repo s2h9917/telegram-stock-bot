@@ -382,7 +382,10 @@
     "q1m5ypDgmdQ": "video",
     "ODA-eGOlWWc": "video",
     "A-AMSsT7pt8": "video",
-    "z3RXYjaWD9I": "video"
+    "z3RXYjaWD9I": "video",
+    "Koal9oGSAAs": "video",
+    "KzUXJBOebfk": "video",
+    "GOeOm53uqlA": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -639,7 +642,7 @@
       "link": "https://www.youtube.com/shorts/u6ku_dlNaXM"
     }
   ],
-  "last_run": "2026-11-26 10:50",
+  "last_run": "2026-11-26 11:06",
   "queue": [
     {
       "vid": "lWcIb7PkqVw",
@@ -680,6 +683,14 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-27T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] AI의 다음 사이클은 보안주? 아직 기회 있을까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=9BWJFmpbARM"
+    },
+    {
+      "vid": "Koal9oGSAAs",
+      "title": "[전략의 해석 찬찬찬] 폭락 후 저가매수 유입...V자 반등 가능할까? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=Koal9oGSAAs",
+      "program": "전략의해석찬찬찬",
+      "ready_at": "2026-11-27T11:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[전략의 해석 찬찬찬] 폭락 후 저가매수 유입...V자 반등 가능할까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=Koal9oGSAAs"
     }
   ],
   "live_pin": {
