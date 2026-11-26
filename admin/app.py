@@ -309,8 +309,14 @@ with tab2:
                "비워 두면 기본값(30년 경력 증권·경제 전문가 관점)을 씁니다.")
     cfg["gemini"]["persona"] = st.text_area("AI 작성 관점", cfg["gemini"].get("persona", ""), height=220,
                                             key="g_persona", placeholder="비워 두면 기본 전문가 관점 사용")
-    cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
-                                           cfg["gemini"].get("model", "gemini-flash-latest"))
+    c1, c2 = st.columns(2)
+    cfg["gemini"]["model"] = c1.text_input(
+        "기본 AI 모델 (브리핑·리포트·핫이슈·카드뉴스·주간일정)",
+        cfg["gemini"].get("model", "gemini-flash-latest"), key="g_model")
+    cfg["gemini"]["light_model"] = c2.text_input(
+        "가벼운 AI 모델 (매시간 종목뉴스 — 하루 호출이 많아서)",
+        cfg["gemini"].get("light_model", "gemini-flash-lite-latest"), key="g_light")
+    st.caption("무료 등급은 모델마다 하루 한도(RPD)가 있습니다. 한도가 끝나면 자동으로 다음 모델로 넘어갑니다.")
     if st.button("💾 설정 저장", type="primary"):
         ok, msg = gh_put_file("config.json", json.dumps(cfg, ensure_ascii=False, indent=2) + "\n",
                               sha, "관리자 화면에서 설정 변경")
