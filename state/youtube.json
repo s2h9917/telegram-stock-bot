@@ -398,7 +398,9 @@
     "Q6oWiZI-Th0": "video",
     "5H4V_X65q7k": "video",
     "8rIhImS_U6c": "video",
-    "x3km5JjMIec": "video"
+    "x3km5JjMIec": "video",
+    "z54ypksuPew": "video",
+    "yCdrUfjKhZA": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -655,7 +657,7 @@
       "link": "https://www.youtube.com/shorts/OVRYzErl1F4"
     }
   ],
-  "last_run": "2026-11-26 14:40",
+  "last_run": "2026-11-26 14:50",
   "queue": [
     {
       "vid": "lWcIb7PkqVw",
@@ -712,6 +714,14 @@
       "program": "오늘장랭킹5",
       "ready_at": "2026-11-26T15:05:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] 투톱, 전일 급락 대비 아쉬운 상승.. 반등 이어갈까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=5H4V_X65q7k"
+    },
+    {
+      "vid": "z54ypksuPew",
+      "title": "[이슈진단] 반도체 우려 지속.. 다음 주인공은 제약바이오? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=z54ypksuPew",
+      "program": "이슈진단",
+      "ready_at": "2026-11-26T15:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[이슈진단] 반도체 우려 지속.. 다음 주인공은 제약바이오? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=z54ypksuPew"
     }
   ],
   "live_pin": {
