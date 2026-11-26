@@ -158,7 +158,31 @@ DEFAULT_PERSONA = """너는 국내 증권사 리서치센터장과 경제신문 
 7. 요청된 출력 형식(JSON 등)과 글자 수 제한은 반드시 지킨다."""
 
 
-_EXHAUSTED = set()   # 이번 실행 중 '하루 한도'가 끝난 모델 → 다시 부르지 않음
+_EXHAUSTED = set()
+_DISCOVERED = None
+
+
+def flash_models(key):
+    """이 키로 쓸 수 있는 'X.Y Flash' 정식 모델 목록 (최신 버전 순). 예: gemini-3.8-flash, gemini-3.6-flash
+    기본 모델이 혼잡(503)·시간 초과일 때, 품질이 비슷한 이전 Flash로 먼저 넘어가기 위해 사용"""
+    global _DISCOVERED
+    if _DISCOVERED is not None:
+        return _DISCOVERED
+    _DISCOVERED = []
+    try:
+        r = requests.get("https://generativelanguage.googleapis.com/v1beta/models",
+                         params={"key": key, "pageSize": 200}, timeout=15)
+        found = []
+        for m in r.json().get("models", []):
+            name = m.get("name", "").split("/")[-1]
+            mt = re.fullmatch(r"gemini-(\d+(?:\.\d+)?)-flash", name)
+            if mt and "generateContent" in m.get("supportedGenerationMethods", []):
+                found.append((float(mt.group(1)), name))
+        _DISCOVERED = [n for _, n in sorted(found, reverse=True)][:3]
+        print(f"[AI] 사용 가능한 Flash 모델: {', '.join(_DISCOVERED) or '없음'}")
+    except Exception as e:  # noqa
+        print("[AI] 모델 목록 조회 실패:", str(e)[:100])
+    return _DISCOVERED   # 이번 실행 중 '하루 한도'가 끝난 모델 → 다시 부르지 않음
 
 
 def gemini(prompt, cfg, want_json=False, light=False):
@@ -172,6 +196,8 @@ def gemini(prompt, cfg, want_json=False, light=False):
     g = cfg.get("gemini", {})
     first = (g.get("light_model") or "gemini-flash-lite-latest") if light else (g.get("model") or "gemini-flash-latest")
     chain = GEMINI_FALLBACKS[1:] + GEMINI_FALLBACKS[:1] if light else GEMINI_FALLBACKS
+    if not light:   # 기본 → (혼잡 시) 다른 정식 Flash 버전들 → 가벼운 모델 순
+        chain = [chain[0]] + flash_models(key) + chain[1:]
     models = [m for m in dict.fromkeys([first] + chain) if m not in _EXHAUSTED]
     persona = (cfg.get("gemini", {}).get("persona") or "").strip() or DEFAULT_PERSONA
     body = {"systemInstruction": {"parts": [{"text": persona}]},
@@ -218,9 +244,10 @@ def gemini(prompt, cfg, want_json=False, light=False):
             if r.status_code == 429 and "limit: 0" not in r.text and attempt < 2:
                 time.sleep(25)       # 일시적인 분당 한도 → 잠깐 쉬고 같은 모델 재시도
                 continue
-            if r.status_code in (500, 503) and attempt < 2:
+            if r.status_code == 500 and attempt == 0:
                 time.sleep(10)
                 continue
+            # 503(사용량 폭주)은 보통 몇 분 이상 가므로 기다리지 않고 바로 다음 모델로
             break                    # 404(모델 없음)·무료 한도 0 등 → 다음 모델로
     print("❌ [AI] 모든 모델 실패 → AI 없이 발송")
     return None
