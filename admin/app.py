@@ -21,7 +21,8 @@ st.set_page_config(page_title="증시봇 관리자", page_icon="📈", layout="w
 API = "https://api.github.com"
 WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑",
              "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스",
-             "weekly_calendar.yml": "⑥ 주간 경제일정"}
+             "weekly_calendar.yml": "⑥ 주간 경제일정",
+             "card_news.yml": "⑦ 카드뉴스"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -247,6 +248,18 @@ with tab2:
     wc["source_text"] = c2.text_input("출처 표기 (비우면 표시 안 함)", wc.get("source_text", ""))
 
     st.divider()
+    st.subheader("⑦ 카드뉴스 (하루 3번, 시간대별 최다 보도 이슈)")
+    cc = cfg.setdefault("card_news", {})
+    c1, c2, c3 = st.columns(3)
+    cc["enabled"] = c1.toggle("사용", cc.get("enabled", True), key="c_en")
+    cc["weekdays_only"] = c2.checkbox("평일(장 열리는 날)만", cc.get("weekdays_only", False), key="c_wd")
+    cc["brand"] = c3.text_input("카드 좌측 하단 채널명", cc.get("brand", ""))
+    cc["keywords"] = [x.strip() for x in st.text_input(
+        "이슈 뉴스 검색 키워드 (쉼표로 구분)",
+        ", ".join(cc.get("keywords") or ["증시", "코스피", "코스닥", "뉴욕증시", "경제", "금리", "환율", "반도체", "실적", "관세"])
+    ).split(",") if x.strip()]
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -306,6 +319,16 @@ with tab3:
         else:
             st.error(m)
 
+    c1, c2 = st.columns([1, 3])
+    cslot = c1.selectbox("카드뉴스 시간대", ["night", "day", "evening"],
+                         format_func={"night": "00:00~07:00", "day": "07:01~16:00", "evening": "16:01~19:30"}.get)
+    if c2.button("⑦ 카드뉴스 지금 만들기"):
+        ok, m = gh_dispatch("card_news.yml", {"force": True, "slot": cslot})
+        if ok:
+            st.success("요청 완료 (2~3분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -325,7 +348,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
