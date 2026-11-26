@@ -5,3 +5,4 @@ yfinance>=0.2.50
 pypdf>=4.0
 pillow>=10.0
 googlenewsdecoder>=0.2.2
+matplotlib>=3.8
