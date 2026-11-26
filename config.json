@@ -146,7 +146,9 @@
       }
     ],
     "live_pin": {
-      "enabled": true
+      "enabled": true,
+      "check_hours": 6,
+      "title_keyword": "부자되는 좋은습관"
     }
   },
   "market": {
@@ -238,5 +240,24 @@
   "weekly_calendar": {
     "enabled": true,
     "source_text": ""
+  },
+  "card_news": {
+    "enabled": true,
+    "weekdays_only": false,
+    "brand": "",
+    "keywords": [
+      "증시",
+      "코스피",
+      "코스닥",
+      "뉴욕증시",
+      "경제",
+      "금리",
+      "환율",
+      "반도체",
+      "실적",
+      "관세",
+      "속보",
+      "기준금리"
+    ]
   }
 }
