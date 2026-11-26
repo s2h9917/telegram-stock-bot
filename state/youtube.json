@@ -403,7 +403,9 @@
     "yCdrUfjKhZA": "video",
     "bRzNfQ-USZs": "video",
     "F19_W6g0JhQ": "video",
-    "CQVYEDtkWxM": "video"
+    "CQVYEDtkWxM": "video",
+    "0c4BP3cV-fg": "video",
+    "u4RdZnvVVbk": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -660,7 +662,7 @@
       "link": "https://www.youtube.com/watch?v=etVQLEL-9qQ"
     }
   ],
-  "last_run": "2026-11-26 15:50",
+  "last_run": "2026-11-26 16:10",
   "queue": [
     {
       "vid": "1ufNetbGYmY",
@@ -714,9 +716,9 @@
   "live_pin": {
     "message_id": 357,
     "key": "12VFt4XHSjE[LIVE] 부자되는 좋은습관 MTN 머니투데이방송 (뉴스&증권 경제방송)|btn2",
-    "updated": "2026-11-26T10:10:30.229161+09:00",
+    "updated": "2026-11-26T16:10:33.917618+09:00",
     "miss": 0,
-    "last_check": "2026-11-26T10:10:30.124448+09:00",
+    "last_check": "2026-11-26T16:10:33.830586+09:00",
     "vid": "12VFt4XHSjE"
   }
 }
