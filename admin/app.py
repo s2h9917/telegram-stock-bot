@@ -360,6 +360,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑧ 이벤트 속보 지금 확인 (감시 시간대 안일 때만 발송)"):
+        ok, m = gh_dispatch("breaking.yml", {"force": False})
+        if ok:
+            st.success("요청 완료 (약 1분 후, 해당 속보가 있으면 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
