@@ -235,7 +235,8 @@
       }
     ],
     "exclude_names": [],
-    "perspectives": true
+    "perspectives": true,
+    "perspective_style": "expand"
   },
   "weekly_calendar": {
     "enabled": true,
