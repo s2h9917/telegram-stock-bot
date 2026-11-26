@@ -408,7 +408,13 @@ def main():
         if v and c["company"] not in shown:
             shown.add(c["company"])
             body = "\n".join(f"{ic} <b>{esc(label)}</b>: {esc(v[k])}" for k, ic, label in PERSPECTIVES)
-            line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b> (눌러서 보기)\n<tg-spoiler>{body}</tg-spoiler>"
+            style = sc.get("perspective_style", "plain")
+            if style == "spoiler":     # 가림 처리 (텔레그램 특성상 다시 들어오면 또 가려짐)
+                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b> (눌러서 보기)\n<tg-spoiler>{body}</tg-spoiler>"
+            elif style == "expand":    # 접힌 인용: 가림 없이 앞부분이 보이고, 누르면 전체 펼침
+                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote expandable>{body}</blockquote>"
+            else:                      # 항상 보이기 (기본)
+                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote>{body}</blockquote>"
         blocks.append(line)
     if shown:
         blocks.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
