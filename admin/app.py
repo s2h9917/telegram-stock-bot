@@ -22,7 +22,8 @@ API = "https://api.github.com"
 WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜브 알림", "market.yml": "③ 증시 브리핑",
              "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스",
              "weekly_calendar.yml": "⑥ 주간 경제일정",
-             "card_news.yml": "⑦ 카드뉴스"}
+             "card_news.yml": "⑦ 카드뉴스",
+             "breaking.yml": "⑧ 이벤트 속보"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -265,6 +266,31 @@ with tab2:
     ).split(",") if x.strip()]
 
     st.divider()
+    st.subheader("⑧ 이벤트 속보 (금통위·FOMC 등, 지정 시간대에만 1분마다 감시)")
+    bc = cfg.setdefault("breaking", {})
+    c1, c2 = st.columns(2)
+    bc["enabled"] = c1.toggle("사용", bc.get("enabled", True), key="b_en")
+    bc["require_flash"] = c2.checkbox("[속보]·1보 표시가 있는 기사만", bc.get("require_flash", True))
+    st.markdown("**이벤트 일정** — 날짜 YYYY-MM-DD, 시각 HH:MM (한국 시각), 키워드는 쉼표로")
+    ev_df = pd.DataFrame([{**e, "keywords": ", ".join(e.get("keywords", []))} for e in bc.get("events", [])],
+                         columns=["date", "start", "end", "name", "keywords"])
+    ev_ed = st.data_editor(ev_df, num_rows="dynamic", width="stretch", key="ev_ed", column_config={
+        "date": "날짜", "start": "감시 시작", "end": "감시 종료", "name": "이벤트명", "keywords": "속보 키워드"})
+    bc["events"] = [{"date": r["date"].strip(), "start": r["start"].strip() or "00:00",
+                     "end": r["end"].strip() or "23:59", "name": r["name"].strip(),
+                     "keywords": [k.strip() for k in r["keywords"].split(",") if k.strip()]}
+                    for r in ev_ed.fillna("").astype(str).to_dict("records") if r["date"].strip()]
+    st.markdown("**속보 감시 매체** — 도메인만 넣어도 됨. RSS 주소를 알면 같이 넣으면 더 빠름")
+    src_df = pd.DataFrame(bc.get("sources") or [{"name": "연합뉴스", "domain": "yna.co.kr", "rss": ""},
+                                                 {"name": "뉴시스", "domain": "newsis.com", "rss": ""},
+                                                 {"name": "뉴스1", "domain": "news1.kr", "rss": ""}],
+                          columns=["name", "domain", "rss"])
+    src_ed = st.data_editor(src_df, num_rows="dynamic", width="stretch", key="src_ed", column_config={
+        "name": "매체명", "domain": "도메인", "rss": "RSS 주소 (선택)"})
+    bc["sources"] = [{k: str(r[k]).strip() for k in ("name", "domain", "rss")}
+                     for r in src_ed.fillna("").to_dict("records") if str(r["domain"]).strip() or str(r["rss"]).strip()]
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -353,7 +379,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
