@@ -260,5 +260,27 @@
       "속보",
       "기준금리"
     ]
+  },
+  "breaking": {
+    "enabled": true,
+    "require_flash": true,
+    "events": [],
+    "sources": [
+      {
+        "name": "연합뉴스",
+        "domain": "yna.co.kr",
+        "rss": "https://www.yna.co.kr/rss/news.xml"
+      },
+      {
+        "name": "뉴시스",
+        "domain": "newsis.com",
+        "rss": ""
+      },
+      {
+        "name": "뉴스1",
+        "domain": "news1.kr",
+        "rss": ""
+      }
+    ]
   }
 }
