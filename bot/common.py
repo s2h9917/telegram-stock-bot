@@ -206,7 +206,9 @@ def gemini(prompt, cfg, want_json=False, light=False):
     if want_json:
         body["generationConfig"]["responseMimeType"] = "application/json"
 
-    for model in models:
+    for model in list(models):
+        if model in _EXHAUSTED:
+            continue
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         # 최신 모델(Gemini 3 이상)은 답하기 전에 오래 '생각'해서 시간 초과가 남 → 생각 단계를 짧게
         mbody = json.loads(json.dumps(body))
@@ -214,7 +216,7 @@ def gemini(prompt, cfg, want_json=False, light=False):
             mbody["generationConfig"]["thinkingConfig"] = {"thinkingLevel": "low"}
         for attempt in range(3):
             try:
-                r = requests.post(url, params={"key": key}, json=mbody, timeout=90)
+                r = requests.post(url, params={"key": key}, json=mbody, timeout=60)
             except Exception as e:  # noqa  시간 초과·접속 오류 → 같은 모델 재시도 없이 다음 모델로
                 print(f"⚠️ [AI] {model} 응답 지연/접속 오류 → 다음 모델: {str(e)[:120]}")
                 break
@@ -247,7 +249,13 @@ def gemini(prompt, cfg, want_json=False, light=False):
             if r.status_code == 500 and attempt == 0:
                 time.sleep(10)
                 continue
-            # 503(사용량 폭주)은 보통 몇 분 이상 가므로 기다리지 않고 바로 다음 모델로
+            if r.status_code == 503:
+                # 사용량 폭주는 보통 몇 분 이상 감 → 이번 실행 동안 이 모델은 건너뜀.
+                # '-latest'(별칭)가 혼잡이면 같은 실체인 최신 버전도 같이 건너뜀
+                _EXHAUSTED.add(model)
+                if model.endswith("-latest") and "lite" not in model and flash_models(key):
+                    _EXHAUSTED.add(flash_models(key)[0])
+                models[:] = [m for m in models if m not in _EXHAUSTED or m == model]
             break                    # 404(모델 없음)·무료 한도 0 등 → 다음 모델로
     print("❌ [AI] 모든 모델 실패 → AI 없이 발송")
     return None
