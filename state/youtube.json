@@ -427,7 +427,8 @@
     "oT54MPVkBr4": "video",
     "JZET2KYcBFo": "video",
     "Qx-PJMXHGes": "video",
-    "n960XaOrY3k": "video"
+    "n960XaOrY3k": "video",
+    "721D4Cxnyc0": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -684,7 +685,7 @@
       "link": "https://www.youtube.com/watch?v=egedH7Bm3WA"
     }
   ],
-  "last_run": "2026-11-27 08:10",
+  "last_run": "2026-11-27 08:20",
   "queue": [
     {
       "vid": "Koal9oGSAAs",
@@ -741,6 +742,14 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-28T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 바닥을 지나는 중이기를 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=n960XaOrY3k"
+    },
+    {
+      "vid": "721D4Cxnyc0",
+      "title": "[투자뉴스7 Q&A] 공매도 - 숏커버링 사이 눈치싸움, 개인 필승 전략은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=721D4Cxnyc0",
+      "program": "투자뉴스7Q&A",
+      "ready_at": "2026-11-27T09:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 Q&amp;A] 공매도 - 숏커버링 사이 눈치싸움, 개인 필승 전략은? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=721D4Cxnyc0"
     }
   ],
   "live_pin": {
