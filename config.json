@@ -4,7 +4,9 @@
     "disable_preview": true
   },
   "gemini": {
-    "model": "gemini-flash-latest"
+    "model": "gemini-flash-latest",
+    "persona": "",
+    "light_model": "gemini-flash-lite-latest"
   },
   "footer": "※ 본 내용은 정보 제공 목적이며 투자 권유가 아닙니다. 투자 판단의 책임은 투자자 본인에게 있습니다.",
   "holidays": [
@@ -236,7 +238,8 @@
     ],
     "exclude_names": [],
     "perspectives": true,
-    "perspective_style": "expand"
+    "perspective_style": "spoiler",
+    "show_chart": false
   },
   "weekly_calendar": {
     "enabled": true,
@@ -463,5 +466,12 @@
         "rss": ""
       }
     ]
+  },
+  "stock_highs": {
+    "enabled": true,
+    "include_low": true,
+    "check_alltime": true,
+    "top_n": 5,
+    "exclude_names": []
   }
 }
