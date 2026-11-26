@@ -18,7 +18,7 @@ import feedparser
 import requests
 
 from bot.common import (UA, add_history, esc, gemini, is_market_day, load_config, load_state,
-                        now, save_state, send_text)
+                        now, save_state, send_album, send_text)
 from bot.hot_issue import clean_title, similar
 
 # ---------------------------------------------------------------- 중요도 기준
@@ -302,6 +302,24 @@ TONE = {"up": "🔸", "down": "🔹", "flat": "▪️"}
 NEG = ("파업", "유상증자", "상장폐지", "거래정지", "횡령", "배임", "압수수색", "리콜", "적자전환", "어닝 쇼크", "하한가")
 
 
+def send_charts(picked, companies, cfg):
+    """뉴스에 나온 종목들의 일봉 차트를 앨범(넘겨 보기)으로 먼저 보냄. 실패해도 뉴스는 그대로 발송"""
+    from bot.chart import make_chart
+    pngs, names, seen = [], [], set()
+    for c in picked:
+        code = companies.get(c["company"], [""])[0]
+        if not code or c["company"] in seen:
+            continue
+        seen.add(c["company"])
+        png = make_chart(code, c["company"], stamp=f"{now():%Y-%m-%d %H:%M} 기준")
+        if png:
+            pngs.append(png)
+            names.append(c["company"])
+    if pngs:
+        print(f"[차트] {', '.join(names)}")
+        send_album(pngs, f"📊 {esc(' · '.join(names))} 일봉 차트", cfg)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true")
@@ -420,6 +438,8 @@ def main():
         blocks.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
     if cfg.get("footer"):
         blocks.append(f"<i>{esc(cfg['footer'])}</i>")
+    if sc.get("show_chart", True):
+        send_charts(picked, companies, cfg)
     send_text("\n\n".join(blocks), cfg)
 
     for c in picked:
