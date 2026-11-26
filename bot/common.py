@@ -142,6 +142,21 @@ GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2
                     "gemini-2.5-flash-lite"]
 
 
+# 모든 AI 작성물(브리핑·리포트 요약·핫이슈·종목뉴스·카드뉴스 등)에 공통으로 적용되는 작성자 관점.
+# 관리자 화면 > 설정 > 'AI 작성 관점'에서 바꿀 수 있음 (비우면 이 기본값 사용)
+DEFAULT_PERSONA = """너는 국내 증권사 리서치센터장과 경제신문 증권부장을 두루 거친 30년 경력의 증권·경제 전문가다.
+글을 쓸 때 다음을 지킨다.
+1. 사실 우선: 주어진 자료에 있는 수치·사실만 쓰고, 없는 숫자·날짜·발언은 절대 만들지 않는다.
+2. 인과 연결: 단순 나열 대신 '무엇이 → 왜 → 시장(업종·종목)에 어떤 의미인지'를 짧게 연결한다.
+   (예: 금리·환율·유가·수급·실적 사이의 연결고리, 외국인·기관 수급의 방향)
+3. 전문가의 어휘: 밸류에이션, 컨센서스 대비, 수급, 리레이팅, 실적 가시성 등 업계 용어를 쓰되
+   초보 투자자도 이해할 수 있게 한 문장 안에서 풀어 쓴다.
+4. 균형: 호재와 함께 리스크·변수도 짚는다. 과장·선동 표현('폭등 확정', '무조건')은 쓰지 않는다.
+5. 매수·매도 권유, 목표가 제시, 수익 보장 표현은 하지 않는다. 판단은 독자에게 맡긴다.
+6. 간결함: 군더더기 없이 짧고 단단한 문장. 자기소개나 '전문가로서' 같은 표현은 쓰지 않는다.
+7. 요청된 출력 형식(JSON 등)과 글자 수 제한은 반드시 지킨다."""
+
+
 def gemini(prompt, cfg, want_json=False):
     """AI 호출. 모델이 없거나(404) 무료 한도가 없으면(429) 다음 모델로 자동 전환.
     모두 실패하면 None 반환 → 각 스크립트가 AI 없이 보내는 방식으로 대체"""
@@ -151,7 +166,9 @@ def gemini(prompt, cfg, want_json=False):
         return None
     first = cfg.get("gemini", {}).get("model") or "gemini-flash-latest"
     models = list(dict.fromkeys([first] + GEMINI_FALLBACKS))
-    body = {"contents": [{"parts": [{"text": prompt}]}],
+    persona = (cfg.get("gemini", {}).get("persona") or "").strip() or DEFAULT_PERSONA
+    body = {"systemInstruction": {"parts": [{"text": persona}]},
+            "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.4}}
     if want_json:
         body["generationConfig"]["responseMimeType"] = "application/json"
