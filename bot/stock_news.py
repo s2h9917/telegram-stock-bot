@@ -182,7 +182,7 @@ def ai_pick(cands, n, cfg):
         "- tone: 해당 기업 주가에 호재면 up, 악재면 down, 중립이면 flat\n"
         '출력은 JSON만: {"items": [{"idx": 0, "headline": "...", "tone": "up|down|flat"}]}\n\n' + lines
     )
-    out = gemini(prompt, cfg, want_json=True)
+    out = gemini(prompt, cfg, want_json=True, light=True)
     if not out:
         return None
     try:
@@ -281,7 +281,7 @@ def make_perspectives(items, companies, cfg):
         '출력 JSON만: {"items": [{"company": "...", "value": "...", "growth": "...", "quant": "..."}]}\n\n'
         + json.dumps(rows, ensure_ascii=False)
     )
-    out = gemini(prompt, cfg, want_json=True)
+    out = gemini(prompt, cfg, want_json=True, light=True)
     if not out:
         return {}
     try:
