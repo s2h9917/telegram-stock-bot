@@ -391,7 +391,8 @@
     "hGZQTTcMkpM": "video",
     "HSLf_WNW6a4": "video",
     "nCUa0CgE-wk": "video",
-    "-ViJOgJJh20": "video"
+    "-ViJOgJJh20": "video",
+    "4QHATqiM8kE": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -648,7 +649,7 @@
       "link": "https://www.youtube.com/shorts/u6ku_dlNaXM"
     }
   ],
-  "last_run": "2026-11-26 13:20",
+  "last_run": "2026-11-26 13:30",
   "queue": [
     {
       "vid": "lWcIb7PkqVw",
@@ -697,6 +698,14 @@
       "program": "전략의해석찬찬찬",
       "ready_at": "2026-11-27T11:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[전략의 해석 찬찬찬] 폭락 후 저가매수 유입...V자 반등 가능할까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=Koal9oGSAAs"
+    },
+    {
+      "vid": "4QHATqiM8kE",
+      "title": "[오후의 쟁점] 스페이스X 위성 승인에 우주·통신장비·2차전지↑ 각 섹터 탑픽은 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=4QHATqiM8kE",
+      "program": "오후의쟁점",
+      "ready_at": "2026-11-26T14:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] 스페이스X 위성 승인에 우주·통신장비·2차전지↑ 각 섹터 탑픽은 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=4QHATqiM8kE"
     }
   ],
   "live_pin": {
