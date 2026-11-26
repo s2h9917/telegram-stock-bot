@@ -4,6 +4,7 @@ import html
 import io
 import json
 import os
+import re
 import textwrap
 import time
 from zoneinfo import ZoneInfo
@@ -157,15 +158,21 @@ DEFAULT_PERSONA = """너는 국내 증권사 리서치센터장과 경제신문 
 7. 요청된 출력 형식(JSON 등)과 글자 수 제한은 반드시 지킨다."""
 
 
-def gemini(prompt, cfg, want_json=False):
-    """AI 호출. 모델이 없거나(404) 무료 한도가 없으면(429) 다음 모델로 자동 전환.
+_EXHAUSTED = set()   # 이번 실행 중 '하루 한도'가 끝난 모델 → 다시 부르지 않음
+
+
+def gemini(prompt, cfg, want_json=False, light=False):
+    """light=True: 자주 부르는 작업(종목뉴스 등)은 하루 한도가 넉넉한 가벼운 모델 우선.
+    AI 호출. 모델이 없거나(404) 무료 한도가 없으면(429) 다음 모델로 자동 전환.
     모두 실패하면 None 반환 → 각 스크립트가 AI 없이 보내는 방식으로 대체"""
     key = (os.getenv("GEMINI_API_KEY") or "").strip()
     if not key:
         print("❌ [AI] GEMINI_API_KEY가 비어 있음 → GitHub Settings > Secrets 확인")
         return None
-    first = cfg.get("gemini", {}).get("model") or "gemini-flash-latest"
-    models = list(dict.fromkeys([first] + GEMINI_FALLBACKS))
+    g = cfg.get("gemini", {})
+    first = (g.get("light_model") or "gemini-flash-lite-latest") if light else (g.get("model") or "gemini-flash-latest")
+    chain = GEMINI_FALLBACKS[1:] + GEMINI_FALLBACKS[:1] if light else GEMINI_FALLBACKS
+    models = [m for m in dict.fromkeys([first] + chain) if m not in _EXHAUSTED]
     persona = (cfg.get("gemini", {}).get("persona") or "").strip() or DEFAULT_PERSONA
     body = {"systemInstruction": {"parts": [{"text": persona}]},
             "contents": [{"parts": [{"text": prompt}]}],
@@ -175,9 +182,13 @@ def gemini(prompt, cfg, want_json=False):
 
     for model in models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-        for attempt in range(2):
+        # 최신 모델(Gemini 3 이상)은 답하기 전에 오래 '생각'해서 시간 초과가 남 → 생각 단계를 짧게
+        mbody = json.loads(json.dumps(body))
+        if not re.search(r"gemini-(1|2)\.", model):
+            mbody["generationConfig"]["thinkingConfig"] = {"thinkingLevel": "low"}
+        for attempt in range(3):
             try:
-                r = requests.post(url, params={"key": key}, json=body, timeout=75)
+                r = requests.post(url, params={"key": key}, json=mbody, timeout=90)
             except Exception as e:  # noqa  시간 초과·접속 오류 → 같은 모델 재시도 없이 다음 모델로
                 print(f"⚠️ [AI] {model} 응답 지연/접속 오류 → 다음 모델: {str(e)[:120]}")
                 break
@@ -194,13 +205,20 @@ def gemini(prompt, cfg, want_json=False):
                 break
             msg = r.text[:300].replace("\n", " ")
             print(f"⚠️ [AI] {model} → HTTP {r.status_code}: {msg}")
+            if r.status_code == 400 and "thinking" in r.text.lower() and "thinkingConfig" in mbody["generationConfig"]:
+                mbody["generationConfig"].pop("thinkingConfig")   # 이 모델은 생각 설정 미지원 → 빼고 재시도
+                continue
             if r.status_code in (400, 401, 403) and "API key" in r.text:
                 print("❌ [AI] API 키가 잘못됐거나 사용 중지됨 → aistudio.google.com 에서 키 재확인")
                 return None
-            if r.status_code == 429 and "limit: 0" not in r.text and attempt == 0:
+            if r.status_code == 429 and re.search(r"per ?day|PerDay|daily", r.text, re.I):
+                print(f"⚠️ [AI] {model} 오늘 무료 한도 소진 → 다음 모델")
+                _EXHAUSTED.add(model)
+                break
+            if r.status_code == 429 and "limit: 0" not in r.text and attempt < 2:
                 time.sleep(25)       # 일시적인 분당 한도 → 잠깐 쉬고 같은 모델 재시도
                 continue
-            if r.status_code in (500, 503) and attempt == 0:
+            if r.status_code in (500, 503) and attempt < 2:
                 time.sleep(10)
                 continue
             break                    # 404(모델 없음)·무료 한도 0 등 → 다음 모델로
