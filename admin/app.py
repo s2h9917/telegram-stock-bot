@@ -23,7 +23,8 @@ WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜�
              "hot_issue.yml": "④ 오늘의 핫 이슈", "stock_news.yml": "⑤ 종목 뉴스",
              "weekly_calendar.yml": "⑥ 주간 경제일정",
              "card_news.yml": "⑦ 카드뉴스",
-             "breaking.yml": "⑧ 이벤트 속보"}
+             "breaking.yml": "⑧ 이벤트 속보",
+             "stock_highs.yml": "⑨ 신고가·신저가"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -291,6 +292,18 @@ with tab2:
                      for r in src_ed.fillna("").to_dict("records") if str(r["domain"]).strip() or str(r["rss"]).strip()]
 
     st.divider()
+    st.subheader("⑨ 52주 신고가·신저가 TOP (평일 15:40, 한 메시지)")
+    hc = cfg.setdefault("stock_highs", {})
+    c1, c2, c3 = st.columns(3)
+    hc["enabled"] = c1.toggle("사용", hc.get("enabled", True), key="h_en")
+    hc["include_low"] = c2.checkbox("신저가도 함께", hc.get("include_low", True))
+    hc["check_alltime"] = c3.checkbox("(역사적)/(52주) 구분", hc.get("check_alltime", True))
+    hc["top_n"] = int(st.number_input("신고가 상승률 / 신저가 하락률 상위 몇 종목", 1, 30, int(hc.get("top_n", 5))))
+    st.caption("네이버 실시간랭킹 '52주 최고·최저' 종목 중 상위 종목만 한 메시지로 보냅니다.")
+    hc["exclude_names"] = [x.strip() for x in st.text_input(
+        "제외할 종목명 (쉼표로 구분)", ", ".join(hc.get("exclude_names", []))).split(",") if x.strip()]
+
+    st.divider()
     cfg["gemini"]["model"] = st.text_input("Gemini 모델 이름 (오류 시 AI Studio에서 무료 모델명 확인)",
                                            cfg["gemini"].get("model", "gemini-flash-latest"))
     if st.button("💾 설정 저장", type="primary"):
@@ -367,6 +380,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑨ 신고가·신저가 지금 보내기"):
+        ok, m = gh_dispatch("stock_highs.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (2~3분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -386,7 +406,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
