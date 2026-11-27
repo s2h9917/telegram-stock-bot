@@ -205,22 +205,44 @@ def ai_pick(cands, n, cfg):
 
 
 def resolve_links(items):
-    """구글 뉴스 중간 주소를 실제 언론사 기사 주소로 바꿈 (짧고, 누르면 바로 기사로 이동)"""
+    """구글 뉴스 중간 주소를 실제 언론사 기사 주소로 바꿈 (짧고, 누르면 바로 기사로 이동).
+    한 번에 실패한 것은 하나씩 한 번 더 시도"""
     g = [c for c in items if "news.google.com" in c.get("link", "")]
     if not g:
         return
     try:
         from googlenewsdecoder import gnewsdecoder
+    except Exception as e:  # noqa
+        return print("⚠️ 주소 변환 도구 없음:", e)
+
+    def apply(c, r):
+        if isinstance(r, dict) and (r.get("success") or r.get("status")) and r.get("decoded_url"):
+            c["orig_link"] = c["link"]
+            c["link"] = r["decoded_url"]
+            return True
+        return False
+
+    try:
         res = gnewsdecoder([c["link"] for c in g], interval=1)
         for c, r in zip(g, res if isinstance(res, list) else [res]):
-            if r.get("success") or r.get("status"):
-                c["orig_link"] = c["link"]
-                c["link"] = r["decoded_url"]
-            else:
-                print("⚠️ 주소 변환 실패:", c["company"], r.get("message"))
-        print(f"[링크] {sum(1 for c in g if 'orig_link' in c)}/{len(g)}건 실제 기사 주소로 변환")
+            apply(c, r)
     except Exception as e:  # noqa
-        print("⚠️ 주소 변환 오류 → 구글 뉴스 주소 사용:", e)
+        print("⚠️ 주소 일괄 변환 오류:", str(e)[:100])
+    for c in g:
+        if "news.google.com" in c["link"]:
+            try:
+                time.sleep(2)
+                if not apply(c, gnewsdecoder(c["link"], interval=2)):
+                    print("⚠️ 주소 변환 실패:", c.get("company"))
+            except Exception as e:  # noqa
+                print("⚠️ 주소 변환 오류:", c.get("company"), str(e)[:80])
+    print(f"[링크] {sum(1 for c in g if 'orig_link' in c)}/{len(g)}건 실제 기사 주소로 변환")
+
+
+def link_ok(c, max_len):
+    """한 줄에 들어가는 실제 기사 주소만 허용 (구글 중간 주소·너무 긴 주소는 제외)"""
+    link = c.get("link", "")
+    return bool(link) and "news.google.com" not in link and len(link) <= max_len
 
 
 # ---------------------------------------------------------------- 투자 대가 관점 (AI)
@@ -380,7 +402,27 @@ def main():
         return print("AI 판단: 이번 시간 중요 뉴스 없음")
 
     if sc.get("show_link", True):
+        # 주소가 너무 길거나 실제 기사 주소를 못 찾은 기사는 빼고, 다음 후보로 채움
+        max_len = int(sc.get("max_link_len", 90))
         resolve_links(picked)
+        bad = [c for c in picked if not link_ok(c, max_len)]
+        for c in bad:
+            print(f"[제외] 링크가 길거나 변환 실패: {c['company']} ({len(c.get('link', ''))}자)")
+        picked = [c for c in picked if link_ok(c, max_len)]
+        used_c = {c["company"] for c in picked} | {c["company"] for c in bad}
+        spare = [c for c in cands if c["company"] not in used_c][:6]
+        while len(picked) < n and spare:
+            c = spare.pop(0)
+            resolve_links([c])
+            if link_ok(c, max_len) and c["company"] not in {x["company"] for x in picked}:
+                c.setdefault("headline", c["title"])
+                c.setdefault("tone", "down" if any(w in c["raw"] for w in NEG)
+                             else "up" if c["score"] >= 5 else "flat")
+                picked.append(c)
+        if not picked:
+            state["last_run"] = now().strftime("%Y-%m-%d %H:%M")
+            save_state("stock_news", state)
+            return print("링크가 정상인 뉴스가 없어 이번 시간은 건너뜀")
 
     companies = load_listed()
     today = now().strftime("%Y-%m-%d")
