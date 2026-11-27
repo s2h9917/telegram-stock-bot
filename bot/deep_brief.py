@@ -178,7 +178,7 @@ def table_image(rows):
 
 
 # ---------------------------------------------------------------- 4) 발송
-def compose(data, issues, n):
+def compose(data, issues, n, show_link=False):
     t = now()
     wd = "월화수목금토일"[t.weekday()]
     head = f"✅ <b>[장전 키워드] {esc(data.get('headline', '오늘의 증시 키워드'))}</b>\n{t:%m/%d}({wd}) {t:%H:%M} 기준"
@@ -188,7 +188,10 @@ def compose(data, issues, n):
         b = f"<b>{k}. #{esc(str(it.get('keyword', '')).replace(' ', ''))} {esc(it.get('title', ''))}</b>\n{pts}"
         if it.get("insight"):
             b += f"\n▶️ <b>{esc(it['insight'])}</b>"
-        try:   # 원문 링크 (AI가 가장 많이 참고한 기사)
+        if not show_link:
+            blocks.append(b)
+            continue
+        try:   # 원문 링크 (AI가 가장 많이 참고한 기사) — 관리자 화면에서 켰을 때만
             iss = issues[int(it.get("issue_no", k)) - 1]
             a = iss["articles"][max(0, int(it.get("source", 1)) - 1)]
             urls = [a["url"]] + [x["url"] for x in iss["articles"]]
@@ -224,7 +227,7 @@ def main():
     if not data:
         return print("❌ AI 정리 실패 → 발송 안 함 (부실한 브리핑 대신 건너뜀)")
 
-    blocks = compose(data, issues, n)
+    blocks = compose(data, issues, n, dc.get("show_link", False))
     send_text("\n\n".join(blocks), cfg, preview=False)
     time.sleep(1)
     tail = []
