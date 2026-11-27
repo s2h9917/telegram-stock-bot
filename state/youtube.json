@@ -460,6 +460,16 @@
   ],
   "history": [
     {
+      "time": "2026-11-27 15:10",
+      "title": "[유튜브] [이슈진단] 대목 맞은 화장품주, 연말 랠리 즐길까 / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=xuTTtMpNgLk"
+    },
+    {
+      "time": "2026-11-27 15:10",
+      "title": "[유튜브] [오늘장 랭킹5] '파죽지세' 로봇주, 아직 신규 접근 가능? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=MRunP64f3Vg"
+    },
+    {
       "time": "2026-11-27 14:10",
       "title": "[유튜브] [오후의 쟁점] 연말연초 본격 랠리?! 바이오 vs 로봇, 주인공은? / 머니투데이방송 (증시, 증권)",
       "link": "https://www.youtube.com/watch?v=cYiPGEMV_0k"
@@ -698,19 +708,9 @@
       "time": "2026-11-23 19:01",
       "title": "[유튜브] [단독]삼성전자, 정부 '로봇 칩' 개발 요청 거절…국산화 해법은 / 머니투데이방송 (뉴스)",
       "link": "https://www.youtube.com/watch?v=l7eOIUMnWhs"
-    },
-    {
-      "time": "2026-11-23 19:01",
-      "title": "[유튜브] 줄줄 새는 AI 예산...돈 풀고 관리는 뒷전[K-AI 현장을 가다⑮] / 머니투데이방송 (뉴스)",
-      "link": "https://www.youtube.com/watch?v=taBacLuf7QY"
-    },
-    {
-      "time": "2026-11-23 19:01",
-      "title": "[유튜브] 새 악재 없는데 커진 공포…AI 반도체 성장론 시험대 / 머니투데이방송 (뉴스)",
-      "link": "https://www.youtube.com/watch?v=l6px8mzYoGg"
     }
   ],
-  "last_run": "2026-11-27 14:50",
+  "last_run": "2026-11-27 15:10",
   "queue": [
     {
       "vid": "sTuZDDg9v3w",
@@ -751,22 +751,6 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-28T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 바닥을 지나는 중이기를 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=n960XaOrY3k"
-    },
-    {
-      "vid": "MRunP64f3Vg",
-      "title": "[오늘장 랭킹5] '파죽지세' 로봇주, 아직 신규 접근 가능? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=MRunP64f3Vg",
-      "program": "오늘장랭킹5",
-      "ready_at": "2026-11-27T15:05:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[오늘장 랭킹5] '파죽지세' 로봇주, 아직 신규 접근 가능? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=MRunP64f3Vg"
-    },
-    {
-      "vid": "xuTTtMpNgLk",
-      "title": "[이슈진단] 대목 맞은 화장품주, 연말 랠리 즐길까 / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=xuTTtMpNgLk",
-      "program": "이슈진단",
-      "ready_at": "2026-11-27T15:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[이슈진단] 대목 맞은 화장품주, 연말 랠리 즐길까 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=xuTTtMpNgLk"
     }
   ],
   "live_pin": {
