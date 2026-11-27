@@ -16,7 +16,7 @@ from urllib.parse import quote
 import feedparser
 import requests
 
-from bot.common import (KST, UA, add_history, esc, gemini, is_market_day, load_config, load_state, now,
+from bot.common import (KST, UA, add_history, ai_json, esc, gemini, is_market_day, load_config, load_state, now,
                         save_state, send_text)
 from bot.deep_brief import article
 from bot.hot_issue import clean_title
@@ -217,18 +217,24 @@ def main():
         return print("❌ 발언 자료가 부족해 오늘은 건너뜀")
 
     out = gemini(build_prompt(glob, korea, ng, nk), cfg, want_json=True, timeout=150)
-    try:
-        data = json.loads(re.sub(r"^```(json)?|```$", "", (out or "").strip()).strip())
-    except Exception as e:  # noqa
-        return print("❌ AI 정리 실패 → 발송 안 함:", e)
-    gl = [x for x in (data.get("global") or []) if x.get("who") and x.get("quote")][:ng]
-    ko = [x for x in (data.get("korea") or []) if x.get("who") and x.get("quote")][:nk]
+    data = ai_json(out, "global")
+    if not data:
+        return print("❌ AI 정리 실패 → 발송 안 함:", (out or "")[:200])
+
+    def ok(lst):
+        return [x for x in (lst if isinstance(lst, list) else [])
+                if isinstance(x, dict) and x.get("who") and x.get("quote")]
+    gl = ok(data.get("global"))[:ng]
+    ko = ok(data.get("korea"))[:nk]
+    if not ko and gl:   # 목록 하나로만 온 경우: '센터장·증권' 등은 국내로 분리
+        ko = [x for x in gl if re.search(r"센터장|전략가|증권|연구원", f"{x.get('who')}{x.get('role')}")][:nk]
+        gl = [x for x in gl if x not in ko][:ng]
     if len(gl) + len(ko) < 2:
         return print("❌ 확인된 발언이 2건 미만 → 건너뜀")
 
     wd = "월화수목금토일"[t.weekday()]
     parts = [f"🎙 <b>시장을 보는 대가들의 시선</b> | {t:%m/%d}({wd})"]
-    if data.get("headline"):
+    if isinstance(data.get("headline"), str) and data["headline"]:
         parts[0] += f"\n<i>{esc(data['headline'])}</i>"
     if gl:
         parts.append("🌎 <b>해외 투자 대가</b>\n\n" + "\n\n".join(block(x) for x in gl))
