@@ -191,7 +191,10 @@ def compose(data, issues, n):
         try:   # 원문 링크 (AI가 가장 많이 참고한 기사)
             iss = issues[int(it.get("issue_no", k)) - 1]
             a = iss["articles"][max(0, int(it.get("source", 1)) - 1)]
-            b += f"\n🔗 {esc(a['url'])}"
+            urls = [a["url"]] + [x["url"] for x in iss["articles"]]
+            url = next((u for u in urls if "news.google.com" not in u and len(u) <= 90), "")
+            if url:                       # 한 줄에 들어가는 실제 기사 주소만 표시
+                b += f"\n🔗 {esc(url)}"
         except Exception:  # noqa
             pass
         blocks.append(b)
