@@ -311,6 +311,7 @@ with tab2:
     c1, c2 = st.columns(2)
     dbc["enabled"] = c1.toggle("사용", dbc.get("enabled", True), key="db_en")
     dbc["issues"] = int(c2.slider("이슈 개수", 3, 8, int(dbc.get("issues", 6)), key="db_n"))
+    dbc["show_link"] = st.checkbox("기사 원문 링크 표시", dbc.get("show_link", False), key="db_link")
     dbc["keywords"] = [x.strip() for x in st.text_input(
         "이슈 기사 검색 키워드 (쉼표로 구분)",
         ", ".join(dbc.get("keywords") or ["증시", "코스피", "코스닥", "뉴욕증시", "반도체", "금리", "환율", "실적",
