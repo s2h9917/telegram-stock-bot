@@ -28,7 +28,16 @@ jobs:
       - run: pip install -r requirements.txt
       - name: 한글 폰트 설치 (차트용)
         run: sudo apt-get install -y -qq fonts-nanum > /dev/null
-      - name: 실행
+      - name: ② 유튜브 새 영상·라이브 확인 (매시 종목뉴스와 함께 실행)
+        continue-on-error: true
+        env:
+          TZ: Asia/Seoul
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python -m bot.youtube_watch
+      - name: ⑤ 종목 뉴스
         env:
           TZ: Asia/Seoul
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -40,7 +49,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for f in state/stock_news.json state/listed.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          for f in state/stock_news.json state/listed.json state/youtube.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           git diff --cached --quiet && exit 0
-          git commit -m "state: stock_news $(date +'%m-%d %H:%M')"
+          git commit -m "state: stock_news+youtube $(date +'%m-%d %H:%M')"
           for i in 1 2 3; do git pull --rebase -X theirs && git push && break; sleep 5; done
