@@ -448,7 +448,8 @@
     "yRp9Fut-7mw": "video",
     "3rdQd_4KCA8": "video",
     "AganLEUAk9I": "video",
-    "8OwgIfJR6BM": "video"
+    "8OwgIfJR6BM": "video",
+    "cYiPGEMV_0k": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
@@ -705,7 +706,7 @@
       "link": "https://www.youtube.com/watch?v=kR-xdg54DTM"
     }
   ],
-  "last_run": "2026-11-27 12:50",
+  "last_run": "2026-11-27 13:10",
   "queue": [
     {
       "vid": "sTuZDDg9v3w",
@@ -746,6 +747,14 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-28T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 바닥을 지나는 중이기를 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=n960XaOrY3k"
+    },
+    {
+      "vid": "cYiPGEMV_0k",
+      "title": "[오후의 쟁점] 연말연초 본격 랠리?! 바이오 vs 로봇, 주인공은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=cYiPGEMV_0k",
+      "program": "오후의쟁점",
+      "ready_at": "2026-11-27T14:00:00+09:00",
+      "msg": "🎬 <b>MTN</b> 새 영상\n[오후의 쟁점] 연말연초 본격 랠리?! 바이오 vs 로봇, 주인공은? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=cYiPGEMV_0k"
     }
   ],
   "live_pin": {
