@@ -239,7 +239,7 @@
     "exclude_names": [],
     "perspectives": true,
     "perspective_style": "spoiler",
-    "show_chart": false
+    "show_chart": true
   },
   "weekly_calendar": {
     "enabled": true,
