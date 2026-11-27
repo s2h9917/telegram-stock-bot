@@ -7,6 +7,10 @@ on:
         description: "오늘 이미 보냈어도 다시 발송 (휴장일에도 실행)"
         type: boolean
         default: false
+      refresh_themes:
+        description: "네이버 테마 전체 목록만 새로 받기 (발송 안 함)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -32,7 +36,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python -m bot.us_market ${{ inputs.force && '--force' || '' }}
+        run: python -m bot.us_market ${{ inputs.refresh_themes && '--refresh-themes' || (inputs.force && '--force' || '') }}
       - name: 발송 기록 저장
         if: always()
         run: |
