@@ -232,7 +232,8 @@ def main():
 
     def ok(lst):
         return [x for x in (lst if isinstance(lst, list) else [])
-                if isinstance(x, dict) and x.get("who") and x.get("quote")]
+                if isinstance(x, dict) and x.get("who") and x.get("quote")
+                and not CRYPTO.search(f"{x.get('quote')} {x.get('meaning')}")]   # 암호화폐 전망은 최종 단계에서도 제외
     gl = ok(data.get("global"))[:ng]
     ko = ok(data.get("korea"))[:nk]
     if not ko and gl:   # 목록 하나로만 온 경우: '센터장·증권' 등은 국내로 분리
