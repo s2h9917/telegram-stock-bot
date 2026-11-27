@@ -1,4 +1,4 @@
-"""종목 일봉 차트 이미지 (캔들 + 20일 이동평균 + 거래량). 데이터: 네이버 일봉 (fchart)
+"""종목 일봉 차트 이미지 (캔들 + 5일선·20일선 + 거래량). 데이터: 네이버 일봉 (fchart)
 다른 기능(종목뉴스·신고가·특징주 등)에서 make_chart(code, name)로 불러 씀
 """
 import datetime as dt
@@ -27,6 +27,26 @@ def fetch_daily(code, count=120):
     return rows
 
 
+def realtime(code):
+    """네이버 실시간 시세 (네이버 화면과 같은 등락률). 실패하면 None
+    반환: {"rate": 등락률(부호 포함), "open","high","low","close","volume", "date"}"""
+    try:
+        r = requests.get(f"https://polling.finance.naver.com/api/realtime/domestic/stock/{code}",
+                         headers=UA, timeout=10)
+        d = r.json()["datas"][0]
+        num = lambda k: float(str(d.get(k) or "0").replace(",", ""))  # noqa: E731
+        sign = str((d.get("compareToPreviousPrice") or {}).get("code", ""))
+        rate = abs(num("fluctuationsRatio"))
+        rate = -rate if sign in ("4", "5") else 0.0 if sign == "3" else rate   # 4 하한·5 하락, 3 보합
+        when = str(d.get("localTradedAt") or "")[:10]
+        return {"rate": rate, "open": num("openPrice"), "high": num("highPrice"), "low": num("lowPrice"),
+                "close": num("closePrice"), "volume": num("accumulatedTradingVolume"),
+                "date": dt.date.fromisoformat(when) if when else None}
+    except Exception as e:  # noqa
+        print(f"⚠️ 실시간 시세 실패 {code}: {str(e)[:100]}")
+        return None
+
+
 def _font():
     from matplotlib import font_manager
     for path in ["/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
@@ -53,7 +73,9 @@ def render(name, rows, rate=None, stamp=""):
     n = len(rows)
     x = list(range(n))
     o, h, l, c, v = ([r[i] for r in rows] for i in range(1, 6))
-    ma = [sum(c[max(0, i - 19):i + 1]) / len(c[max(0, i - 19):i + 1]) for i in range(n)]
+    def avg(k):   # k일 이동평균 (데이터가 k일이 안 되는 앞부분은 비움)
+        return [sum(c[i - k + 1:i + 1]) / k if i >= k - 1 else float("nan") for i in range(n)]
+    ma5, ma20 = avg(5), avg(20)
     color = [UP if c[i] >= o[i] else DOWN for i in range(n)]
 
     fig = plt.figure(figsize=(8, 6.2), dpi=140, facecolor="white")
@@ -63,7 +85,10 @@ def render(name, rows, rate=None, stamp=""):
     ax.vlines(x, l, h, color=color, linewidth=0.8)
     ax.bar(x, [abs(c[i] - o[i]) or (h[i] - l[i]) * 0.02 + 1e-9 for i in range(n)],
            bottom=[min(c[i], o[i]) for i in range(n)], color=color, width=0.7)
-    ax.plot(x, ma, color="#f0a830", linewidth=1.3)
+    ax.plot(x, ma5, color="#1faa55", linewidth=1.2, label="5일선")
+    ax.plot(x, ma20, color="#d81b1b", linewidth=1.4, label="20일선")
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), fontsize=8, frameon=False, ncol=2,
+              handlelength=1.6, borderaxespad=0.2)
     av.bar(x, v, color=color, width=0.7)
 
     for a in (ax, av):
@@ -97,11 +122,24 @@ def render(name, rows, rate=None, stamp=""):
 
 
 def make_chart(code, name, rate=None, stamp="", days=120):
-    """종목코드로 바로 차트 PNG. 실패하면 None (차트 없이 글만 보내도록)"""
+    """종목코드로 바로 차트 PNG. 실패하면 None (차트 없이 글만 보내도록)
+    등락률은 네이버 실시간 값(전일 종가 대비)을 쓰고, 오늘 봉도 실시간 값으로 맞춤"""
     try:
         rows = fetch_daily(code, days)
         if len(rows) < 5:
             return None
+        rt = realtime(code)
+        if rt and rt["close"] and rt["date"]:
+            today = (rt["date"], rt["open"] or rt["close"], rt["high"] or rt["close"],
+                     rt["low"] or rt["close"], rt["close"], rt["volume"])
+            if rows[-1][0] == rt["date"]:
+                rows[-1] = today            # 차트 데이터의 오늘 봉을 실시간 값으로 갱신
+            elif rows[-1][0] < rt["date"]:
+                rows.append(today)          # 차트 데이터에 오늘 봉이 아직 없으면 추가
+        if rate is None:
+            rate = rt["rate"] if rt else None
+        print(f"[차트] {name} 등락률 {rate if rate is not None else '계산값'}"
+              f" (실시간 {'O' if rt else 'X'}, 마지막 봉 {rows[-1][0]})")
         return render(name, rows, rate, stamp)
     except Exception as e:  # noqa
         print(f"⚠️ 차트 실패 {name}: {str(e)[:100]}")
