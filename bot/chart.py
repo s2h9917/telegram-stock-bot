@@ -47,6 +47,20 @@ def realtime(code):
         return None
 
 
+def fix_halts(rows):
+    """거래정지일(거래량 0 또는 시가·고가·저가 0)은 전일 종가로 시가=고가=저가=종가 처리.
+    네이버 일봉에서 이런 날은 0원~가격까지 긴 봉처럼 보이는 문제를 막음"""
+    out = []
+    for i, (d, o, h, l, c, v) in enumerate(rows):
+        prev = out[-1][4] if out else (c or o or h)
+        if v == 0 or 0 in (o, h, l) or c == 0:
+            p = c if c and v else prev
+            out.append((d, p, p, p, p, 0))
+        else:
+            out.append((d, o, h, l, c, v))
+    return out
+
+
 def _font():
     from matplotlib import font_manager
     for path in ["/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
@@ -70,21 +84,32 @@ def render(name, rows, rate=None, stamp=""):
         plt.rcParams["font.family"] = fam
     plt.rcParams["axes.unicode_minus"] = False
 
+    rows = fix_halts(rows)
     n = len(rows)
     x = list(range(n))
     o, h, l, c, v = ([r[i] for r in rows] for i in range(1, 6))
+    halt = [rows[i][5] == 0 for i in range(n)]       # 거래정지(거래량 0) 날
     def avg(k):   # k일 이동평균 (데이터가 k일이 안 되는 앞부분은 비움)
         return [sum(c[i - k + 1:i + 1]) / k if i >= k - 1 else float("nan") for i in range(n)]
     ma5, ma20 = avg(5), avg(20)
     color = [UP if c[i] >= o[i] else DOWN for i in range(n)]
+    for i in range(n):
+        if halt[i]:
+            color[i] = "#555555"
 
     fig = plt.figure(figsize=(8, 6.2), dpi=140, facecolor="white")
     ax = fig.add_axes([0.08, 0.32, 0.9, 0.56])
     av = fig.add_axes([0.08, 0.08, 0.9, 0.18], sharex=ax)
 
-    ax.vlines(x, l, h, color=color, linewidth=0.8)
-    ax.bar(x, [abs(c[i] - o[i]) or (h[i] - l[i]) * 0.02 + 1e-9 for i in range(n)],
-           bottom=[min(c[i], o[i]) for i in range(n)], color=color, width=0.7)
+    live = [i for i in range(n) if not halt[i]]
+    ax.vlines([x[i] for i in live], [l[i] for i in live], [h[i] for i in live],
+              color=[color[i] for i in live], linewidth=0.8)
+    ax.bar([x[i] for i in live], [abs(c[i] - o[i]) or (h[i] - l[i]) * 0.02 + 1e-9 for i in live],
+           bottom=[min(c[i], o[i]) for i in live], color=[color[i] for i in live], width=0.7)
+    hx = [i for i in range(n) if halt[i]]           # 거래정지: 전일 종가에 가로줄(–)
+    if hx:
+        ax.hlines([c[i] for i in hx], [i - 0.4 for i in hx], [i + 0.4 for i in hx],
+                  color="#555555", linewidth=1.6)
     ax.plot(x, ma5, color="#1faa55", linewidth=1.2, label="5일선")
     ax.plot(x, ma20, color="#d81b1b", linewidth=1.4, label="20일선")
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), fontsize=8, frameon=False, ncol=2,
