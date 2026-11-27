@@ -193,7 +193,7 @@ def flash_models(key):
     return _DISCOVERED   # 이번 실행 중 '하루 한도'가 끝난 모델 → 다시 부르지 않음
 
 
-def gemini(prompt, cfg, want_json=False, light=False):
+def gemini(prompt, cfg, want_json=False, light=False, timeout=60):
     """light=True: 자주 부르는 작업(종목뉴스 등)은 하루 한도가 넉넉한 가벼운 모델 우선.
     AI 호출. 모델이 없거나(404) 무료 한도가 없으면(429) 다음 모델로 자동 전환.
     모두 실패하면 None 반환 → 각 스크립트가 AI 없이 보내는 방식으로 대체"""
@@ -224,7 +224,7 @@ def gemini(prompt, cfg, want_json=False, light=False):
             mbody["generationConfig"]["thinkingConfig"] = {"thinkingLevel": "low"}
         for attempt in range(3):
             try:
-                r = requests.post(url, params={"key": key}, json=mbody, timeout=60)
+                r = requests.post(url, params={"key": key}, json=mbody, timeout=timeout)
             except Exception as e:  # noqa  시간 초과·접속 오류 → 같은 모델 재시도 없이 다음 모델로
                 print(f"⚠️ [AI] {model} 응답 지연/접속 오류 → 다음 모델: {str(e)[:120]}")
                 break
