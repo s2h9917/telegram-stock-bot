@@ -134,8 +134,8 @@ def members(no, size=100):
     return out
 
 
-def load_themes(state, force=False, days=30):
-    """테마 목록 + 테마별 전체 종목을 30일(한 달)마다 새로 받아 state에 저장 (매일 265번 요청하지 않도록)"""
+def load_themes(state, force=False, days=180):
+    """테마 목록 + 테마별 전체 종목을 180일(6개월)마다 또는 관리자 화면 버튼으로만 새로 받아 state에 저장 (매일 265번 요청하지 않도록)"""
     import time
     cache = state.get("themes") or {}
     fresh = cache.get("updated") and (now().date() - dt.date.fromisoformat(cache["updated"])).days < days
@@ -274,9 +274,15 @@ def build(cls, etf_rows, issues, themes, uc, us_day):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--refresh-themes", action="store_true", help="네이버 테마 전체 목록을 지금 새로 받기만 함")
     args = ap.parse_args()
     cfg = load_config()
     uc = cfg.get("us_market", {})
+    if args.refresh_themes:
+        st = load_state("us_market")
+        load_themes(st, force=True)
+        save_state("us_market", st)
+        return print("✅ 테마 목록 새로 받기 완료 (메시지는 보내지 않음)")
     if not uc.get("enabled", True) and not args.force:
         return print("⑪ 사용 안 함")
     if not args.force and not is_market_day(cfg):
@@ -299,7 +305,7 @@ def main():
     t = now()
     news = collect(uc.get("keywords") or ["뉴욕증시", "미국 증시", "나스닥", "엔비디아", "월가", "미국 국채"],
                    t - dt.timedelta(hours=14), t)
-    themes = load_themes(state)
+    themes = load_themes(state, days=int(uc.get("theme_refresh_days", 180)))
     issues = pick_issues(cls, etf_rows, news, themes.get("index") or {}, cfg) if themes.get("index") else {}
     if not issues:
         print("⚠️ 이슈 선정 실패 → 시세 부분만 발송")
