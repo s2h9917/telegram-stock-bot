@@ -11,6 +11,7 @@ import calendar
 import datetime as dt
 import math
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote
 
@@ -96,25 +97,14 @@ def find_flash(ev, sources, require_flash):
     return hits[0] if hits else None
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true")
-    ap.add_argument("--force", action="store_true")
-    args = ap.parse_args()
-
-    cfg = load_config()
-    bc = cfg.get("breaking", {})
+def check_once(cfg, bc, state, force=False):
+    """지금 감시 시간대인 이벤트의 속보를 한 번 확인. 보낸 이벤트는 state['done']에 기록"""
     t = now()
-    evs = active_events(bc, t, args.force) if bc.get("enabled", True) else []
-    state = load_state("breaking")
     done = set(state.get("done", []))
-    evs = [e for e in evs if args.force or f"{e['date']}|{e.get('name')}" not in done]
-    if args.check:
-        print("yes" if evs else "no")
-        return
+    evs = [e for e in active_events(bc, t, force)
+           if force or f"{e['date']}|{e.get('name')}" not in done]
     if not evs:
-        return print("감시 중인 이벤트 없음")
-
+        return False
     sources = [s for s in (bc.get("sources") or DEFAULT_SOURCES) if s.get("domain") or s.get("rss")]
     for ev in evs:
         hit = find_flash(ev, sources, bc.get("require_flash", True))
@@ -127,9 +117,69 @@ def main():
         print("✅ 속보 발송:", title)
         done.add(f"{ev['date']}|{ev.get('name')}")
         add_history(state, f"[속보] {title}", hit["link"])
-        state["done"] = sorted(done)[-100:]
-        state["last_run"] = t.strftime("%Y-%m-%d %H:%M")
-        save_state("breaking", state)
+    state["done"] = sorted(done)[-100:]
+    state["last_run"] = t.strftime("%Y-%m-%d %H:%M")
+    save_state("breaking", state)
+    return True
+
+
+def pending_today(bc, state, ahead_min=90):
+    """속보를 아직 못 보냈고, 진행 중이거나 90분 안에 시작하는 이벤트들"""
+    t = now()
+    done = set(state.get("done", []))
+    out = []
+    for ev in bc.get("events", []):
+        try:
+            day = dt.date.fromisoformat(str(ev.get("date", "")).strip())
+            sh, sm = _hm(ev.get("start", "00:00"))
+            eh, em = _hm(ev.get("end", "23:59"))
+        except Exception:  # noqa
+            continue
+        start = dt.datetime(day.year, day.month, day.day, sh, sm, tzinfo=KST)
+        end = dt.datetime(day.year, day.month, day.day, eh, em, 59, tzinfo=KST)
+        if end < start:
+            end += dt.timedelta(days=1)
+        if f"{ev['date']}|{ev.get('name')}" in done:
+            continue
+        if end >= t and start <= t + dt.timedelta(minutes=ahead_min):
+            out.append({**ev, "_start": start, "_end": end})
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--watch", action="store_true",
+                    help="이벤트가 있으면 끝날 때까지 30초마다 감시 (하루 몇 번만 실행하면 됨)")
+    args = ap.parse_args()
+
+    cfg = load_config()
+    bc = cfg.get("breaking", {})
+    if not bc.get("enabled", True):
+        return print("이벤트 속보 기능 꺼짐")
+    state = load_state("breaking")
+
+    if args.check:
+        t = now()
+        print("yes" if active_events(bc, t, args.force) else "no")
+        return
+    if args.force or not args.watch:
+        if not check_once(cfg, bc, state, args.force):
+            print("감시 중인 이벤트 없음")
+        return
+
+    # --watch: 다가오는/진행 중인 이벤트가 없으면 바로 종료 (보통 10초 이내)
+    evs = pending_today(bc, state)
+    if not evs:
+        return print("오늘 이 시간대 감시할 이벤트 없음 → 종료")
+    print("[감시 시작]", ", ".join(f"{e.get('name')} {e['_start']:%H:%M}~{e['_end']:%H:%M}" for e in evs))
+    while True:
+        check_once(cfg, bc, state)
+        evs = pending_today(bc, state)
+        if not evs:
+            return print("[감시 종료] 속보 발송 완료 또는 감시 시간 종료")
+        time.sleep(30)
 
 
 if __name__ == "__main__":
