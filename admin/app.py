@@ -25,7 +25,8 @@ WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜�
              "card_news.yml": "⑦ 카드뉴스",
              "breaking.yml": "⑧ 이벤트 속보",
              "stock_highs.yml": "⑨ 신고가·신저가",
-             "deep_brief.yml": "⑩ 장전 키워드 심층"}
+             "deep_brief.yml": "⑩ 장전 키워드 심층",
+             "us_market.yml": "⑪ 미국시장 마감·관련 테마"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -320,6 +321,41 @@ with tab2:
     st.caption("전일 15:30 이후 여러 언론사가 다룬 이슈를 골라, 기사 본문을 읽고 사실 중심으로 정리합니다. 매매 권유 문구는 넣지 않습니다.")
 
     st.divider()
+    st.subheader("⑪ 미국시장 섹터별 마감 + 국내 관련 테마 (평일 07:05)")
+    uc = cfg.setdefault("us_market", {})
+    c1, c2, c3, c4 = st.columns(4)
+    uc["enabled"] = c1.toggle("사용", uc.get("enabled", True), key="us_en")
+    uc["big_move"] = float(c2.number_input("급등/급락 기준(%)", 1.0, 30.0, float(uc.get("big_move", 5)), key="us_big"))
+    uc["move"] = float(c3.number_input("강세/약세 기준(%)", 0.5, 10.0, float(uc.get("move", 2)), key="us_mv"))
+    uc["etf_move"] = float(c4.number_input("섹터 강세/약세 기준(%)", 0.3, 10.0, float(uc.get("etf_move", 1)), key="us_etf"))
+    c1, c2 = st.columns(2)
+    uc["show_theme"] = c1.checkbox("관련 종목 아래에 네이버 테마 이름 표시", uc.get("show_theme", True), key="us_th")
+    uc["max_related"] = int(c2.number_input("이슈당 관련 종목 수", 2, 12, int(uc.get("max_related", 6)), key="us_rel"))
+    with st.expander("미국 관심 종목 목록 (티커·한글 이름) — 비워 두면 기본 110여 종목 사용"):
+        st.caption("기본 목록: 엔비디아·브로드컴·마이크론·슈퍼마이크로·테슬라·팔란티어·아이온큐·로켓랩·일라이릴리 등. "
+                   "여기에 입력하면 입력한 목록만 사용합니다.")
+        w_df = pd.DataFrame(uc.get("watchlist") or [], columns=["ticker", "name"])
+        w_ed = st.data_editor(w_df, num_rows="dynamic", width="stretch", key="us_watch",
+                              column_config={"ticker": "티커", "name": "한글 이름"})
+        uc["watchlist"] = [r for r in w_ed.fillna("").to_dict("records") if str(r["ticker"]).strip()]
+    with st.expander("섹터 ETF 목록 (이름·티커) — 비워 두면 기본 24개 사용"):
+        st.caption("기본: 반도체 SOXX, AI AIQ, 제약바이오 XBI, 2차전지 LIT, 우주 UFO, 원전 NLR, 양자 QTUM 등")
+        e_df = pd.DataFrame(uc.get("etfs") or [], columns=["name", "ticker"])
+        e_ed = st.data_editor(e_df, num_rows="dynamic", width="stretch", key="us_etfs",
+                              column_config={"name": "섹터 이름", "ticker": "ETF 티커"})
+        uc["etfs"] = [r for r in e_ed.fillna("").to_dict("records") if str(r["ticker"]).strip()]
+    st.markdown("**테마별 종목 조정** — 네이버 테마 이름(글자 그대로) + 종목을 쉼표로. "
+                "넣을 종목은 그냥, 이 테마에서 뺄 종목은 앞에 `-` (예: `스피어, -LG에너지솔루션`)")
+    a_df = pd.DataFrame([{"theme": k, "stocks": v} for k, v in (uc.get("theme_add") or {}).items()],
+                        columns=["theme", "stocks"])
+    a_ed = st.data_editor(a_df, num_rows="dynamic", width="stretch", key="us_add",
+                          column_config={"theme": "네이버 테마 이름", "stocks": "추가/제외 종목 (쉼표 구분, 제외는 -종목)"})
+    uc["theme_add"] = {str(r["theme"]).strip(): str(r["stocks"]).strip()
+                       for r in a_ed.fillna("").to_dict("records") if str(r["theme"]).strip()}
+    uc["exclude_names"] = [x.strip() for x in st.text_input(
+        "관련 종목에서 뺄 종목 (쉼표로 구분)", ", ".join(uc.get("exclude_names", [])), key="us_ex").split(",") if x.strip()]
+
+    st.divider()
     st.subheader("🧠 AI 작성 관점 (모든 AI 글에 공통 적용)")
     st.caption("브리핑·리포트 요약·핫이슈·종목뉴스·카드뉴스·주간일정 정리에 모두 적용됩니다. "
                "비워 두면 기본값(30년 경력 증권·경제 전문가 관점)을 씁니다.")
@@ -421,6 +457,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑪ 미국시장 마감·관련 테마 지금 보내기"):
+        ok, m = gh_dispatch("us_market.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (2~3분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -440,7 +483,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs", "deep_brief"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs", "deep_brief", "us_market"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
