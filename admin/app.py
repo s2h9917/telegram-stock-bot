@@ -24,7 +24,8 @@ WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜�
              "weekly_calendar.yml": "⑥ 주간 경제일정",
              "card_news.yml": "⑦ 카드뉴스",
              "breaking.yml": "⑧ 이벤트 속보",
-             "stock_highs.yml": "⑨ 신고가·신저가"}
+             "stock_highs.yml": "⑨ 신고가·신저가",
+             "deep_brief.yml": "⑩ 장전 키워드 심층"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -305,6 +306,19 @@ with tab2:
         "제외할 종목명 (쉼표로 구분)", ", ".join(shc.get("exclude_names", [])), key="sh_ex").split(",") if x.strip()]
 
     st.divider()
+    st.subheader("⑩ 장전 키워드 심층 브리핑 (평일 07:50, 기사 본문 기반)")
+    dbc = cfg.setdefault("deep_brief", {})
+    c1, c2 = st.columns(2)
+    dbc["enabled"] = c1.toggle("사용", dbc.get("enabled", True), key="db_en")
+    dbc["issues"] = int(c2.slider("이슈 개수", 3, 8, int(dbc.get("issues", 6)), key="db_n"))
+    dbc["keywords"] = [x.strip() for x in st.text_input(
+        "이슈 기사 검색 키워드 (쉼표로 구분)",
+        ", ".join(dbc.get("keywords") or ["증시", "코스피", "코스닥", "뉴욕증시", "반도체", "금리", "환율", "실적",
+                                          "수주", "금융당국", "유가", "AI", "바이오", "2차전지"]),
+        key="db_kw").split(",") if x.strip()]
+    st.caption("전일 15:30 이후 여러 언론사가 다룬 이슈를 골라, 기사 본문을 읽고 사실 중심으로 정리합니다. 매매 권유 문구는 넣지 않습니다.")
+
+    st.divider()
     st.subheader("🧠 AI 작성 관점 (모든 AI 글에 공통 적용)")
     st.caption("브리핑·리포트 요약·핫이슈·종목뉴스·카드뉴스·주간일정 정리에 모두 적용됩니다. "
                "비워 두면 기본값(30년 경력 증권·경제 전문가 관점)을 씁니다.")
@@ -399,6 +413,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑩ 장전 키워드 심층 브리핑 지금 보내기"):
+        ok, m = gh_dispatch("deep_brief.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (3~5분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -418,7 +439,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs", "deep_brief"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
