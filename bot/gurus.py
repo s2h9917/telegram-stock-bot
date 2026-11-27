@@ -50,6 +50,8 @@ DEFAULT_FEEDS = [
     ("마이클 버리", "https://michaeljburry.substack.com/feed"),
     ("빌 그로스", "https://williamhgross.com/feed/"),
 ]
+CRYPTO = re.compile(r"비트코인|이더리움|가상자산|암호화폐|가상화폐|bitcoin|ethereum|crypto|\bbtc\b|\beth\b|\bxrp\b|"
+                    r"zycrypto|coinlead|코인리더스|coindesk|cointelegraph|블록미디어|토큰포스트", re.I)
 KOREA_QUERIES = ["리서치센터장 증시 전망", "증권사 투자전략 코스피 전망", "센터장 코스피", "증권 전략가 증시"]
 
 
@@ -93,6 +95,8 @@ def collect_gurus(gurus, days, used):
                 continue
             if last_ko not in t and ko not in t and last_en.lower() not in t.lower():
                 continue                       # 제목에 이름이 있는 기사만 (언급 수준 기사 제외)
+            if CRYPTO.search(t) or CRYPTO.search(it.get("source", "")):
+                continue                       # 암호화폐 위주 기사·매체 제외 (주식·경제 시각만)
             keep.append({**it, "who": ko, "role": desc})
         keep.sort(key=lambda x: x["ts"], reverse=True)
         if keep:
@@ -158,16 +162,20 @@ def build_prompt(glob, korea, ng, nk):
         "오늘 아침 텔레그램에 '시장을 보는 대가들의 시선'을 올린다. 아래 자료는 실제 보도·공식 글이다.\n"
         "[가장 중요한 규칙]\n"
         "- 자료 본문에 그 사람이 '직접 말하거나 쓴 내용'으로 나온 것만 쓴다. 기자의 해석·단순 언급·과거 일화는 제외.\n"
+        "- 최근(자료 날짜 기준 일주일 안)에 새로 한 발언만. 예전부터 알려진 명언·과거 발언을 기사가 다시 인용한 것은 제외.\n"
+        "- 주식·채권·금리·환율·경제·기업에 대한 '지금 시장' 견해만. 인생론·경영철학·암호화폐 단독 전망은 제외.\n"
+        "- channel: 그 사람이 말한 경로 (X 게시글 / 방송 인터뷰 / 언론 인터뷰 / 콘퍼런스 / 주주서한 / 투자 메모 / "
+        "뉴스레터 / 보고서 / 강연 중 하나, 매체명이 분명하면 'CNBC 인터뷰'처럼). 본문에서 알 수 없으면 '언론 보도'\n"
         "- 자료에 없는 발언·숫자·날짜를 절대 만들지 않는다. 확실하지 않으면 그 사람은 뺀다.\n"
         "- quote: 발언의 요지 (45자 이내, 한국어). 원문 표현을 옮긴 것이면 is_direct=true, 요약이면 false.\n"
         "- meaning: 지금 시장과 연결한 의미 한 줄 (60자 이내). 매수·매도 권유 금지.\n"
         "- stance: 시장(또는 해당 자산)에 대해 bull(낙관) / bear(신중·비관) / neutral\n"
-        "- source: 매체명 그대로, date: 자료의 날짜(MM/DD), ref: 자료 번호\n"
+        "- date: 자료의 날짜(MM/DD), ref: 자료 번호\n"
         f"- global: 해외 대가 중 최대 {ng}명(한 사람당 1개, 최신·시장 영향 큰 순)\n"
         f"- korea: 국내 증권사 리서치센터장·전략가 최대 {nk}명. who는 '이름 직함', role은 '증권사명'\n"
         "- headline: 오늘 대가들 시각을 한 줄로 (40자 이내)\n"
         '출력은 JSON만: {"headline": "", "global": [{"who": "", "role": "", "quote": "", "is_direct": false, '
-        '"meaning": "", "stance": "neutral", "source": "", "date": "", "ref": 1}], "korea": [같은 형식]}\n\n'
+        '"meaning": "", "stance": "neutral", "channel": "", "date": "", "ref": 1}], "korea": [같은 형식]}\n\n'
         f"[해외 대가 자료]\n{g or '(없음)'}\n\n[국내 전문가 자료]\n{k or '(없음)'}"
     )
 
@@ -184,7 +192,8 @@ def block(x):
     s += f"\n{q}"
     if x.get("meaning"):
         s += f"\n→ {esc(x['meaning'])}"
-    s += f"\n<i>출처: {esc(x.get('source', ''))} ({esc(x.get('date', ''))})</i>"
+    way = x.get("channel") or "언론 보도"
+    s += f"\n<i>{esc(way)} · {esc(x.get('date', ''))}</i>"
     return s
 
 
@@ -240,7 +249,7 @@ def main():
         parts.append("🌎 <b>해외 투자 대가</b>\n\n" + "\n\n".join(block(x) for x in gl))
     if ko:
         parts.append("🇰🇷 <b>국내 증시 전문가</b>\n\n" + "\n\n".join(block(x) for x in ko))
-    parts.append("<i>※ 공개 발언·보도를 AI가 요약한 것으로 원문 표현과 다를 수 있으며, 투자 권유가 아닙니다.</i>")
+    parts.append("<i>※ 공개 발언을 AI가 요약한 것으로 원문 표현과 다를 수 있으며, 투자 권유가 아닙니다.</i>")
     send_text("\n\n".join(parts), cfg, preview=False)
 
     allsrc = glob + korea
