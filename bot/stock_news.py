@@ -18,7 +18,7 @@ import feedparser
 import requests
 
 from bot.common import (UA, add_history, esc, gemini, is_market_day, load_config, load_state,
-                        now, save_state, send_album, send_text)
+                        now, plain_len, save_state, send_photo, send_text)
 from bot.hot_issue import clean_title, similar
 
 # ---------------------------------------------------------------- 중요도 기준
@@ -302,22 +302,11 @@ TONE = {"up": "🔸", "down": "🔹", "flat": "▪️"}
 NEG = ("파업", "유상증자", "상장폐지", "거래정지", "횡령", "배임", "압수수색", "리콜", "적자전환", "어닝 쇼크", "하한가")
 
 
-def send_charts(picked, companies, cfg):
-    """뉴스에 나온 종목들의 일봉 차트를 앨범(넘겨 보기)으로 먼저 보냄. 실패해도 뉴스는 그대로 발송"""
+def chart_for(company, companies):
+    """종목 일봉 차트 PNG (실패하면 None → 글만 발송)"""
     from bot.chart import make_chart
-    pngs, names, seen = [], [], set()
-    for c in picked:
-        code = companies.get(c["company"], [""])[0]
-        if not code or c["company"] in seen:
-            continue
-        seen.add(c["company"])
-        png = make_chart(code, c["company"], stamp=f"{now():%Y-%m-%d %H:%M} 기준")
-        if png:
-            pngs.append(png)
-            names.append(c["company"])
-    if pngs:
-        print(f"[차트] {', '.join(names)}")
-        send_album(pngs, f"📊 {esc(' · '.join(names))} 일봉 차트", cfg)
+    code = companies.get(company, [""])[0]
+    return make_chart(code, company, stamp=f"{now():%Y-%m-%d %H:%M} 기준") if code else None
 
 
 def main():
@@ -409,8 +398,9 @@ def main():
         else:
             print("[관점] 오늘 이미 분석한 종목뿐 → 생략")
 
-    blocks = [f"📢 <b>종목 뉴스</b> | {now():%m/%d %H}:00"]
-    shown = set()
+    header = f"📢 <b>종목 뉴스</b> | {now():%m/%d %H}:00"
+    notes = []
+    msgs, shown = [], set()
     for c in picked:
         code, mkt = companies.get(c["company"], ["", ""])
         tag = f" · {c['tag']}" if c.get("tag") else ""
@@ -433,14 +423,28 @@ def main():
                 line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote expandable>{body}</blockquote>"
             else:                      # 항상 보이기 (기본)
                 line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote>{body}</blockquote>"
-        blocks.append(line)
+        msgs.append((c["company"], line))
     if shown:
-        blocks.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
+        notes.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
     if cfg.get("footer"):
-        blocks.append(f"<i>{esc(cfg['footer'])}</i>")
-    if sc.get("show_chart", True):
-        send_charts(picked, companies, cfg)
-    send_text("\n\n".join(blocks), cfg)
+        notes.append(f"<i>{esc(cfg['footer'])}</i>")
+
+    use_chart = sc.get("show_chart", True)
+    for i, (company, line) in enumerate(msgs):
+        parts = [header, line] if i == 0 else [line]   # 제목은 첫 종목에만
+        if i == len(msgs) - 1:
+            parts += notes                               # 안내 문구는 마지막 종목에만
+        text = "\n\n".join(parts)
+        png = chart_for(company, companies) if use_chart else None
+        if png and plain_len(text) <= 1024:
+            send_photo(png, text, cfg, above=True)       # 글 → 아래 차트 (한 메시지)
+        elif png:                                        # 글이 사진 설명 한도(1,024자) 초과 → 글, 차트 순서로 2개
+            print(f"[차트] {company}: 글이 길어 글·차트를 나눠 발송")
+            send_text(text, cfg)
+            send_photo(png, f"📈 {esc(company)} 일봉 차트", cfg)
+        else:
+            send_text(text, cfg)
+        time.sleep(1)
 
     for c in picked:
         sent_links.add(c.get("orig_link", c["link"]))
