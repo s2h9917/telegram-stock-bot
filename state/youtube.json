@@ -430,12 +430,23 @@
     "n960XaOrY3k": "video",
     "721D4Cxnyc0": "video",
     "VCwH5nWhkic": "video",
-    "Wu02n6AS-oc": "video"
+    "Wu02n6AS-oc": "video",
+    "DNugQrCh7iI": "video"
   },
   "initialized": [
     "UClErHbdZKUnD1NyIUeQWvuQ"
   ],
   "history": [
+    {
+      "time": "2026-11-27 09:10",
+      "title": "[유튜브] [투자뉴스7 Q&A] 공매도 - 숏커버링 사이 눈치싸움, 개인 필승 전략은? / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=721D4Cxnyc0"
+    },
+    {
+      "time": "2026-11-27 09:10",
+      "title": "[유튜브] [김도형의 럭키7] 우주항공 vs기판·MLCC / 머니투데이방송 (증시, 증권)",
+      "link": "https://www.youtube.com/watch?v=bRzNfQ-USZs"
+    },
     {
       "time": "2026-11-27 08:10",
       "title": "[유튜브] [투자뉴스7 브리핑] AI의 다음 사이클은 보안주? 아직 기회 있을까? / 머니투데이방송 (증시, 증권)",
@@ -675,19 +686,9 @@
       "time": "2026-11-23 19:01",
       "title": "[유튜브] 세계 첫 먹는 치매약 3상 성공…초기 치료제로 美 승인 기대 / 머니투데이방송 (뉴스)",
       "link": "https://www.youtube.com/watch?v=j2KmpRR7P_A"
-    },
-    {
-      "time": "2026-11-23 19:01",
-      "title": "[유튜브] 은행연합회장에 박종복 전 SC제일은행장…7대3 1차 과반 / 머니투데이방송 (뉴스)",
-      "link": "https://www.youtube.com/watch?v=i2Z_M5G8Ctk"
-    },
-    {
-      "time": "2026-11-23 19:01",
-      "title": "[유튜브] 'AI 직원' 노마디안 앞세운 한컴, AWS와 美 공략…현지화 속도 / 머니투데이방송 (뉴스)",
-      "link": "https://www.youtube.com/watch?v=egedH7Bm3WA"
     }
   ],
-  "last_run": "2026-11-27 08:50",
+  "last_run": "2026-11-27 09:10",
   "queue": [
     {
       "vid": "Koal9oGSAAs",
@@ -696,14 +697,6 @@
       "program": "전략의해석찬찬찬",
       "ready_at": "2026-11-27T11:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[전략의 해석 찬찬찬] 폭락 후 저가매수 유입...V자 반등 가능할까? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=Koal9oGSAAs"
-    },
-    {
-      "vid": "bRzNfQ-USZs",
-      "title": "[김도형의 럭키7] 우주항공 vs기판·MLCC / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=bRzNfQ-USZs",
-      "program": "김도형의럭키7",
-      "ready_at": "2026-11-27T09:05:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[김도형의 럭키7] 우주항공 vs기판·MLCC / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=bRzNfQ-USZs"
     },
     {
       "vid": "sTuZDDg9v3w",
@@ -744,14 +737,6 @@
       "program": "투자뉴스7브리핑",
       "ready_at": "2026-11-28T08:00:00+09:00",
       "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 브리핑] 바닥을 지나는 중이기를 / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=n960XaOrY3k"
-    },
-    {
-      "vid": "721D4Cxnyc0",
-      "title": "[투자뉴스7 Q&A] 공매도 - 숏커버링 사이 눈치싸움, 개인 필승 전략은? / 머니투데이방송 (증시, 증권)",
-      "link": "https://www.youtube.com/watch?v=721D4Cxnyc0",
-      "program": "투자뉴스7Q&A",
-      "ready_at": "2026-11-27T09:00:00+09:00",
-      "msg": "🎬 <b>MTN</b> 새 영상\n[투자뉴스7 Q&amp;A] 공매도 - 숏커버링 사이 눈치싸움, 개인 필승 전략은? / 머니투데이방송 (증시, 증권)\nhttps://www.youtube.com/watch?v=721D4Cxnyc0"
     }
   ],
   "live_pin": {
