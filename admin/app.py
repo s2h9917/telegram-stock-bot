@@ -221,7 +221,7 @@ with tab2:
     sc["min_score"] = c3.slider("최소 중요도 점수", 2, 10, int(sc.get("min_score", 4)),
                                 help="높일수록 수주·단독·대형 계약 같은 굵직한 뉴스만 올라갑니다")
     sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", True))
-    sc["show_chart"] = st.checkbox("📊 종목 일봉 차트 함께 보내기 (뉴스 위에 차트 묶음)", sc.get("show_chart", True), key="sn_chart")
+    sc["show_chart"] = st.checkbox("📊 종목 일봉 차트 함께 보내기 (종목별 메시지, 글 아래 차트)", sc.get("show_chart", True), key="sn_chart")
     sc["perspectives"] = st.checkbox("🧠 투자 대가 관점 붙이기 (가치·성장·퀀트, 같은 종목은 하루 1회)",
                                      sc.get("perspectives", True))
     styles = ["plain", "expand", "spoiler"]
