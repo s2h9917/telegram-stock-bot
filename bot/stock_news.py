@@ -245,9 +245,9 @@ def link_ok(c, max_len):
     return bool(link) and "news.google.com" not in link and len(link) <= max_len
 
 
-# ---------------------------------------------------------------- 투자 대가 관점 (AI)
-PERSPECTIVES = [("value", "🧓", "가치투자(버핏 스타일)"),
-                ("growth", "🚀", "성장투자(캐시 우드 스타일)"),
+# ---------------------------------------------------------------- 투자 관점 (AI: 가치·성장·퀀트)
+PERSPECTIVES = [("value", "💎", "가치투자 관점"),
+                ("growth", "🚀", "성장투자 관점"),
                 ("quant", "📊", "퀀트·수급 관점")]
 
 
@@ -292,14 +292,14 @@ def make_perspectives(items, companies, cfg):
     print("[관점] 분석 대상:", [r["company"] for r in rows])
     prompt = (
         "너는 투자 교육 콘텐츠 작가야. 각 종목 뉴스를 세 가지 투자 철학으로 해석한 '관전 포인트'를 써.\n"
-        "1) value: 가치투자(버핏 스타일) — 경제적 해자, 이익의 지속성, 밸류에이션(PER·PBR), 재무 안정성\n"
-        "2) growth: 성장투자(캐시 우드 스타일) — 혁신성, 시장 확장성, 장기 성장 스토리\n"
+        "1) value: 가치투자 관점 — 경제적 해자, 이익의 지속성, 밸류에이션(PER·PBR), 재무 안정성\n"
+        "2) growth: 성장투자 관점 — 혁신성, 시장 확장성, 장기 성장 스토리\n"
         "3) quant: 퀀트·수급 관점 — 지표 수준, 주가 위치(52주 범위), 외국인·기관 수급\n"
         "규칙:\n"
         "- 각 항목 한 문장, 45자 이내, 한국어\n"
         "- 주어진 뉴스와 지표(metrics)에 있는 사실·숫자만 사용, 없는 숫자 만들기 금지 (지표가 없으면 일반 원칙으로)\n"
         "- 매수·매도·목표가 제시 등 투자 권유 금지, '~를 확인할 필요', '~가 관건'처럼 체크포인트로 표현\n"
-        "- 실제 인물이 한 말처럼 쓰지 말 것 (따옴표·'버핏은 말했다' 금지)\n"
+        "- 특정 실존 인물의 이름·발언을 쓰지 말 것\n"
         '출력 JSON만: {"items": [{"company": "...", "value": "...", "growth": "...", "quant": "..."}]}\n\n'
         + json.dumps(rows, ensure_ascii=False)
     )
@@ -328,7 +328,10 @@ def chart_for(company, companies):
     """종목 일봉 차트 PNG (실패하면 None → 글만 발송)"""
     from bot.chart import make_chart
     code = companies.get(company, [""])[0]
-    return make_chart(code, company, stamp=f"{now():%Y-%m-%d %H:%M} 기준") if code else None
+    t = now()
+    intraday = (9, 0) <= (t.hour, t.minute) <= (15, 30)      # 장중에만 '지연시세' 표기
+    stamp = f"{t:%Y-%m-%d %H:%M} 기준" + (" · 지연시세" if intraday else "")
+    return make_chart(code, company, stamp=stamp) if code else None
 
 
 def main():
@@ -460,14 +463,14 @@ def main():
             body = "\n".join(f"{ic} <b>{esc(label)}</b>: {esc(v[k])}" for k, ic, label in PERSPECTIVES)
             style = sc.get("perspective_style", "plain")
             if style == "spoiler":     # 가림 처리 (텔레그램 특성상 다시 들어오면 또 가려짐)
-                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b> (눌러서 보기)\n<tg-spoiler>{body}</tg-spoiler>"
+                line += f"\n\n🧠 <b>투자 관점으로 보면?</b> (눌러서 보기)\n<tg-spoiler>{body}</tg-spoiler>"
             elif style == "expand":    # 접힌 인용: 가림 없이 앞부분이 보이고, 누르면 전체 펼침
-                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote expandable>{body}</blockquote>"
+                line += f"\n\n🧠 <b>투자 관점으로 보면?</b>\n<blockquote expandable>{body}</blockquote>"
             else:                      # 항상 보이기 (기본)
-                line += f"\n\n🧠 <b>투자 대가 관점으로 보면?</b>\n<blockquote>{body}</blockquote>"
+                line += f"\n\n🧠 <b>투자 관점으로 보면?</b>\n<blockquote>{body}</blockquote>"
         msgs.append((c["company"], line))
     if shown:
-        notes.append("<i>🧠 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석이며, 실제 인물의 의견이 아닙니다.</i>")
+        notes.append("<i>🧠 투자 관점은 AI가 투자 철학을 바탕으로 만든 참고용 해석입니다.</i>")
     if cfg.get("footer"):
         notes.append(f"<i>{esc(cfg['footer'])}</i>")
 
