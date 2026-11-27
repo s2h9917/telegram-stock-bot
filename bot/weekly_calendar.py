@@ -9,6 +9,7 @@
       DRY_RUN=1 python -m bot.weekly_calendar --force --save week.png
 """
 import argparse
+import datetime as dt
 import html as htmlmod
 import io
 import json
@@ -153,20 +154,77 @@ def fetch_body(url):
     return (title or "").replace(" - SBS Biz", "").strip(), best
 
 
+# ---------------------------------------------------------------- 2-1) 보충 자료 (우리 방식으로 추가 수집)
+EXTRA_QUERIES = ["이번주 증시 일정", "주간 증시 캘린더", "이번 주 주요 경제지표 발표", "이번주 주요 일정 증시"]
+
+
+def week_range(t):
+    mon = t.date() - dt.timedelta(days=t.weekday())
+    return mon, mon + dt.timedelta(days=6)
+
+
+def extra_material(wc, cfg):
+    """SBS Biz 외 다른 언론사의 '이번 주 일정' 기사 2~3건 본문 + 관리자 화면에 등록한 이벤트(금통위·FOMC 등)"""
+    from bot.deep_brief import article
+    t = now()
+    mon, sun = week_range(t)
+    texts, seen = [], set()
+    for q in wc.get("extra_queries") or EXTRA_QUERIES:
+        url = f"https://news.google.com/rss/search?q={quote(q)}+when:3d&hl=ko&gl=KR&ceid=KR:ko"
+        try:
+            feed = feedparser.parse(requests.get(url, headers=UA, timeout=15).content)
+        except Exception as e:  # noqa
+            print("보충 자료 검색 실패:", q, e)
+            continue
+        for e in feed.entries[:8]:
+            title = e.get("title", "")
+            src = (e.get("source") or {}).get("title", "")
+            if "sbs" in src.lower() or "SBS" in title or src in seen:
+                continue
+            if not re.search(r"일정|캘린더|이번\s?주|주간", title):
+                continue
+            link, body = article(e.get("link", ""))
+            if len(body) < 300:
+                continue
+            seen.add(src)
+            texts.append(f"<보충 {len(texts) + 1}> {title}\n{body[:3500]}")
+            print("[보충 자료]", title[:50])
+            break
+        if len(texts) >= int(wc.get("extra_max", 3)):
+            break
+    evs = []
+    for ev in (cfg.get("breaking", {}).get("events") or []):
+        try:
+            d = dt.date.fromisoformat(str(ev.get("date")))
+        except Exception:  # noqa
+            continue
+        if mon <= d <= sun:
+            evs.append(f"{d.month}월 {d.day}일 {ev.get('start', '')} {ev.get('name', '')}")
+    if evs:
+        texts.append("<등록 이벤트>\n" + "\n".join(evs))
+    print(f"[보충 자료] 기사 {len([x for x in texts if x.startswith('<보충')])}건, 등록 이벤트 {len(evs)}건")
+    return "\n\n".join(texts)
+
+
 # ---------------------------------------------------------------- 3) 요일별 정리 (AI)
-def structure(body, cfg):
+def structure(body, cfg, extra=""):
+    mon, sun = week_range(now())
     prompt = (
-        "아래는 경제방송의 '주간경제일정' 원고다. 요일별 일정을 목록으로 정리해.\n"
+        "아래 '기본 원고'(경제방송 주간경제일정)와 '보충 자료'(다른 언론 일정 기사·등록 이벤트)를 합쳐 "
+        "이번 주 요일별 경제일정표를 만든다.\n"
         "규칙:\n"
-        "- 원고에 나온 일정만, 없는 일정·수치 추가 금지\n"
+        "- 기본 원고의 일정은 모두 포함. 보충 자료에서는 기본 원고에 없는 일정만 추가 (같은 일정은 하나로)\n"
+        f"- 이번 주({mon.month}월 {mon.day}일~{sun.month}월 {sun.day}일) 일정만. 자료에 없는 일정·수치 추가 금지\n"
+        "- 하루 최대 9개, 시장 영향이 큰 순서로\n"
         "- 각 항목은 '국가) 일정명' 형식의 짧은 명사구, 25자 이내 (예: '美) 11월 제조업 PMI 예비치', '韓) 11월 1~20일 수출입')\n"
         "- 국가 표기: 한국 韓, 미국 美, 중국 中, 일본 日, 유로존 유로존, 독일 獨, 영국 英. 기업 일정은 국가 생략 가능\n"
         "- 원고에 나온 전망치·이전치 같은 숫자는 note에 짧게 (없으면 빈 문자열)\n"
         "- week_title: 이번 주 핵심 키워드를 '·'로 이은 한 줄 (25자 이내)\n"
         '출력 JSON만: {"week_title": "...", "days": [{"date": "11월 23일", "weekday": "월", '
-        '"items": [{"text": "...", "note": "..."}]}]}\n\n' + body[:12000]
+        '"items": [{"text": "...", "note": "..."}]}]}\n\n'
+        "[기본 원고]\n" + body[:12000] + ("\n\n[보충 자료]\n" + extra[:10000] if extra else "")
     )
-    out = gemini(prompt, cfg, want_json=True)
+    out = gemini(prompt, cfg, want_json=True, timeout=120)
     if out:
         try:
             data = json.loads(re.sub(r"^```(json)?|```$", "", out.strip()).strip())
@@ -305,7 +363,8 @@ def main():
     if len(body) < 100:
         return print("❌ 본문이 너무 짧아 발송하지 않음")
 
-    data = structure(body, cfg)
+    extra = extra_material(wc, cfg) if wc.get("add_extra", True) else ""
+    data = structure(body, cfg, extra)
     data["days"] = [dd for dd in data.get("days", []) if dd.get("items")]
     if not data["days"]:
         return print("❌ 일정을 정리하지 못해 발송하지 않음")
