@@ -316,3 +316,27 @@ def make_card(badge, title, lines, footer, accent=(220, 38, 38)):
     buf = io.BytesIO()
     img.save(buf, "PNG")
     return buf.getvalue()
+
+
+def ai_json(out, list_key=None):
+    """AI 응답(JSON 문자열)을 dict로. 코드블록 표시 제거.
+    AI가 객체 대신 목록([...])만 돌려준 경우 list_key가 있으면 {list_key: 목록}으로 감싸 줌"""
+    import json as _json
+    if not out:
+        return {}
+    txt = re.sub(r"^```(json)?|```$", "", str(out).strip()).strip()
+    try:
+        data = _json.loads(txt)
+    except Exception:  # noqa
+        m = re.search(r"[\[{].*[\]}]", txt, re.S)
+        if not m:
+            return {}
+        try:
+            data = _json.loads(m.group(0))
+        except Exception:  # noqa
+            return {}
+    if isinstance(data, list):
+        if len(data) == 1 and isinstance(data[0], dict) and any(isinstance(v, list) for v in data[0].values()):
+            return data[0]
+        return {list_key: data} if list_key else {}
+    return data if isinstance(data, dict) else {}
