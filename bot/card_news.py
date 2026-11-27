@@ -88,8 +88,9 @@ def collect(keywords, start, end):
     return items
 
 
-def top_cluster(items):
-    """같은 사건끼리 묶고, 다룬 언론사 수가 가장 많은 묶음 반환"""
+def top_cluster(items, recent=()):
+    """같은 사건끼리 묶고, 다룬 언론사 수가 가장 많은 묶음 반환.
+    recent: 최근 카드뉴스로 이미 다룬 제목들 → 같은 이슈 묶음은 건너뛰고 다음 이슈 선택"""
     clusters = []
     for it in sorted(items, key=lambda x: x["ts"], reverse=True):
         for c in clusters:
@@ -102,9 +103,18 @@ def top_cluster(items):
         return []
     score = lambda c: (len({x["source"] for x in c}), len(c), max(x["ts"] for x in c))
     clusters.sort(key=score, reverse=True)
+
+    def seen(c):
+        heads = [x["title"] for x in c[:8]]
+        return any(similar(h, r) for h in heads for r in recent)
+
     for c in clusters[:3]:
-        print(f"  · 언론사 {len({x['source'] for x in c})}곳 / 기사 {len(c)}건: {c[0]['title'][:40]}")
-    return clusters[0]
+        flag = " (이전 카드뉴스와 같은 이슈 → 제외)" if seen(c) else ""
+        print(f"  · 언론사 {len({x['source'] for x in c})}곳 / 기사 {len(c)}건: {c[0]['title'][:40]}{flag}")
+    for c in clusters:
+        if not seen(c):
+            return c
+    return []
 
 
 def article_text(link):
@@ -404,9 +414,13 @@ def main():
         return print("이미 발송함:", key)
 
     start, end = slot_range(slot, t)
-    cluster = top_cluster(collect(cc.get("keywords") or DEFAULT_KEYWORDS, start, end))
+    # 최근 36시간 안에 카드뉴스로 다룬 이슈는 다시 고르지 않음 (예: 전날 저녁 ↔ 다음 날 아침)
+    recent = [r for r in state.get("recent", [])
+              if (t - dt.datetime.fromisoformat(r["at"])).total_seconds() < 36 * 3600]
+    recent_titles = [h for r in recent for h in r.get("titles", [])]
+    cluster = top_cluster(collect(cc.get("keywords") or DEFAULT_KEYWORDS, start, end), recent_titles)
     if not cluster:
-        return print("해당 시간대 뉴스 없음 → 발송 안 함")
+        return print("해당 시간대에 새로운 이슈 없음 → 발송 안 함")
     plan = plan_cards(cluster, cfg)
     print(f"[구성] {plan['pages']}장 · {plan['category']} · {plan['title']}")
 
@@ -418,6 +432,8 @@ def main():
     cap = f"🗞 <b>{esc(plan['title'])}</b>\n{esc(SLOTS[slot][2])} 가장 많이 보도된 이슈 | {t:%m/%d}"
     send_album(pngs, cap, cfg)
 
+    recent.append({"at": t.isoformat(), "titles": [plan["title"]] + [x["title"] for x in cluster[:8]]})
+    state["recent"] = recent[-10:]
     state.setdefault("done", []).append(key)
     state["done"] = state["done"][-40:]
     add_history(state, f"[카드뉴스] {plan['title']} ({plan['pages']}장)")
