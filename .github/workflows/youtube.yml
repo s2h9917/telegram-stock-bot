@@ -1,8 +1,7 @@
 name: ② 유튜브 새 영상 알림
 
+# 평소에는 ⑤ 종목뉴스(매시 정각)와 함께 실행됩니다. 이 파일은 관리자 화면 '지금 확인' 버튼용입니다.
 on:
-  schedule:
-    - cron: "*/10 * * * *"    # 10분마다 확인
   workflow_dispatch:
     inputs:
       force:
