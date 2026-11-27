@@ -225,7 +225,7 @@ with tab2:
                                 help="높일수록 수주·단독·대형 계약 같은 굵직한 뉴스만 올라갑니다")
     sc["show_link"] = c4.checkbox("기사 링크 표시", sc.get("show_link", True))
     sc["show_chart"] = st.checkbox("📊 종목 일봉 차트 함께 보내기 (종목별 메시지, 글 아래 차트)", sc.get("show_chart", True), key="sn_chart")
-    sc["perspectives"] = st.checkbox("🧠 투자 대가 관점 붙이기 (가치·성장·퀀트, 같은 종목은 하루 1회)",
+    sc["perspectives"] = st.checkbox("🧠 투자 관점 붙이기 (가치·성장·퀀트, 같은 종목은 하루 1회)",
                                      sc.get("perspectives", True))
     styles = ["plain", "expand", "spoiler"]
     sc["perspective_style"] = st.radio(
@@ -257,6 +257,8 @@ with tab2:
     c1, c2 = st.columns([1, 3])
     wc["enabled"] = c1.toggle("사용", wc.get("enabled", True), key="w_en")
     wc["source_text"] = c2.text_input("출처 표기 (비우면 표시 안 함)", wc.get("source_text", ""))
+    wc["add_extra"] = st.checkbox("다른 언론사 일정 기사·등록 이벤트(금통위·FOMC)로 보충해 재구성",
+                                  wc.get("add_extra", True), key="w_extra")
 
     st.divider()
     st.subheader("⑦ 카드뉴스 (하루 3번, 시간대별 최다 보도 이슈)")
@@ -330,6 +332,9 @@ with tab2:
     uc["move"] = float(c3.number_input("강세/약세 기준(%)", 0.5, 10.0, float(uc.get("move", 2)), key="us_mv"))
     uc["etf_move"] = float(c4.number_input("섹터 강세/약세 기준(%)", 0.3, 10.0, float(uc.get("etf_move", 1)), key="us_etf"))
     c1, c2 = st.columns(2)
+    uc["theme_refresh_days"] = int(st.number_input(
+        "네이버 테마 목록 자동 갱신 주기(일) — 그 사이엔 저장된 목록 사용, 수동 갱신은 '수동 실행' 탭 버튼",
+        30, 730, int(uc.get("theme_refresh_days", 180)), key="us_trd"))
     uc["show_theme"] = c1.checkbox("관련 종목 아래에 네이버 테마 이름 표시", uc.get("show_theme", True), key="us_th")
     uc["max_related"] = int(c2.number_input("이슈당 관련 종목 수", 2, 12, int(uc.get("max_related", 6)), key="us_rel"))
     with st.expander("미국 관심 종목 목록 (티커·한글 이름) — 비워 두면 기본 110여 종목 사용"):
@@ -475,6 +480,12 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑪ 네이버 테마 목록 새로 받기 (발송 없음, 3~5분)"):
+        ok, m = gh_dispatch("us_market.yml", {"force": False, "refresh_themes": True})
+        if ok:
+            st.success("요청 완료 — 테마 265개와 소속 종목을 새로 받아 저장합니다")
+        else:
+            st.error(m)
     if st.button("⑪ 미국시장 마감·관련 테마 지금 보내기"):
         ok, m = gh_dispatch("us_market.yml", {"force": True})
         if ok:
