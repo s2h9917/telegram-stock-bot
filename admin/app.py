@@ -26,7 +26,8 @@ WORKFLOWS = {"reports.yml": "① 종목 리포트", "youtube.yml": "② 유튜�
              "breaking.yml": "⑧ 이벤트 속보",
              "stock_highs.yml": "⑨ 신고가·신저가",
              "deep_brief.yml": "⑩ 장전 키워드 심층",
-             "us_market.yml": "⑪ 미국시장 마감·관련 테마"}
+             "us_market.yml": "⑪ 미국시장 마감·관련 테마",
+             "gurus.yml": "⑫ 대가들의 시선"}
 
 
 # ------------------------------------------------------------------ 로그인
@@ -356,6 +357,23 @@ with tab2:
         "관련 종목에서 뺄 종목 (쉼표로 구분)", ", ".join(uc.get("exclude_names", [])), key="us_ex").split(",") if x.strip()]
 
     st.divider()
+    st.subheader("⑫ 시장을 보는 대가들의 시선 (평일 아침, 공개 발언 요약)")
+    gc = cfg.setdefault("gurus", {})
+    c1, c2, c3, c4 = st.columns(4)
+    gc["enabled"] = c1.toggle("사용", gc.get("enabled", True), key="gu_en")
+    gc["korea"] = c2.checkbox("국내 센터장·전략가 포함", gc.get("korea", True), key="gu_ko")
+    gc["max_global"] = int(c3.number_input("해외 대가 최대 인원", 1, 10, int(gc.get("max_global", 6)), key="gu_ng"))
+    gc["max_korea"] = int(c4.number_input("국내 전문가 최대 인원", 0, 6, int(gc.get("max_korea", 3)), key="gu_nk"))
+    gc["days"] = int(st.slider("발언 검색 기간(일)", 1, 7, int(gc.get("days", 3)), key="gu_days"))
+    with st.expander("대가 목록 (한글 이름·영문 이름·소개) — 비워 두면 첨부 자료의 21명 사용"):
+        st.caption("기본 21명: 미너비니·라이언·켈·쟁거·쿨라마기·본데·섀넌·브랜트·볼린저·애크먼·달리오·캐시 우드·"
+                   "로브·아인혼·아이칸·건들락·그로스·엘에리언·막스·버리·버핏. 여기에 입력하면 입력한 목록만 사용합니다.")
+        g_df = pd.DataFrame(gc.get("list") or [], columns=["name", "en", "desc"])
+        g_ed = st.data_editor(g_df, num_rows="dynamic", width="stretch", key="gu_list",
+                              column_config={"name": "한글 이름", "en": "영문 이름", "desc": "소개(소속)"})
+        gc["list"] = [r for r in g_ed.fillna("").to_dict("records") if str(r["name"]).strip()]
+
+    st.divider()
     st.subheader("🧠 AI 작성 관점 (모든 AI 글에 공통 적용)")
     st.caption("브리핑·리포트 요약·핫이슈·종목뉴스·카드뉴스·주간일정 정리에 모두 적용됩니다. "
                "비워 두면 기본값(30년 경력 증권·경제 전문가 관점)을 씁니다.")
@@ -464,6 +482,13 @@ with tab3:
         else:
             st.error(m)
 
+    if st.button("⑫ 대가들의 시선 지금 보내기"):
+        ok, m = gh_dispatch("gurus.yml", {"force": True})
+        if ok:
+            st.success("요청 완료 (3~5분 후 발송)")
+        else:
+            st.error(m)
+
     st.divider()
     st.subheader("📢 채널에 직접 공지 보내기")
     tg = st.secrets.get("TELEGRAM_BOT_TOKEN")
@@ -483,7 +508,7 @@ with tab3:
 # ---------------- 발송 이력
 with tab4:
     rows = []
-    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs", "deep_brief", "us_market"]:
+    for name in ["reports", "youtube", "market", "hot_issue", "stock_news", "weekly_calendar", "card_news", "breaking", "stock_highs", "deep_brief", "us_market", "gurus"]:
         try:
             state = json.loads(gh_get_file(f"state/{name}.json")[0])
             rows += state.get("history", [])
