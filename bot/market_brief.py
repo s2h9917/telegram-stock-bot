@@ -5,6 +5,7 @@
 실행: python -m bot.market_brief --slot pre|mid|close   (생략 시 현재 시각으로 자동 판단)
 """
 import argparse
+import datetime as dt
 import json
 import re
 from urllib.parse import quote
@@ -54,10 +55,22 @@ def naver_index(code):
             "pct": j["fluctuationsRatio"]}
 
 
-def yahoo(ticker):
+def us_expected_day():
+    """장전 브리핑 시점(한국 아침)에 '어젯밤 마감했어야 할' 미국 거래일 (주말이면 금요일)"""
+    d = now().date() - dt.timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= dt.timedelta(days=1)
+    return d
+
+
+def yahoo(ticker, check_holiday=False):
+    """check_holiday=True: 어젯밤 미국 거래가 없었으면(휴장) 등락률 대신 '휴장' 표시"""
     import yfinance as yf
     h = yf.Ticker(ticker).history(period="7d")["Close"].dropna()
     last, prev = float(h.iloc[-1]), float(h.iloc[-2])
+    if check_holiday and h.index[-1].date() < us_expected_day():
+        print(f"[휴장] {ticker}: 마지막 거래일 {h.index[-1].date()} (예상 {us_expected_day()})")
+        return {"price": f"{last:,.2f}", "chg": "0", "pct": "0.00", "closed": True}
     return {"price": f"{last:,.2f}", "chg": f"{last - prev:+,.2f}",
             "pct": f"{(last / prev - 1) * 100:+.2f}"}
 
@@ -78,7 +91,7 @@ def get_quotes(slot):
                 print("네이버 지수 실패:", name, e)
         if q is None:
             try:
-                q = yahoo(yt)
+                q = yahoo(yt, check_holiday=(slot == "pre" and not ncode and yt != "KRW=X"))
             except Exception as e:  # noqa
                 print("야후 실패:", name, e)
                 continue
@@ -93,6 +106,8 @@ H_UP, H_DOWN, H_FLAT = "🔸", "🔹", "▪️"
 
 
 def fmt_quote(name, q):
+    if q.get("closed"):        # 미국 휴장: 변화 없음
+        return f"{FLAT} {name} {q['price']} (휴장 0.00%)"
     try:
         v = round(float(str(q["pct"]).replace("%", "")), 2)
         mark = UP if v > 0 else DOWN if v < 0 else FLAT
