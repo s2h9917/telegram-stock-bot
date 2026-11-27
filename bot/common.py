@@ -132,9 +132,17 @@ def send_album(pngs, caption, cfg):
                files=files)
 
 
-def send_photo(png_bytes, caption, cfg):
-    return _tg("sendPhoto", cfg, {"caption": caption[:1024], "parse_mode": "HTML"},
-               files={"photo": ("card.png", png_bytes, "image/png")})
+def send_photo(png_bytes, caption, cfg, above=False):
+    """above=True: 글을 사진 위에 표시 (글 → 사진 순서)"""
+    data = {"caption": caption if plain_len(caption) <= 1024 else caption[:1024], "parse_mode": "HTML"}
+    if above:
+        data["show_caption_above_media"] = "true"
+    return _tg("sendPhoto", cfg, data, files={"photo": ("card.png", png_bytes, "image/png")})
+
+
+def plain_len(html_text):
+    """텔레그램이 세는 글자 수 (HTML 태그 제외) — 사진 설명글은 1,024자 제한"""
+    return len(html.unescape(re.sub(r"<[^>]+>", "", html_text)))
 
 
 # ---------------------------------------------------------------- Gemini (무료 AI 요약)
