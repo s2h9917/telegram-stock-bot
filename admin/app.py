@@ -163,6 +163,10 @@ with tab2:
     st.markdown("**프로그램별 공유 시각** — 제목에 키워드가 들어간 영상을 지정 시각에 공유 (시각을 비우면 올라오는 즉시)")
     yc["only_programs"] = st.checkbox("아래 지정 프로그램만 공유 (목록에 없는 영상은 공유 안 함)",
                                       yc.get("only_programs", False))
+    c1, c2 = st.columns(2)
+    yc["today_only"] = c1.checkbox("오늘 올라온 영상만 공유 (어제 이전 영상은 공유 안 함)",
+                                   yc.get("today_only", True), key="yt_today")
+    yc["share_on_holidays"] = c2.checkbox("주말·휴장일에도 공유", yc.get("share_on_holidays", False), key="yt_hol")
     prog_df = pd.DataFrame([{"name": p.get("name", ""), "keywords": ", ".join(p.get("keywords", [])),
                              "times": ", ".join(p.get("times", []))} for p in yc.get("programs", [])],
                            columns=["name", "keywords", "times"])
