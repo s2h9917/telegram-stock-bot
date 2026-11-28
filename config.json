@@ -53,7 +53,7 @@
           "이항영의 히트앤 비트"
         ],
         "times": [
-          "07:05"
+          "07:00"
         ]
       },
       {
@@ -62,7 +62,7 @@
           "마켓 링크"
         ],
         "times": [
-          "07:10"
+          "07:00"
         ]
       },
       {
@@ -89,7 +89,7 @@
           "김도형의 럭키7"
         ],
         "times": [
-          "09:05"
+          "09:00"
         ]
       },
       {
@@ -125,7 +125,7 @@
           "오늘장 랭킹5"
         ],
         "times": [
-          "15:05"
+          "15:00"
         ]
       },
       {
@@ -243,7 +243,8 @@
   },
   "weekly_calendar": {
     "enabled": true,
-    "source_text": ""
+    "source_text": "",
+    "add_extra": true
   },
   "card_news": {
     "enabled": true,
@@ -473,5 +474,47 @@
     "check_alltime": true,
     "top_n": 5,
     "exclude_names": []
+  },
+  "deep_brief": {
+    "enabled": true,
+    "issues": 6,
+    "show_link": false,
+    "keywords": [
+      "증시",
+      "코스피",
+      "코스닥",
+      "뉴욕증시",
+      "반도체",
+      "금리",
+      "환율",
+      "실적",
+      "수주",
+      "금융당국",
+      "유가",
+      "AI",
+      "바이오",
+      "2차전지"
+    ]
+  },
+  "us_market": {
+    "enabled": true,
+    "big_move": 5.0,
+    "move": 2.0,
+    "etf_move": 1.0,
+    "theme_refresh_days": 180,
+    "show_theme": true,
+    "max_related": 6,
+    "watchlist": [],
+    "etfs": [],
+    "theme_add": {},
+    "exclude_names": []
+  },
+  "gurus": {
+    "enabled": true,
+    "korea": true,
+    "max_global": 6,
+    "max_korea": 3,
+    "days": 3,
+    "list": []
   }
 }
