@@ -14,7 +14,8 @@ import time
 import feedparser
 import requests
 
-from bot.common import UA, add_history, tg_call, esc, load_config, load_state, now, save_state, send_text
+from bot.common import (KST, UA, add_history, esc, is_market_day, load_config, load_state, now, save_state,
+                        send_text, tg_call)
 
 RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={}"
 
@@ -240,11 +241,23 @@ def next_slot(times, base):
     return base
 
 
+def share_allowed(cfg):
+    """주말·휴장일에는 영상 공유 안 함 (관리자 화면에서 켜면 주말에도 공유)"""
+    return cfg["youtube"].get("share_on_holidays", False) or is_market_day(cfg)
+
+
 def flush_queue(state, cfg):
     """발송 시각이 된 대기 영상 공유"""
     q, keep, cur = state.get("queue", []), [], now()
+    share_day = share_allowed(cfg)
     for it in q:
         ready = dt.datetime.fromisoformat(it["ready_at"])
+        if it.get("pub_date") and it["pub_date"] != cur.date().isoformat():
+            print(f"  ⏭️ 지난 날짜 영상이라 생략: {it['title'][:30]}")
+            continue
+        if not share_day:
+            print(f"  ⏭️ 휴장일이라 공유 안 함: {it['title'][:30]}")
+            continue
         if ready <= cur:
             if cur - ready > dt.timedelta(hours=20):
                 print(f"  ⏭️ 발송 시각이 너무 지나 생략: {it['title'][:30]}")
@@ -317,6 +330,14 @@ def main():
                 kind = "ended"                     # 시작 알림을 놓친 경우라도 한 번은 공유
             elif st == "video":
                 kind = "video"
+            pub_date = (dt.datetime.fromtimestamp(calendar.timegm(published), KST).date().isoformat()
+                        if published else "")
+            if kind and not share_allowed(cfg):
+                print(f"  · {title[:40]} → 휴장일(주말)이라 공유 안 함")
+                kind = None
+            elif kind and yc.get("today_only", True) and pub_date and pub_date != now().date().isoformat():
+                print(f"  · {title[:40]} → 오늘 올라온 영상이 아니라 공유 안 함 ({pub_date})")
+                kind = None
             print(f"  · {title[:40]} | {age_h:.1f}시간 전 | 상태 {st} → {'공유' if kind else '대기/생략'}")
             if kind:
                 prog = match_program(title, programs)
@@ -326,6 +347,7 @@ def main():
                     ready = next_slot(prog["times"], now())
                     state.setdefault("queue", []).append({
                         "vid": vid, "title": title, "link": link, "program": prog.get("name", ""),
+                        "pub_date": pub_date,
                         "ready_at": ready.isoformat(), "msg": build_msg(cfg, name, title, link, kind)})
                     print(f"    → [{prog.get('name')}] {ready:%m/%d %H:%M} 공유 예약")
                 else:
